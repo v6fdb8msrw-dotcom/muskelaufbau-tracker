@@ -1,17 +1,56 @@
 import { ChevronDown, Info, X } from 'lucide-react'
 import { useEffect, useId, useRef, useState, type CSSProperties, type ReactNode } from 'react'
-import { clamp } from '../lib/format'
+import { createPortal } from 'react-dom'
+import { clamp, num } from '../lib/format'
+import { useCountUp } from './hooks'
 
-export function PageHead({ eyebrow, title, lead, actions }: { eyebrow?: string; title: string; lead?: ReactNode; actions?: ReactNode }) {
+export interface HeadStat {
+  label: string
+  value: number | string
+  unit?: string
+  decimals?: number
+  /** Geldbetrag: immer zwei Nachkommastellen */
+  money?: boolean
+  /** Hervorgehoben in Neon (die wichtigste Zahl der Seite) */
+  accent?: boolean
+  warn?: boolean
+}
+
+/** Seitenkopf im Stil des Dashboards: dunkle Fläche, Titel und höchstens ein paar Kennzahlen. */
+export function PageHead({ eyebrow, title, lead, actions, stats }: { eyebrow?: string; title: string; lead?: ReactNode; actions?: ReactNode; stats?: HeadStat[] }) {
   return (
     <header className="page-head">
-      <div>
-        {eyebrow && <div className="eyebrow">{eyebrow}</div>}
-        <h1>{title}</h1>
-        {lead && <p className="lead">{lead}</p>}
+      <span className="page-head-grid" aria-hidden />
+      <div className="page-head-main">
+        <div className="page-head-text">
+          {eyebrow && <div className="eyebrow">{eyebrow}</div>}
+          <h1>{title}</h1>
+          {lead && <p className="lead">{lead}</p>}
+        </div>
+        {actions && <div className="page-actions">{actions}</div>}
       </div>
-      {actions && <div className="page-actions">{actions}</div>}
+      {stats && stats.length > 0 && (
+        <div className="head-stats">
+          {stats.map((s) => (
+            <HeadStatView key={s.label} {...s} />
+          ))}
+        </div>
+      )}
     </header>
+  )
+}
+
+function HeadStatView({ label, value, unit, decimals = 0, money, accent, warn }: HeadStat) {
+  const n = typeof value === 'number' ? value : undefined
+  const shown = useCountUp(n ?? 0)
+  return (
+    <div className={`head-stat ${accent ? 'accent' : ''} ${warn ? 'warn' : ''}`}>
+      <span className="head-stat-label">{label}</span>
+      <span className="head-stat-value num">
+        {n !== undefined ? (money ? shown.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : num(shown, decimals)) : value}
+        {unit && <small>{unit}</small>}
+      </span>
+    </div>
   )
 }
 
@@ -164,7 +203,8 @@ export function Modal({
       prev?.focus?.({ preventScroll: true })
     }
   }, [onClose])
-  return (
+  // Über ein Portal direkt in <body>: Elternteile mit transform (z. B. die Seiten-Animation) würden position: fixed sonst verschieben
+  return createPortal(
     <div className="overlay" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
       <div className={`dialog ${wide ? 'wide' : ''}`} role="dialog" aria-modal="true" ref={ref}>
         <div className="dialog-head">
@@ -176,7 +216,8 @@ export function Modal({
         <div className="dialog-body">{children}</div>
         {footer && <div className="dialog-foot">{footer}</div>}
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }
 

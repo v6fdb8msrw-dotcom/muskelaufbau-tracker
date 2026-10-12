@@ -4,11 +4,11 @@ import { PLAN_RULES, SESSION_MAP } from '../data/plan'
 import { RECIPE_MAP } from '../data/recipes'
 import { addDays, formatDate, weekDates } from '../lib/date'
 import { num } from '../lib/format'
-import type { DataSet, MealSlot, NutrientKey, SessionId, Settings } from '../types'
+import type { DataSet, MealSlot, NutrientKey, SessionId, Settings, ShoppingItem } from '../types'
 import { foodIdeas, recipeIdeas } from './ideas'
-import { savingsSuggestions } from './mealplan'
 import { analyzeRange, dayTotals } from './nutrition'
-import { computeShopping, planForWeek, type ShoppingLine } from './shopping'
+import { itemsForWeek, weekBudget, type WeekBudget } from './purchases'
+import { planForWeek } from './shopping'
 import {
   makeupDay,
   plannedSessionsForWeek,
@@ -59,9 +59,9 @@ export interface WeeklyReport {
   open: string[]
   incomplete: string[]
   suggestions: Suggestion[]
-  shoppingOpen: ShoppingLine[]
+  shoppingOpen: ShoppingItem[]
   upcoming: PlannedSession[]
-  budget: { cash: number; status: 'unter' | 'im' | 'ueber' }
+  budget: WeekBudget
 }
 
 const MICRO_CHECK: NutrientKey[] = ['vitC', 'fiber', 'calcium', 'magnesium', 'potassium', 'iron', 'zinc', 'folate', 'iodine', 'epaDha', 'vitD']
@@ -292,25 +292,15 @@ export function buildWeeklyReport(data: DataSet, settings: Settings, weekStart: 
     })
   }
 
-  // ---- Einkauf & Budget ----
-  const shopping = computeShopping(weekStart, data.mealPlan, data.pantry, settings, data.shopping)
-  const shoppingOpen = shopping.lines.filter((l) => !l.checked && !l.transferred && l.toBuy > 0)
-  if (shopping.status === 'ueber') {
-    open.push(`Wochenbudget: ${num(shopping.budgetCash, 2)} € geplant, mehr als ${settings.budget.max} €.`)
-    for (const s of savingsSuggestions(shopping, data.mealPlan, settings, data.pantry)) {
-      if (!s.swap) continue
-      suggestions.push({
-        id: sid(s.id),
-        area: 'einkauf',
-        title: 'Sparen',
-        detail: `${s.text}: spart etwa ${num(s.amount, 2)} €. Die Einkaufsliste passt sich an.`,
-        action: { type: 'swapMeal', planId: s.swap.planId, recipeId: s.swap.recipeId },
-        acceptLabel: 'Tauschen',
-      })
-    }
-  } else if (shopping.lines.length || shopping.drinks.length) {
-    good.push(`Wochenbudget im Rahmen: ${num(shopping.budgetCash, 2)} € (Ziel ${settings.budget.min}–${settings.budget.max} €).`)
+  // ---- Einkauf & Budget (deine eigenen Einträge mit echten Preisen) ----
+  const budget = weekBudget(data.shoppingItems, weekStart, settings)
+  const shoppingOpen = itemsForWeek(data.shoppingItems, weekStart).filter((i) => !i.checked)
+  if (budget.status === 'ueber') {
+    open.push(`Wochenbudget: ${num(budget.bought + budget.planned + budget.co2, 2)} € eingetragen, ${num(-budget.free, 2)} € über ${settings.budget.max} €. Auf der Einkaufsliste siehst du, welche Einträge am meisten kosten.`)
+  } else if (budget.bought + budget.planned > 0) {
+    good.push(`Wochenbudget im Rahmen: noch ${num(budget.free, 2)} € frei von ${settings.budget.max} €.`)
   }
+  if (budget.withoutPrice > 0) incomplete.push(`${budget.withoutPrice} Einkaufseintrag/-einträge ohne Preis. Sie zählen noch nicht zum Budget.`)
   if (!planForWeek(data.mealPlan, weekStart).length && today <= weekEnd) {
     open.push('Für diese Woche sind noch keine Mittagessen geplant. Unter „Ernährung & Rezepte → Wochenplan“ kannst du einen Plan erstellen lassen.')
   }
@@ -326,7 +316,7 @@ export function buildWeeklyReport(data: DataSet, settings: Settings, weekStart: 
     suggestions,
     shoppingOpen,
     upcoming,
-    budget: { cash: shopping.budgetCash, status: shopping.status },
+    budget,
   }
 }
 

@@ -160,32 +160,13 @@
 .page {
   max-width: var(--content-max);
   margin: 0 auto;
-  animation: page-in var(--dur-2) var(--ease) both;
+  animation: page-in var(--dur-2) var(--ease) backwards;
 }
 
 .update-banner {
   max-width: var(--content-max);
   margin: 18px auto;
   align-items: center;
-}
-
-.page-head {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 20px;
-  flex-wrap: wrap;
-  margin-bottom: 26px;
-}
-
-.page-head .eyebrow {
-  margin-bottom: 8px;
-}
-
-.page-head p.lead {
-  margin-top: 10px;
-  color: var(--ink-2);
-  max-width: 62ch;
 }
 
 .page-actions {
@@ -244,9 +225,6 @@
   }
   .main-home {
     padding-top: 0;
-  }
-  .page-head {
-    margin-bottom: 18px;
   }
   h1 {
     font-size: 32px;

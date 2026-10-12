@@ -1,4 +1,4 @@
-import { Download, HardDrive, Plus, RotateCcw, ShieldCheck, Trash2, Upload } from 'lucide-react'
+import { Download, HardDrive, RotateCcw, ShieldCheck, Trash2, Upload } from 'lucide-react'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { useDisplayPrefs } from '../components/displayPrefs'
 import { useToday } from '../components/hooks'
@@ -7,13 +7,12 @@ import { createDefaultSettings, EXCLUDED_TAG_LABEL } from '../data/defaults'
 import { FOOD_CATEGORY_LABEL, FOODS } from '../data/foods'
 import { RECIPE_MAP } from '../data/recipes'
 import { formatDateFull } from '../lib/date'
-import { uid } from '../lib/id'
 import { euro, num } from '../lib/format'
 import { backupFileName, buildBackup, importBackup, validateBackup, type ValidationResult } from '../storage/backup'
 import { href, navigate, type Route } from '../state/router'
 import { useStore } from '../state/store'
 import { useToast } from '../state/toast'
-import { COLLECTIONS, type FoodTag, type FunDrink, type Settings } from '../types'
+import { COLLECTIONS, type FoodTag, type Settings } from '../types'
 
 type Section = 'profil' | 'ziele' | 'training' | 'supplements' | 'budget' | 'preise' | 'vorrat' | 'lebensmittel' | 'anzeige' | 'daten'
 
@@ -22,7 +21,7 @@ const SECTIONS: { id: Section; label: string }[] = [
   { id: 'ziele', label: 'Ziele' },
   { id: 'training', label: 'Training & Arme' },
   { id: 'supplements', label: 'Supplements' },
-  { id: 'budget', label: 'Budget & Getränke' },
+  { id: 'budget', label: 'Budget' },
   { id: 'preise', label: 'Preise & Packungen' },
   { id: 'vorrat', label: 'Grundvorrat' },
   { id: 'lebensmittel', label: 'Lebensmittel' },
@@ -296,76 +295,28 @@ function SupplementSection() {
 }
 
 function BudgetSection() {
-  const { settings, set, updateSettings } = useSettingsUpdate()
+  const { settings, set } = useSettingsUpdate()
   const b = settings.budget
-  const updateDrink = (id: string, patch: Partial<FunDrink>) => updateSettings((s) => ({ ...s, funDrinks: s.funDrinks.map((d) => (d.id === id ? { ...d, ...patch } : d)) }))
   return (
-    <>
-      <Section title="Wochenbudget" eyebrow="Mittagessen Mo–Fr + Spaßgetränke">
-        <div className="form-grid">
-          <Field label="Budget von">
-            <NumberInput value={b.min} onChange={(v) => v !== undefined && set('budget', { min: v })} suffix="€" />
-          </Field>
-          <Field label="bis">
-            <NumberInput value={b.max} onChange={(v) => v !== undefined && set('budget', { max: v })} suffix="€" />
-          </Field>
-          <Field label="Preis CO₂-Kartusche">
-            <NumberInput value={b.co2Price} onChange={(v) => v !== undefined && set('budget', { co2Price: v })} suffix="€" step={0.01} />
-          </Field>
-        </div>
-        <div style={{ marginTop: 14 }}>
-          <Switch checked={b.mondayLeftovers} onChange={(v) => set('budget', { mondayLeftovers: v })} label="Montags Reste vom Wochenende (kein Mittagessen einkaufen)" />
-        </div>
-      </Section>
-      <Section title="Spaßgetränke im Budget" eyebrow="Werden nie automatisch verändert">
-        <div className="stack">
-          {settings.funDrinks.map((d) => (
-            <div key={d.id} className="card flat" style={{ padding: 14 }}>
-              <div className="form-grid">
-                <Field label="Getränk">
-                  <input className="input" value={d.name} onChange={(e) => updateDrink(d.id, { name: e.target.value })} />
-                </Field>
-                <Field label="Rhythmus">
-                  <select className="select" value={d.frequency} onChange={(e) => updateDrink(d.id, { frequency: e.target.value as FunDrink['frequency'] })}>
-                    <option value="daily">täglich</option>
-                    <option value="perWeek">pro Woche</option>
-                  </select>
-                </Field>
-                <Field label={d.frequency === 'daily' ? 'Menge pro Tag' : 'Menge pro Portion'}>
-                  <NumberInput value={d.ml} onChange={(v) => v !== undefined && updateDrink(d.id, { ml: v })} suffix="ml" step={50} />
-                </Field>
-                {d.frequency === 'perWeek' && (
-                  <Field label="Portionen pro Woche">
-                    <NumberInput value={d.perWeek} onChange={(v) => v !== undefined && updateDrink(d.id, { perWeek: v })} step={0.5} />
-                  </Field>
-                )}
-                <Field label="Packungsgröße">
-                  <NumberInput value={d.packMl} onChange={(v) => v && updateDrink(d.id, { packMl: v })} suffix="ml" />
-                </Field>
-                <Field label="Preis pro Packung" hint="ohne Pfand">
-                  <NumberInput value={d.packPrice} onChange={(v) => v !== undefined && updateDrink(d.id, { packPrice: v })} suffix="€" step={0.01} />
-                </Field>
-              </div>
-              <div className="row-between" style={{ marginTop: 10 }}>
-                <Switch checked={d.inBudget} onChange={(v) => updateDrink(d.id, { inBudget: v })} label="zählt zum Budget" />
-                <button type="button" className="btn btn-sm btn-ghost" onClick={() => updateSettings((s) => ({ ...s, funDrinks: s.funDrinks.filter((x) => x.id !== d.id) }))}>
-                  <Trash2 size={14} /> Entfernen
-                </button>
-              </div>
-            </div>
-          ))}
-          <button
-            type="button"
-            className="btn btn-sm"
-            style={{ alignSelf: 'flex-start' }}
-            onClick={() => updateSettings((s) => ({ ...s, funDrinks: [...s.funDrinks, { id: uid(), name: 'Neues Getränk', ml: 330, frequency: 'perWeek', perWeek: 2, packMl: 330, packPrice: 0.99, inBudget: true }] }))}
-          >
-            <Plus size={15} /> Getränk hinzufügen
-          </button>
-          <div className="muted tiny">Afri-Cola und Energy-Drink haben Schätzpreise. Bitte mit deinem Kassenbon abgleichen.</div>
-        </div>
-      </Section>
-    </>
+    <Section title="Wochenbudget" eyebrow="Für deine Einkaufsliste">
+      <div className="form-grid">
+        <Field label="Budget von">
+          <NumberInput value={b.min} onChange={(v) => v !== undefined && set('budget', { min: v })} suffix="€" />
+        </Field>
+        <Field label="bis (Obergrenze)">
+          <NumberInput value={b.max} onChange={(v) => v !== undefined && set('budget', { max: v })} suffix="€" />
+        </Field>
+        <Field label="Preis CO₂-Kartusche">
+          <NumberInput value={b.co2Price} onChange={(v) => v !== undefined && set('budget', { co2Price: v })} suffix="€" step={0.01} />
+        </Field>
+      </div>
+      <div style={{ marginTop: 14 }}>
+        <Switch checked={b.mondayLeftovers} onChange={(v) => set('budget', { mondayLeftovers: v })} label="Montags Reste vom Wochenende (Wochenplan plant kein Mittagessen)" />
+      </div>
+      <div className="muted tiny" style={{ marginTop: 12 }}>
+        Das Budget rechnet nur mit dem, was du selbst auf der Einkaufsliste einträgst, inklusive Getränken wie Afri-Cola oder Energy-Drinks. „Noch frei“ = Obergrenze minus gekauft minus noch geplant.
+      </div>
+    </Section>
   )
 }
 

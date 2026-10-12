@@ -3,7 +3,8 @@ import { COLLECTIONS, type CollectionMap, type CollectionName, type Settings } f
 import type { DataRepository, MetaRecord } from './repository'
 
 const DB_NAME = 'muscle-studio'
-const DB_VERSION = 1
+// Version 2: Sammlung „shoppingItems“ (Freihand-Einkaufsliste)
+const DB_VERSION = 2
 
 type Schema = DBSchema & {
   [K in CollectionName]: { key: string; value: CollectionMap[K] }

@@ -606,7 +606,7 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
-  min-height: 200px;
+  min-height: 172px;
   padding: 20px;
   border-radius: 26px;
   color: var(--ink);
@@ -811,147 +811,45 @@
   }
 }
 
-.tile-week {
-  display: flex;
-  gap: 5px;
-}
-
-.tw {
-  display: grid;
-  place-items: center;
-  width: 24px;
-  height: 24px;
-  border-radius: 8px;
-  font-size: 10.5px;
-  font-weight: 700;
-  color: var(--ink-4);
-  background: rgba(30, 33, 37, 0.04);
-}
-
-.tw.has {
-  color: var(--ink-2);
-  box-shadow: inset 0 0 0 1.5px var(--silver);
-}
-
-.tw.done {
-  color: #062a14;
-  background: var(--neon);
-  box-shadow: 0 0 10px rgba(60, 240, 124, 0.55);
-}
-
-.tw.missed {
-  background: var(--warn-soft);
-  color: #8a5a10;
-  box-shadow: none;
-}
-
-.tw.now {
-  outline: 1.5px solid var(--ink);
-  outline-offset: 1px;
-}
-
-.tile-links {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-  margin-top: 4px;
-}
-
-.tile-links span {
-  padding: 4px 9px;
-  border-radius: 99px;
-  font-size: 11.5px;
-  font-weight: 650;
-  color: var(--ink-2);
-  background: rgba(30, 33, 37, 0.05);
-  border: 1px solid rgba(30, 33, 37, 0.06);
-  cursor: pointer;
-  transition: background var(--dur-1) var(--ease), color var(--dur-1) var(--ease);
-}
-
-.tile-links span:hover {
-  background: var(--ink);
-  color: var(--neon);
-}
-
-/* ---------- Untere Reihe ---------- */
-
-.home-lower {
-  display: grid;
-  grid-template-columns: minmax(0, 5fr) minmax(0, 4fr) minmax(0, 3fr);
-  gap: 16px;
-  margin-top: 16px;
-}
-
-.glass-panel {
-  position: relative;
-  padding: 20px;
-  border-radius: 24px;
-  background: linear-gradient(165deg, rgba(255, 255, 255, 0.78), rgba(255, 255, 255, 0.5));
-  backdrop-filter: blur(18px) saturate(1.4);
-  -webkit-backdrop-filter: blur(18px) saturate(1.4);
-  border: 1px solid rgba(255, 255, 255, 0.9);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95), 0 0 0 1px rgba(185, 190, 196, 0.28), 0 12px 32px rgba(30, 33, 37, 0.06);
-  animation: tile-in 760ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
-  animation-delay: 900ms;
-  min-width: 0;
-}
-
-.panel-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  color: var(--ink-3);
-  margin-bottom: 6px;
-}
-
-.panel-title {
-  font-weight: 700;
-  font-size: 16px;
-  margin-bottom: 8px;
-}
-
-.panel-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 12.5px;
-  font-weight: 650;
-  color: var(--ink-2);
-  text-decoration: none;
-}
-
-.idea-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--neon-strong);
-  box-shadow: 0 0 10px rgba(60, 240, 124, 0.8);
-  flex: none;
-}
-
-.idea-link {
+/* Protein-Tipp im HUD */
+.hud-idea {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  margin-top: 10px;
   padding: 11px 14px;
   border-radius: 14px;
-  background: var(--ink);
-  color: #eef0f1;
+  background: rgba(60, 240, 124, 0.08);
+  border: 1px solid rgba(60, 240, 124, 0.22);
+  color: rgba(238, 240, 241, 0.8);
   text-decoration: none;
-  font-size: 13.5px;
+  font-size: 13px;
+  line-height: 1.35;
 }
 
-.idea-link svg {
+.hud-idea strong {
+  color: #fff;
+}
+
+.hud-idea svg {
   color: var(--neon);
   flex: none;
 }
 
+.hud-idea:hover {
+  border-color: rgba(60, 240, 124, 0.45);
+}
+
 .home-foot {
-  text-align: center;
-  margin-top: 26px;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin-top: 24px;
+}
+
+.home-foot a {
+  font-weight: 650;
 }
 
 /* ---------- Responsive ---------- */
@@ -976,10 +874,7 @@
   .tiles {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-  .home-lower {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  }
-  .lower-ideas {
+  .hud-idea {
     grid-column: 1 / -1;
   }
 }
@@ -1029,7 +924,7 @@
     margin-top: 14px;
   }
   .tile {
-    min-height: 168px;
+    min-height: 150px;
     padding: 15px;
     border-radius: 22px;
   }
@@ -1052,22 +947,5 @@
   }
   .tile-value {
     font-size: 26px;
-  }
-  .tile-links {
-    display: none;
-  }
-  .tw {
-    width: 18px;
-    height: 18px;
-    font-size: 9px;
-    border-radius: 6px;
-  }
-  .tile-week {
-    gap: 3px;
-  }
-  .home-lower {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 10px;
-    margin-top: 10px;
   }
 }

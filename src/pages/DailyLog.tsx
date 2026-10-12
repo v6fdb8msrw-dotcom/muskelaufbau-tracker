@@ -62,6 +62,11 @@ export default function DailyLog({ route }: { route: Route }) {
         eyebrow={relativeDay(date, today)}
         title="Tagesprotokoll"
         lead={formatDateLong(date)}
+        stats={[
+          { label: 'Protein', value: v.protein ?? 0, unit: `/ ${t.protein} g`, accent: true },
+          { label: 'Kalorien', value: v.kcal ?? 0, unit: `/ ${num(t.kcal)}` },
+          { label: 'Trinken', value: totals.fluidMl / 1000, unit: `/ ${num(t.fluidMl / 1000, 1)} l`, decimals: 1 },
+        ]}
         actions={
           <div className="date-nav">
             <button type="button" className="btn btn-icon" onClick={() => setDate(addDays(date, -1))} aria-label="Vorheriger Tag">

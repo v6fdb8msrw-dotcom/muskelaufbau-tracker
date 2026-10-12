@@ -32,7 +32,7 @@ export const DEFAULT_EXCLUDED_TAGS: FoodTag[] = [
 
 export const DEFAULT_AVOID_TAGS: FoodTag[] = ['tomato', 'potato']
 
-export const SETTINGS_VERSION = 2
+export const SETTINGS_VERSION = 3
 
 /** Deine Startwerte aus dem Auftrag. In den Einstellungen jederzeit änderbar. */
 export function createDefaultSettings(): Settings {
@@ -86,10 +86,6 @@ export function createDefaultSettings(): Settings {
       co2Needed: false,
       co2Price: 9.99,
     },
-    funDrinks: [
-      { id: 'afri-cola', name: 'Afri-Cola', foodId: 'afri-cola', ml: 500, frequency: 'daily', perWeek: 7, packMl: 1000, packPrice: 1.39, inBudget: true },
-      { id: 'energy', name: 'Energy-Drink', foodId: 'energy', ml: 250, frequency: 'perWeek', perWeek: 3, packMl: 250, packPrice: 0.99, inBudget: true },
-    ],
     prices: {},
     basics: {},
     food: {
@@ -122,7 +118,6 @@ export function normalizeSettings(input: Partial<Settings> | undefined): Setting
     arms: { ...d.arms, ...input.arms },
     supplements: { ...d.supplements, ...input.supplements },
     budget: { ...d.budget, ...input.budget },
-    funDrinks: input.funDrinks ?? d.funDrinks,
     prices: input.prices ?? {},
     basics: input.basics ?? {},
     food: { ...d.food, ...input.food },
@@ -134,28 +129,30 @@ export function normalizeSettings(input: Partial<Settings> | undefined): Setting
 
 /**
  * Gespeicherte Einstellungen älterer Versionen anheben.
- * Version 1 → 2: Profil und Ziele auf deine Startwerte aus dem Auftrag setzen (vorher konnten dort
- * neutrale Platzhalter stehen), Kreatin und Proteinpulver aktivieren, leere Getränke-, Budget- und
- * Musikangaben mit deinen Werten füllen.
+ * 1 → 2: Profil und Ziele auf deine Startwerte aus dem Auftrag setzen (vorher konnten dort
+ *   neutrale Platzhalter stehen), Kreatin und Proteinpulver aktivieren.
+ * 2 → 3: Afri-Cola und Energy-Drinks sind nicht mehr automatisch im Budget. Getränke trägst du
+ *   wie alles andere selbst auf der Einkaufsliste ein.
  */
-export function migrateSettings(stored: Partial<Settings> | undefined): { settings: Settings; changed: boolean } {
+export function migrateSettings(stored: (Partial<Settings> & { funDrinks?: unknown }) | undefined): { settings: Settings; changed: boolean } {
   if (!stored) return { settings: createDefaultSettings(), changed: true }
   const version = stored.version ?? 1
   if (version >= SETTINGS_VERSION) return { settings: normalizeSettings(stored), changed: false }
-  const d = createDefaultSettings()
-  const s = normalizeSettings(stored)
-  return {
-    changed: true,
-    settings: {
+  const rest = { ...stored }
+  delete rest.funDrinks
+  let s = normalizeSettings(rest)
+  if (version < 2) {
+    const d = createDefaultSettings()
+    s = {
       ...s,
       profile: { ...d.profile, name: s.profile.name },
       targets: d.targets,
       supplements: { ...s.supplements, creatineEnabled: true, proteinPowderAvailable: true, proteinProductId: s.supplements.proteinProductId ?? ESN_DEFAULT_PROTEIN },
       budget: s.budget.max === 25 ? d.budget : s.budget,
-      funDrinks: s.funDrinks.length ? s.funDrinks : d.funDrinks,
       spotify: { ...s.spotify, artists: s.spotify.artists.length ? s.spotify.artists : d.spotify.artists },
-    },
+    }
   }
+  return { changed: true, settings: s }
 }
 
 export const DRINK_PRESETS: { id: string; foodId: string; label: string; icon: string }[] = [

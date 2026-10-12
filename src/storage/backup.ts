@@ -27,6 +27,7 @@ const schemas: Record<CollectionName, z.ZodType> = {
   suggestions: z.looseObject({ ...base, status: z.enum(['accepted', 'ignored']) }),
   schedule: z.looseObject({ ...base }),
   targetWeights: z.looseObject({ ...base, kg: z.number().min(0).max(200) }),
+  shoppingItems: z.looseObject({ ...base, week: isoDate, name: z.string().min(1), packs: nonNeg, checked: z.boolean(), inBudget: z.boolean() }),
 }
 
 export interface BackupFile {

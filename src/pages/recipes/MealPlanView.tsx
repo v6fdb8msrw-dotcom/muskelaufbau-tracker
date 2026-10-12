@@ -1,6 +1,6 @@
 import { ChevronLeft, ChevronRight, Copy, RefreshCw, Repeat, ShoppingBasket, Trash2, Wand2 } from 'lucide-react'
 import { useMemo, useState } from 'react'
-import { useShoppingWeek, useToday } from '../../components/hooks'
+import { usePlanNeeds, useToday, useWeekBudget } from '../../components/hooks'
 import { MEAL_LABEL } from '../../components/labels'
 import { RecipePicker } from '../../components/RecipePicker'
 import { Bar, Card, CardHead, Notice, Seg } from '../../components/ui'
@@ -26,7 +26,8 @@ export function MealPlanView({ route }: { route: Route }) {
   const [seed, setSeed] = useState(1)
   const [picker, setPicker] = useState<{ date: string; slot: MealSlot; replace?: MealPlanEntry } | null>(null)
   const week = useMemo(() => planForWeek(data.mealPlan, weekStart), [data.mealPlan, weekStart])
-  const shopping = useShoppingWeek(weekStart)
+  const budget = useWeekBudget(weekStart)
+  const needs = usePlanNeeds(weekStart)
   const dates = weekDates(weekStart)
   const goWeek = (d: string) => navigate(`/rezepte?tab=plan&woche=${d}`)
   const loggedPlanIds = new Set(data.foodLogs.map((f) => f.planId).filter(Boolean))
@@ -137,14 +138,14 @@ export function MealPlanView({ route }: { route: Route }) {
       <Card index={0} marble>
         <div className="row-between" style={{ flexWrap: 'wrap', gap: 16 }}>
           <div className="grow" style={{ minWidth: 240 }}>
-            <div className="eyebrow">Wochenbudget (Mittag Mo–Fr + Spaßgetränke)</div>
+            <div className="eyebrow">Wochenbudget laut deiner Einkaufsliste</div>
             <div className="row" style={{ alignItems: 'baseline', gap: 10, margin: '6px 0 10px' }}>
-              <span className="stat-value">{euro(shopping.budgetCash)}</span>
+              <span className="stat-value">{euro(budget.free)}</span>
               <span className="muted small">
-                Ziel {settings.budget.min}–{settings.budget.max} € · davon Getränke {euro(shopping.drinksCash)}
+                frei von {settings.budget.max} € · Zutaten für diesen Plan grob geschätzt: {euro(needs.estimateTotal)}
               </span>
             </div>
-            <Bar value={shopping.budgetCash} max={settings.budget.max} marker={settings.budget.min} variant={shopping.status === 'ueber' ? 'warn' : undefined} />
+            <Bar value={budget.bought + budget.planned + budget.co2} max={settings.budget.max} marker={settings.budget.min} variant={budget.status === 'ueber' ? 'warn' : undefined} />
           </div>
           <a className="btn" href={href(`/einkauf?woche=${weekStart}`)}>
             <ShoppingBasket size={16} /> Einkaufsliste

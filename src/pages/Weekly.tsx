@@ -30,6 +30,7 @@ export default function Weekly({ route }: { route: Route }) {
   const states = new Map(data.suggestions.map((s) => [s.id, s.status]))
   const openSuggestions = report.suggestions.filter((s) => !states.has(s.id))
   const resolved = report.suggestions.filter((s) => states.has(s.id))
+  const sessions = report.days.flatMap((d) => d.sessions)
   const go = (w: string) => navigate(w === startOfWeek(today) ? '/woche' : `/woche?woche=${w}`)
 
   async function accept(s: Suggestion) {
@@ -42,7 +43,13 @@ export default function Weekly({ route }: { route: Route }) {
       <PageHead
         eyebrow={report.programWeek >= 1 ? `Programmwoche ${report.programWeek} · ${formatDate(report.weekStart)} – ${formatDate(report.weekEnd)}` : `${formatDate(report.weekStart)} – ${formatDate(report.weekEnd)}`}
         title="Wochenkorrektur"
-        lead="Was läuft gut, was ist offen, und was du in den restlichen Tagen sinnvoll ergänzen kannst. Jeder Vorschlag lässt sich übernehmen oder ignorieren."
+        lead="Was gut läuft, was offen ist und was du in den restlichen Tagen ergänzen kannst."
+        stats={[
+          { label: 'Tage erfasst', value: `${report.days.filter((d) => d.hasEntries).length}/7` },
+          { label: 'Trainings', value: `${sessions.filter((x) => x.status === 'done').length}/${sessions.length}` },
+          { label: 'Budget frei', value: report.budget.free, unit: '€', money: true, warn: report.budget.status === 'ueber' },
+          { label: 'Vorschläge', value: openSuggestions.length, accent: openSuggestions.length > 0 },
+        ]}
         actions={
           <div className="date-nav">
             <button type="button" className="btn btn-icon" onClick={() => go(addDays(weekStart, -7))} aria-label="Vorherige Woche">
@@ -60,51 +67,26 @@ export default function Weekly({ route }: { route: Route }) {
         }
       />
 
-      <div className="grid grid-3" style={{ marginBottom: 18 }}>
-        <Card index={0} className="span-2">
-          <CardHead eyebrow="Protein pro Tag" title={`Ziel ${settings.targets.protein} g täglich`} />
-          <BarChart
-            data={report.days.map((d, i) => ({ label: WEEKDAY_SHORT[i], value: d.hasEntries ? d.protein : undefined, highlight: d.date === today, muted: !d.complete }))}
-            target={settings.targets.protein}
-            unit="g"
-          />
-          <div className="legend" style={{ marginTop: 6 }}>
-            <span>
-              <span className="dot neon" /> Ziel erreicht
-            </span>
-            <span>
-              <span className="dot" style={{ background: 'var(--ink)' }} /> vollständiger Tag
-            </span>
-            <span>
-              <span className="dot" /> nicht als vollständig markiert
-            </span>
-            <span>gestrichelt: keine Einträge</span>
-          </div>
-        </Card>
-        <Card index={1} marble>
-          <CardHead eyebrow="Woche in Zahlen" title={`${report.days.filter((d) => d.hasEntries).length} von 7 Tagen erfasst`} />
-          <div className="stack-sm small">
-            <div className="row-between">
-              <span className="muted">Vollständige Tage</span>
-              <span className="num">{report.days.filter((d) => d.complete).length}</span>
-            </div>
-            <div className="row-between">
-              <span className="muted">Trainings erledigt</span>
-              <span className="num">
-                {report.days.flatMap((d) => d.sessions).filter((s) => s.status === 'done').length} / {report.days.flatMap((d) => d.sessions).length}
-              </span>
-            </div>
-            <div className="row-between">
-              <span className="muted">Budget geplant</span>
-              <span className={`num ${report.budget.status === 'ueber' ? 'warn-text' : ''}`}>{euro(report.budget.cash)}</span>
-            </div>
-            <div className="row-between">
-              <span className="muted">Offene Vorschläge</span>
-              <span className="num">{openSuggestions.length}</span>
-            </div>
-          </div>
-        </Card>
-      </div>
+      <Card index={0} style={{ marginBottom: 18 }}>
+        <CardHead eyebrow="Protein pro Tag" title={`Ziel ${settings.targets.protein} g täglich`} />
+        <BarChart
+          data={report.days.map((d, i) => ({ label: WEEKDAY_SHORT[i], value: d.hasEntries ? d.protein : undefined, highlight: d.date === today, muted: !d.complete }))}
+          target={settings.targets.protein}
+          unit="g"
+        />
+        <div className="legend" style={{ marginTop: 6 }}>
+          <span>
+            <span className="dot neon" /> Ziel erreicht
+          </span>
+          <span>
+            <span className="dot" style={{ background: 'var(--ink)' }} /> vollständiger Tag
+          </span>
+          <span>
+            <span className="dot" /> nicht als vollständig markiert
+          </span>
+          <span>gestrichelt: keine Einträge</span>
+        </div>
+      </Card>
 
       <div className="grid grid-2" style={{ alignItems: 'start' }}>
         <div className="stack-lg">
@@ -213,13 +195,15 @@ export default function Weekly({ route }: { route: Route }) {
             {report.shoppingOpen.length ? (
               <div className="row-wrap">
                 {report.shoppingOpen.map((l) => (
-                  <span key={l.foodId} className="badge">
-                    {l.food.name} · {l.packs}× {euro(l.packPrice)}
+                  <span key={l.id} className="badge">
+                    {l.packs > 1 ? `${l.packs}× ` : ''}
+                    {l.name}
+                    {l.price !== undefined ? ` · ${euro(l.price * l.packs)}` : ''}
                   </span>
                 ))}
               </div>
             ) : (
-              <div className="muted small">Alles für die geplanten Mahlzeiten ist eingekauft oder im Vorrat.</div>
+              <div className="muted small">Auf deiner Einkaufsliste ist nichts mehr offen.</div>
             )}
           </Card>
 

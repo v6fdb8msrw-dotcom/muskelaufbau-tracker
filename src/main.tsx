@@ -10,6 +10,7 @@ import './styles/layout.css'
 import './styles/components.css'
 import './styles/pages.css'
 import './styles/home.css'
+import './styles/theme.css'
 
 // Speicher nach Möglichkeit als dauerhaft markieren, damit der Browser lokale Daten nicht aufräumt
 if (navigator.storage?.persist) {

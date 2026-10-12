@@ -42,6 +42,16 @@ describe('Startwerte aus dem Auftrag', () => {
     expect(settings.targets.kcal).toBe(2300)
   })
 
+  it('Version 2 → 3: feste Getränke (Afri-Cola, Energy) verschwinden aus dem Budget, eigene Werte bleiben', () => {
+    const v2 = { ...createDefaultSettings(), version: 2, budget: { ...createDefaultSettings().budget, max: 18 }, funDrinks: [{ id: 'afri', name: 'Afri-Cola', perWeek: 4, price: 1.39 }] }
+    const { settings, changed } = migrateSettings(v2)
+    expect(changed).toBe(true)
+    expect(settings.version).toBe(SETTINGS_VERSION)
+    expect('funDrinks' in settings).toBe(false)
+    expect(settings.budget.max).toBe(18)
+    expect(settings.targets.kcal).toBe(2150)
+  })
+
   it('ESN-Produkte haben Etikettwerte und keine nussigen Sorten', () => {
     expect(ESN_PRODUCTS.length).toBeGreaterThan(0)
     for (const p of ESN_PRODUCTS) {

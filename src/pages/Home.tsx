@@ -1,45 +1,22 @@
-import {
-  ArrowUpRight,
-  ClipboardCheck,
-  Dumbbell,
-  GlassWater,
-  HardDrive,
-  Music,
-  NotebookPen,
-  Pill,
-  Plus,
-  Scale,
-  Settings2,
-  ShoppingBasket,
-  Sparkles,
-  TrendingUp,
-  UtensilsCrossed,
-} from 'lucide-react'
+import { ArrowUpRight, ChefHat, ClipboardCheck, Dumbbell, GlassWater, Music, NotebookPen, Pill, Plus, Scale, Settings2, ShoppingBasket, TrendingUp, UtensilsCrossed } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent, type ReactNode } from 'react'
 import type { Icon } from '../components/areas'
 import { BrandMark } from '../components/BrandMark'
-import { Sparkline } from '../components/charts'
-import { prefersReducedMotion, useClock, useCountUp, useDayTotals, useIsMobile, useProgram, useShoppingWeek } from '../components/hooks'
-import { NutrientRows } from '../components/NutrientRows'
+import { prefersReducedMotion, useClock, useCountUp, useDayTotals, useIsMobile, useProgram, useWeekBudget } from '../components/hooks'
 import { useUi } from '../components/UiContext'
-import { ESN_CREATINE } from '../data/supplements'
-import { EXERCISE_MAP } from '../data/exercises'
 import { SESSION_MAP } from '../data/plan'
-import { RECIPE_MAP } from '../data/recipes'
-import { balanceSummary } from '../domain/balance'
-import { foodIdeas, recipeIdeas } from '../domain/ideas'
-import { analyzeRange } from '../domain/nutrition'
-import { planForWeek } from '../domain/shopping'
-import { plannedSessionsForWeek, sessionStatus, setsForWeek } from '../domain/training'
+import { RECIPE_MAP, RECIPES } from '../data/recipes'
+import { ESN_CREATINE } from '../data/supplements'
+import { recipeIdeas } from '../domain/ideas'
+import { plannedSessionsForWeek, sessionStatus } from '../domain/training'
 import { buildWeeklyReport } from '../domain/weekly'
 import { weeklyTrend, withMovingAverage } from '../domain/weight'
-import { addDays, diffDays, formatDate, formatDateLong, relativeDay, WEEKDAY_SHORT, weekDates } from '../lib/date'
-import { clamp, euro, num } from '../lib/format'
+import { addDays, diffDays, formatDate, formatDateLong, relativeDay } from '../lib/date'
+import { clamp, num } from '../lib/format'
 import { buildCreatineLog, buildDrinkLog } from '../state/actions'
 import { href } from '../state/router'
 import { useStore } from '../state/store'
 import { useToast } from '../state/toast'
-import type { NutrientKey } from '../types'
 
 function greeting(h: number): string {
   if (h < 5) return 'Gute Nacht'
@@ -47,8 +24,6 @@ function greeting(h: number): string {
   if (h < 18) return 'Guten Tag'
   return 'Guten Abend'
 }
-
-const MICROS: NutrientKey[] = ['vitC', 'calcium', 'magnesium', 'iron', 'zinc', 'iodine']
 
 export function Home() {
   const store = useStore()
@@ -59,35 +34,29 @@ export function Home() {
   const clock = useClock()
   const isMobile = useIsMobile()
   const totals = useDayTotals(today)
-  const shopping = useShoppingWeek(weekStart)
+  const budget = useWeekBudget(weekStart)
   const t = settings.targets
   const v = totals.profile.values
   const kcal = v.kcal ?? 0
   const protein = v.protein ?? 0
   const remaining = t.kcal - kcal
+  const proteinOpen = t.protein - protein
 
-  const range = useMemo(() => analyzeRange(data, today, 7), [data, today])
   const weights = useMemo(() => withMovingAverage(data.weights), [data.weights])
   const trend = useMemo(() => weeklyTrend(data.weights, today), [data.weights, today])
-  const balance = useMemo(() => balanceSummary(data.workouts, data.arms, settings), [data.workouts, data.arms, settings])
   const sessions = useMemo(() => (week >= 1 ? plannedSessionsForWeek(settings, data.schedule, week) : []), [settings, data.schedule, week])
   const report = useMemo(() => buildWeeklyReport(data, settings, weekStart, today), [data, settings, weekStart, today])
   const openSuggestions = report.suggestions.filter((s) => !data.suggestions.some((x) => x.id === s.id))
   const done = sessions.filter((s) => sessionStatus(s, data.workouts, today) === 'done').length
-  const weekPlan = planForWeek(data.mealPlan, weekStart).filter((m) => m.slot === 'mittag')
   const nextMeal = data.mealPlan
     .filter((m) => m.date >= today && !data.foodLogs.some((f) => f.planId === m.id))
     .sort((a, b) => a.date.localeCompare(b.date))[0]
   const lastWeight = weights[weights.length - 1]
   const nextSession = next ? SESSION_MAP[next.sessionId] : undefined
   const playlist = settings.spotify.savedPlaylists.find((p) => p.sessionId === next?.sessionId) ?? settings.spotify.savedPlaylists[0]
-  const entriesToday = totals.entryCount
-  const dayComplete = data.days.some((d) => d.date === today && d.complete)
   const creatineToday = data.supplementLogs.some((s) => s.date === today && s.kind === 'creatine')
   const backupAge = meta.lastBackupAt ? diffDays(today, meta.lastBackupAt.slice(0, 10)) : undefined
-  const proteinIdeas = t.protein - protein > 12 ? foodIdeas('protein', settings, data.products, 3) : []
-  const recipeIdea = t.protein - protein > 25 && remaining > 300 ? recipeIdeas('protein', settings, { maxKcal: remaining + 150, limit: 1 })[0] : undefined
-  const days = weekDates(weekStart)
+  const recipeIdea = proteinOpen > 25 && remaining > 300 ? recipeIdeas('protein', settings, { maxKcal: remaining + 150, limit: 1 })[0] : undefined
   const hh = String(clock.getHours()).padStart(2, '0')
   const mm = String(clock.getMinutes()).padStart(2, '0')
 
@@ -131,10 +100,9 @@ export function Home() {
         </div>
       </header>
 
-      {/* ---------- HUD ---------- */}
+      {/* ---------- HUD: nur das Wichtigste für heute ---------- */}
       <section className="hud" aria-label="Heute">
         <div className="hud-grid" aria-hidden />
-        <div className="hud-sweep" aria-hidden />
         <Corners />
 
         <div className="hud-left">
@@ -151,13 +119,6 @@ export function Home() {
             <div className="hud-next">
               <div className="hud-label">Nächstes Training · {relativeDay(next.date, today)}</div>
               <div className="hud-next-title">{nextSession.title}</div>
-              <div className="hud-next-meta">
-                {nextSession.exercises.length} Übungen · {nextSession.exercises.reduce((s, e) => s + setsForWeek(e, next.week) * (e.perSide ? 2 : 1), 0)} Sätze ·{' '}
-                {nextSession.exercises
-                  .slice(0, 2)
-                  .map((e) => EXERCISE_MAP[e.exerciseId].name.replace('Kurzhantel-', '').replace('Einarmiges ', ''))
-                  .join(', ')}
-              </div>
               <div className="row-wrap" style={{ marginTop: 12 }}>
                 <a className="btn btn-primary" href={href(`/training/${next.key}`)}>
                   <Dumbbell size={16} /> {next.date === today ? 'Training starten' : 'Ansehen'}
@@ -179,7 +140,7 @@ export function Home() {
 
         <div className="hud-center">
           <OrbitRings
-            size={isMobile ? 230 : 300}
+            size={isMobile ? 230 : 280}
             rings={[
               { value: kcal, max: t.kcal, label: 'Kalorien' },
               { value: protein, max: t.protein, label: 'Protein' },
@@ -188,9 +149,6 @@ export function Home() {
           >
             <CountUp value={Math.abs(remaining)} className="orbit-value" />
             <div className="orbit-caption">{remaining >= 0 ? 'kcal offen' : 'kcal über Ziel'}</div>
-            <div className="orbit-sub num">
-              {num(kcal)} / {num(t.kcal)}
-            </div>
           </OrbitRings>
           <div className="orbit-legend">
             <span>
@@ -207,10 +165,15 @@ export function Home() {
 
         <div className="hud-right">
           <HudStat label="Protein" value={protein} target={t.protein} unit="g" strong />
-          <HudStat label="Kohlenhydrate" value={v.carbs ?? 0} target={t.carbs} unit="g" />
-          <HudStat label="Fett" value={v.fat ?? 0} target={t.fat} unit="g" />
-          <HudStat label="Ballaststoffe" value={v.fiber ?? 0} target={t.fiber} unit="g" />
           <HudStat label="Trinken" value={totals.fluidMl / 1000} target={t.fluidMl / 1000} unit="l" decimals={1} />
+          {recipeIdea && (
+            <a className="hud-idea" href={href(`/rezepte/${recipeIdea.recipe.id}`)}>
+              <span>
+                Noch {num(proteinOpen)} g Protein: <strong>{recipeIdea.recipe.name}</strong> bringt {num(recipeIdea.value)} g
+              </span>
+              <ArrowUpRight size={15} />
+            </a>
+          )}
           <div className="hud-actions">
             <button type="button" className="hud-action" onClick={() => openFood()}>
               <UtensilsCrossed size={17} />
@@ -244,63 +207,38 @@ export function Home() {
           stat={`${done}/${sessions.length || 4}`}
           unit="Einheiten"
           caption={nextSession ? `Nächstes: ${nextSession.short}, ${relativeDay(next!.date, today)}` : 'Plan, Kalender, Übungen'}
-          links={[
-            ['Plan', '/plan'],
-            ['Kalender', '/kalender'],
-            ['Übungen', '/uebungen'],
-            ['Core', '/core'],
-          ]}
-        >
-          <div className="tile-week">
-            {WEEKDAY_SHORT.map((d, i) => {
-              const s = sessions.find((x) => x.date === days[i])
-              const st = s ? sessionStatus(s, data.workouts, today) : undefined
-              return (
-                <span key={d} className={`tw ${s ? 'has' : ''} ${st ?? ''} ${days[i] === today ? 'now' : ''}`} title={d}>
-                  {d[0]}
-                </span>
-              )
-            })}
-          </div>
-        </AreaTile>
-
+        />
         <AreaTile
           index={1}
           href="/rezepte"
-          icon={UtensilsCrossed}
+          icon={ChefHat}
           title="Ernährung"
-          stat={`${weekPlan.length}`}
-          unit="Mittagessen geplant"
-          caption={nextMeal ? `${relativeDay(nextMeal.date, today)}: ${RECIPE_MAP[nextMeal.recipeId]?.name}` : '100 Rezepte, Wochenplan, Nährstoffe'}
-          links={[
-            ['Rezepte', '/rezepte'],
-            ['Wochenplan', '/rezepte?tab=plan'],
-            ['Nährstoffe', '/naehrstoffe'],
-          ]}
+          stat={num(RECIPES.length)}
+          unit="Rezepte"
+          caption={nextMeal ? `${relativeDay(nextMeal.date, today)}: ${RECIPE_MAP[nextMeal.recipeId]?.name}` : 'Rezepte, Wochenplan, Nährstoffe'}
         />
-
         <AreaTile
           index={2}
           href="/protokoll"
           icon={NotebookPen}
-          title="Tagesprotokoll"
-          stat={String(entriesToday)}
-          unit={entriesToday === 1 ? 'Eintrag heute' : 'Einträge heute'}
-          caption={dayComplete ? 'Tag als vollständig markiert' : t.protein - protein > 0 ? `Noch ${num(t.protein - protein)} g Protein offen` : 'Protein-Ziel erreicht'}
+          title="Protokoll"
+          stat={num(kcal)}
+          unit={`von ${num(t.kcal)} kcal`}
+          caption={proteinOpen > 0 ? `Noch ${num(proteinOpen)} g Protein offen` : 'Protein-Ziel erreicht'}
         >
           <MiniBar value={kcal} max={t.kcal} />
         </AreaTile>
-
         <AreaTile
           index={3}
-          href="/woche"
-          icon={ClipboardCheck}
-          title="Wochenkorrektur"
-          stat={String(openSuggestions.length)}
-          unit={openSuggestions.length === 1 ? 'Vorschlag' : 'Vorschläge'}
-          caption={openSuggestions[0]?.title ?? (report.good[0] ? report.good[0] : 'Alles im Plan')}
-        />
-
+          href="/einkauf"
+          icon={ShoppingBasket}
+          title="Einkauf"
+          stat={budget.free.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          unit={`€ frei von ${num(budget.budget)} €`}
+          caption="Einkäufe und Getränke selbst eintragen"
+        >
+          <MiniBar value={budget.bought + budget.planned + budget.co2} max={budget.budget} warn={budget.status === 'ueber'} />
+        </AreaTile>
         <AreaTile
           index={4}
           href="/trinken"
@@ -308,7 +246,7 @@ export function Home() {
           title="Trinken"
           stat={num(totals.fluidMl / 1000, 1)}
           unit={`von ${num(t.fluidMl / 1000, 1)} l`}
-          caption={settings.supplements.proteinPowderAvailable ? 'Getränke, Shakes, Kreatin' : 'Getränke und Supplements'}
+          caption="Getränke, Shakes, Kreatin"
           action={
             <button
               type="button"
@@ -325,37 +263,24 @@ export function Home() {
         >
           <MiniBar value={totals.fluidMl} max={t.fluidMl} />
         </AreaTile>
-
         <AreaTile
           index={5}
-          href="/einkauf"
-          icon={ShoppingBasket}
-          title="Einkauf"
-          stat={euro(shopping.budgetCash).replace(/\s?€/, '')}
-          unit={`€ von ${settings.budget.max} €`}
-          caption={`${shopping.lines.filter((l) => !l.checked && !l.transferred && l.toBuy > 0).length} Produkte offen`}
-        >
-          <MiniBar value={shopping.budgetCash} max={settings.budget.max} warn={shopping.status === 'ueber'} />
-        </AreaTile>
-
+          href="/woche"
+          icon={ClipboardCheck}
+          title="Woche"
+          stat={String(openSuggestions.length)}
+          unit={openSuggestions.length === 1 ? 'Vorschlag' : 'Vorschläge'}
+          caption={openSuggestions[0]?.title ?? 'Alles im Plan'}
+        />
         <AreaTile
           index={6}
           href="/fortschritt"
           icon={TrendingUp}
           title="Fortschritt"
-          stat={lastWeight ? num(lastWeight.avg7, 1) : num(settings.profile.startWeightKg, 1)}
-          unit={lastWeight ? 'kg im 7-Tage-Schnitt' : 'kg Startgewicht'}
-          caption={
-            trend.enoughData && trend.perWeek !== undefined
-              ? `${trend.perWeek >= 0 ? '+' : ''}${num(trend.perWeek * 1000)} g pro Woche`
-              : balance.ratio !== undefined
-                ? `Arm-Balance ${Math.round(balance.ratio * 100)} %`
-                : 'Gewicht, Kraft, Arm-Balance'
-          }
-        >
-          {weights.length > 1 && <Sparkline values={weights.slice(-21).map((w) => w.avg7)} width={120} height={30} />}
-        </AreaTile>
-
+          stat={num(lastWeight ? lastWeight.avg7 : settings.profile.startWeightKg, 1)}
+          unit="kg"
+          caption={trend.enoughData && trend.perWeek !== undefined ? `${trend.perWeek >= 0 ? '+' : ''}${num(trend.perWeek * 1000)} g pro Woche` : lastWeight ? '7-Tage-Schnitt' : 'Startgewicht'}
+        />
         <AreaTile
           index={7}
           href="/spotify"
@@ -363,83 +288,19 @@ export function Home() {
           title="Musik"
           stat={String(settings.spotify.savedPlaylists.length)}
           unit={settings.spotify.savedPlaylists.length === 1 ? 'Playlist' : 'Playlists'}
-          caption={playlist ? `Für ${nextSession?.short ?? 'dein Training'}: ${playlist.name}` : 'Spotify verbinden oder Links speichern'}
+          caption="Spotify fürs Training"
         />
       </section>
 
-      {/* ---------- Unten ---------- */}
-      <section className="home-lower">
-        <div className="glass-panel lower-ideas">
-          <div className="panel-head">
-            <span className="hud-label dark">Passende Ergänzungen</span>
-            <Sparkles size={16} />
-          </div>
-          <div className="panel-title">{t.protein - protein > 0 ? `Noch ${num(t.protein - protein)} g Protein offen` : 'Protein-Ziel erreicht'}</div>
-          <div className="list">
-            {proteinIdeas.map((i) => (
-              <div className="list-item" key={i.label}>
-                <span className="idea-dot" />
-                <div className="grow">
-                  <div className="title">{i.label}</div>
-                  <div className="meta">
-                    {i.amountLabel} · {num(i.value)} g Protein
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-          {recipeIdea && (
-            <a className="idea-link" href={href(`/rezepte/${recipeIdea.recipe.id}`)}>
-              <span>
-                Rezeptidee: <strong>{recipeIdea.recipe.name}</strong> · {num(recipeIdea.value)} g Protein
-              </span>
-              <ArrowUpRight size={16} />
-            </a>
-          )}
-          {proteinIdeas.length === 0 && !recipeIdea && <div className="muted small">Für heute passt es. Weitere Ideen unter Nährstoffe.</div>}
-        </div>
-
-        <div className="glass-panel lower-micro">
-          <div className="panel-head">
-            <span className="hud-label dark">{range.provisional ? 'Nährstoffe · 7 Tage (vorläufig)' : 'Nährstoffe · 7 Tage'}</span>
-            <a className="panel-link" href={href('/naehrstoffe')}>
-              Alle <ArrowUpRight size={14} />
-            </a>
-          </div>
-          {range.usedDays.length === 0 ? (
-            <div className="muted small">Noch keine Einträge in den letzten 7 Tagen.</div>
-          ) : (
-            <NutrientRows compact keys={MICROS} values={(k) => ({ value: range.averages[k].value, partial: range.averages[k].partial })} />
-          )}
-        </div>
-
-        <div className="glass-panel lower-data">
-          <div className="panel-head">
-            <span className="hud-label dark">Daten</span>
-            <HardDrive size={16} />
-          </div>
-          <div className="panel-title">Lokal auf diesem Gerät</div>
-          <div className="stack-sm small">
-            <div className="row-between">
-              <span className="muted">Letztes Backup</span>
-              <span className={backupAge === undefined || backupAge > 14 ? 'warn-text' : ''}>
-                {backupAge === undefined ? 'noch keins' : backupAge === 0 ? 'heute' : `vor ${backupAge} Tagen`}
-              </span>
-            </div>
-            <div className="row-between">
-              <span className="muted">Einträge</span>
-              <span className="num">{num(data.foodLogs.length + data.drinkLogs.length + data.workouts.length + data.weights.length)}</span>
-            </div>
-            <div className="muted tiny">Keine automatische Synchronisierung zwischen Mac und iPhone, Übertragung per Backup.</div>
-          </div>
-          <a className="btn btn-sm" href={href('/einstellungen?tab=daten')} style={{ marginTop: 12 }}>
-            Backup & Export
-          </a>
-        </div>
-      </section>
-
       <footer className="home-foot muted tiny">
-        Programm seit {formatDate(settings.program.startDate)} · bis {formatDate(addDays(settings.program.startDate, settings.program.weeks * 7 - 1))} · Ziel {num(t.kcal)} kcal · {t.protein} g Protein
+        <span>
+          Ziel {num(t.kcal)} kcal · {t.protein} g Protein · bis {formatDate(addDays(settings.program.startDate, settings.program.weeks * 7 - 1))}
+        </span>
+        {(backupAge === undefined || backupAge > 14) && (
+          <a href={href('/einstellungen?tab=daten')} className="warn-text">
+            {backupAge === undefined ? 'Noch kein Backup' : `Letztes Backup vor ${backupAge} Tagen`}
+          </a>
+        )}
       </footer>
     </div>
   )
@@ -587,7 +448,6 @@ function AreaTile({
   stat,
   unit,
   caption,
-  links,
   action,
   children,
 }: {
@@ -598,7 +458,6 @@ function AreaTile({
   stat: string
   unit: string
   caption: string
-  links?: [string, string][]
   action?: ReactNode
   children?: ReactNode
 }) {
@@ -612,8 +471,8 @@ function AreaTile({
     const y = (e.clientY - r.top) / r.height
     el.style.setProperty('--mx', `${x * 100}%`)
     el.style.setProperty('--my', `${y * 100}%`)
-    el.style.setProperty('--rx', `${(0.5 - y) * 7}deg`)
-    el.style.setProperty('--ry', `${(x - 0.5) * 9}deg`)
+    el.style.setProperty('--rx', `${(0.5 - y) * 6}deg`)
+    el.style.setProperty('--ry', `${(x - 0.5) * 8}deg`)
   }
   const onLeave = () => {
     const el = ref.current
@@ -626,10 +485,10 @@ function AreaTile({
       <span className="tile-sheen" aria-hidden />
       <div className="tile-top">
         <span className="tile-orb">
-          <IconCmp size={20} strokeWidth={1.9} />
+          <IconCmp size={19} strokeWidth={1.9} />
         </span>
         <span className="tile-title">{title}</span>
-        {action ?? <ArrowUpRight className="tile-arrow" size={18} />}
+        {action ?? <ArrowUpRight className="tile-arrow" size={17} />}
       </div>
       <div className="tile-stat">
         <span className="tile-value num">{stat}</span>
@@ -637,31 +496,6 @@ function AreaTile({
       </div>
       <div className="tile-caption">{caption}</div>
       {children && <div className="tile-viz">{children}</div>}
-      {links && (
-        <div className="tile-links">
-          {links.map(([label, path]) => (
-            <span
-              key={path}
-              role="link"
-              tabIndex={0}
-              onClick={(e) => {
-                e.preventDefault()
-                e.stopPropagation()
-                window.location.hash = path
-              }}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  e.preventDefault()
-                  window.location.hash = path
-                }
-              }}
-            >
-              {label}
-            </span>
-          ))}
-        </div>
-      )}
     </a>
   )
 }
-

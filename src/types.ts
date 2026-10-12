@@ -120,6 +120,7 @@ export type RecipeCategory =
   | 'salat-kalt'
   | 'brot-ei-kaese'
   | 'convenience'
+  | 'protein-kreationen'
 
 export type MealSlot = 'fruehstueck' | 'mittag' | 'snack' | 'abend' | 'spaet'
 
@@ -326,6 +327,27 @@ export interface ShoppingCheck extends BaseRecord {
   extraAmount?: number
 }
 
+/** Freihand-Eintrag auf der Einkaufsliste: Produkt, Menge, Preis und wofür es gedacht ist. */
+export interface ShoppingItem extends BaseRecord {
+  /** Montag der Woche */
+  week: string
+  name: string
+  /** Eigenes Produkt mit Etikettwerten (für die Nährwert-Analyse) */
+  productId?: string
+  /** Anzahl Packungen */
+  packs: number
+  /** Preis pro Packung in Euro */
+  price?: number
+  /** Für welches Essen (frei, z. B. „Meal-Prep Hähnchen-Reis“) */
+  meal?: string
+  store?: string
+  /** Gekauft */
+  checked: boolean
+  /** Zählt zum Wochenbudget */
+  inBudget: boolean
+  note?: string
+}
+
 export interface Product extends BaseRecord {
   kind: 'smoothie' | 'protein' | 'drink' | 'food'
   name: string
@@ -340,6 +362,8 @@ export interface Product extends BaseRecord {
   favorite: boolean
   /** Übliche Portion (z. B. 30 g Pulver pro Shake) */
   serving?: number
+  /** Bezeichnung der Portion, z. B. „1 Becher“ */
+  portionLabel?: string
   /** Von der App mitgeliefert (z. B. ESN), Werte trotzdem änderbar */
   builtin?: boolean
   note?: string
@@ -381,6 +405,7 @@ export interface CollectionMap {
   suggestions: SuggestionState
   schedule: ScheduleChange
   targetWeights: TargetWeight
+  shoppingItems: ShoppingItem
 }
 
 export type CollectionName = keyof CollectionMap
@@ -400,6 +425,7 @@ export const COLLECTIONS: CollectionName[] = [
   'suggestions',
   'schedule',
   'targetWeights',
+  'shoppingItems',
 ]
 
 export type DataSet = { [K in CollectionName]: CollectionMap[K][] }
@@ -407,19 +433,6 @@ export type DataSet = { [K in CollectionName]: CollectionMap[K][] }
 // ---------- Einstellungen ----------
 
 export type Weekday = 'mo' | 'di' | 'mi' | 'do' | 'fr' | 'sa' | 'so'
-
-export interface FunDrink {
-  id: string
-  name: string
-  foodId?: string
-  /** Menge pro Tag (daily) bzw. pro Portion (perWeek). */
-  ml: number
-  frequency: 'daily' | 'perWeek'
-  perWeek: number
-  packMl: number
-  packPrice: number
-  inBudget: boolean
-}
 
 export interface Settings {
   version: number
@@ -471,7 +484,6 @@ export interface Settings {
     co2Needed: boolean
     co2Price: number
   }
-  funDrinks: FunDrink[]
   prices: Record<string, { price?: number; amount?: number }>
   /** Grundvorrat: false = nicht vorhanden, erscheint dann auf der Einkaufsliste. */
   basics: Record<string, boolean>

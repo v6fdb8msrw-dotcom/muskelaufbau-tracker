@@ -385,7 +385,7 @@ export function AddFoodDialog({
         <div className="stack">
           {products.length === 0 && (
             <div className="muted small">
-              Noch keine eigenen Produkte. Lege sie unter „Trinken & Hydration → Produkte“ mit den Werten vom Etikett an (z. B. Smoothie, Proteinpulver, Fertiggericht).
+              Noch keine eigenen Produkte. Produkte, die du auf der Einkaufsliste mit Etikettwerten einträgst, erscheinen hier automatisch.
             </div>
           )}
           <div className="row-wrap">
@@ -397,7 +397,7 @@ export function AddFoodDialog({
                 aria-pressed={productId === p.id}
                 onClick={() => {
                   setProductId(p.id)
-                  setAmount(p.size ?? 100)
+                  setAmount(p.serving ?? (p.size && p.size <= 500 ? p.size : 100))
                 }}
               >
                 {p.favorite && <Star size={13} />}
@@ -405,11 +405,23 @@ export function AddFoodDialog({
               </button>
             ))}
           </div>
-          {productId && (
-            <div style={{ width: 180 }}>
-              <NumberInput value={amount} onChange={setAmount} suffix={data.products.find((p) => p.id === productId)?.unit} ariaLabel="Menge" />
-            </div>
-          )}
+          {productId &&
+            (() => {
+              const p = data.products.find((x) => x.id === productId)
+              return (
+                <div className="row-wrap" style={{ alignItems: 'center' }}>
+                  <div style={{ width: 180 }}>
+                    <NumberInput value={amount} onChange={setAmount} suffix={p?.unit} ariaLabel="Menge" />
+                  </div>
+                  {p?.serving &&
+                    [0.5, 1, 1.5, 2].map((n) => (
+                      <button key={n} type="button" className="chip" aria-pressed={amount === p.serving! * n} onClick={() => setAmount(p.serving! * n)}>
+                        {n === 1 ? (p.portionLabel ?? '1 Portion') : `${String(n).replace('.', ',')} × Portion`}
+                      </button>
+                    ))}
+                </div>
+              )
+            })()}
         </div>
       )}
 

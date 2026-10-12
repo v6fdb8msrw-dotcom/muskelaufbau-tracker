@@ -1,10 +1,11 @@
 import { describe, expect, it } from 'vitest'
 import { testSettings } from '../test/fixtures'
 import { buildCreatineLog, buildDrinkLog, buildFoodLog, buildFreeLog, buildProteinLog, buildRecipeLog, findDuplicate } from '../state/actions'
-import { COLLECTIONS, type DataSet, type MealPlanEntry, type Product, type Settings, type WeightEntry, type WorkoutLog } from '../types'
-import { generateLunchPlan, savingsSuggestions } from './mealplan'
+import { COLLECTIONS, type DataSet, type MealPlanEntry, type Product, type Settings, type ShoppingItem, type WeightEntry, type WorkoutLog } from '../types'
+import { generateLunchPlan } from './mealplan'
 import { analyzeRange, dayTotals } from './nutrition'
-import { computeShopping } from './shopping'
+import { analyzeProduct, groupByMeal, perPortionToPer100, weekBudget } from './purchases'
+import { planNeeds } from './shopping'
 import {
   makeupDay,
   plannedSessionsForWeek,
@@ -197,49 +198,90 @@ describe('Einkauf und Budget', () => {
     portions,
     leftoverOf,
   })
+  const item = (id: string, patch: Partial<ShoppingItem>): ShoppingItem => ({
+    ...meta(id),
+    week: MONDAY,
+    name: 'Produkt',
+    packs: 1,
+    checked: false,
+    inBudget: true,
+    ...patch,
+  })
 
-  it('Packungen, Vorrat und Kassenpreis vs. Verbrauch', () => {
+  it('Vorschläge aus dem Wochenplan ziehen den Vorrat ab', () => {
     const s = settingsWith()
-    const res = computeShopping(MONDAY, [plan('a', '2026-10-13', 'r001')], [], s, [])
+    const res = planNeeds(MONDAY, [plan('a', '2026-10-13', 'r001')], [], s)
     const chicken = res.lines.find((l) => l.foodId === 'haehnchenbrust')!
     expect(chicken.needed).toBe(150)
     expect(chicken.packs).toBe(1)
-    expect(chicken.cash).toBeCloseTo(4.29)
-    expect(chicken.used).toBeCloseTo((150 / 400) * 4.29)
     expect(res.lines.some((l) => l.foodId === 'rapsoel')).toBe(false)
-    const withPantry = computeShopping(
-      MONDAY,
-      [plan('a', '2026-10-13', 'r001')],
-      [{ ...meta('p'), kind: 'food', foodId: 'haehnchenbrust', name: 'Hähnchen', amount: 200, unit: 'g' }],
-      s,
-      [],
-    )
+    const withPantry = planNeeds(MONDAY, [plan('a', '2026-10-13', 'r001')], [{ ...meta('p'), kind: 'food', foodId: 'haehnchenbrust', name: 'Hähnchen', amount: 200, unit: 'g' }], s)
     expect(withPantry.lines.find((l) => l.foodId === 'haehnchenbrust')!.toBuy).toBe(0)
   })
 
-  it('Reste-Einträge kaufen nichts nach, Brot und Belag nie auf der Liste', () => {
-    const s = settingsWith()
-    const res = computeShopping(MONDAY, [plan('a', '2026-10-13', 'r087', 2), plan('b', '2026-10-14', 'r087', 1, 'a')], [], s, [])
+  it('Reste-Einträge kaufen nichts nach, Brot und Belag nie als Vorschlag', () => {
+    const res = planNeeds(MONDAY, [plan('a', '2026-10-13', 'r087', 2), plan('b', '2026-10-14', 'r087', 1, 'a')], [], settingsWith())
     expect(res.lines).toHaveLength(0)
   })
 
-  it('Getränke zählen zum Budget, Wochenende und Abendessen nicht', () => {
+  it('Budget besteht nur aus eigenen Einträgen, Getränke inklusive', () => {
     const s = settingsWith()
-    const res = computeShopping(MONDAY, [{ ...plan('x', '2026-10-17', 'r001'), slot: 'mittag' }], [], s, [])
-    expect(res.lunchCash).toBe(0)
-    expect(res.outsideCash).toBeGreaterThan(0)
-    expect(res.drinksCash).toBeCloseTo(4 * 1.39 + 3 * 0.99)
+    const items = [
+      item('a', { name: 'Skyr', price: 1.99, packs: 2, checked: true }),
+      item('b', { name: 'Afri-Cola 1 l', price: 1.49 }),
+      item('c', { name: 'Ohne Preis' }),
+      item('d', { name: 'Nicht im Budget', price: 5, inBudget: false }),
+      item('e', { name: 'Andere Woche', price: 9, week: '2026-10-19' }),
+    ]
+    const b = weekBudget(items, MONDAY, s)
+    expect(b.bought).toBeCloseTo(3.98)
+    expect(b.planned).toBeCloseTo(1.49)
+    expect(b.free).toBeCloseTo(20 - 3.98 - 1.49)
+    expect(b.withoutPrice).toBe(1)
+    expect(b.status).toBe('frei')
+    const co2 = weekBudget(items, MONDAY, { ...s, budget: { ...s.budget, co2Needed: true } })
+    expect(co2.free).toBeCloseTo(20 - 3.98 - 1.49 - 9.99)
+    expect(weekBudget([item('k', { price: 18 })], MONDAY, s).status).toBe('knapp')
+    expect(weekBudget([item('x', { price: 25 })], MONDAY, s).status).toBe('ueber')
   })
 
-  it('der automatische Plan bleibt im Budget und lässt Montag frei', () => {
+  it('Produktanalyse aus Etikettwerten: Portion, Kosten, Protein pro Euro', () => {
+    const skyr: Product = { ...meta('skyr'), kind: 'food', name: 'Skyr', unit: 'g', size: 500, price: 1.99, serving: 250, per100: { kcal: 63, protein: 11 }, favorite: false }
+    const a = analyzeProduct(skyr)
+    expect(a.perPortion.protein).toBeCloseTo(27.5)
+    expect(a.perPortion.kcal).toBeCloseTo(157.5)
+    expect(a.portionsPerPack).toBe(2)
+    expect(a.pricePerPortion).toBeCloseTo(0.995)
+    expect(a.proteinPerEuro).toBeCloseTo(55 / 1.99)
+    expect(a.rating).toBe('top')
+    // Abweichender Preis beim Einkauf zählt
+    expect(analyzeProduct(skyr, 1.49).pricePerPortion).toBeCloseTo(0.745)
+  })
+
+  it('Werte pro Portion werden auf 100 g umgerechnet', () => {
+    expect(perPortionToPer100({ kcal: 112, protein: 22.5 }, 30)).toEqual({ kcal: (112 / 30) * 100, protein: 75 })
+    expect(perPortionToPer100({ kcal: 100 }, 0)).toEqual({})
+  })
+
+  it('Einträge nach Essen gruppieren, Protein über alle Packungen', () => {
+    const quark: Product = { ...meta('q'), kind: 'food', name: 'Magerquark', unit: 'g', size: 500, per100: { kcal: 67, protein: 12 }, favorite: false }
+    const groups = groupByMeal(
+      [item('a', { name: 'Magerquark', productId: 'q', packs: 2, price: 0.99, meal: 'Käsekuchen im Glas' }), item('b', { name: 'Red Bull', price: 1.29 })],
+      [quark],
+    )
+    expect(groups.map((g) => g.meal)).toEqual(['Käsekuchen im Glas', 'Ohne Zuordnung'])
+    expect(groups[0].protein).toBeCloseTo(120)
+    expect(groups[0].cost).toBeCloseTo(1.98)
+    expect(groups[1].protein).toBeUndefined()
+  })
+
+  it('der automatische Plan lässt Montag frei und bleibt grob im Budget', () => {
     const s = settingsWith()
     const draft = generateLunchPlan({ weekStart: MONDAY, settings: s, pantry: [], recentLogs: [], mode: 'mealprep', seed: 1 })
     expect(draft.some((d) => d.date === MONDAY)).toBe(false)
     expect(draft).toHaveLength(4)
     const entries: MealPlanEntry[] = draft.map((d, i) => plan(`e${i}`, d.date, d.recipeId, d.portions, d.leftoverOfIndex !== undefined ? `e${d.leftoverOfIndex}` : undefined))
-    const res = computeShopping(MONDAY, entries, [], s, [])
-    expect(res.budgetCash).toBeLessThanOrEqual(20)
-    expect(savingsSuggestions(res, entries, s, [])).toHaveLength(0)
+    expect(planNeeds(MONDAY, entries, [], s).estimateTotal).toBeLessThanOrEqual(20)
   })
 })
 

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { dayTotals } from '../domain/nutrition'
-import { computeShopping } from '../domain/shopping'
+import { weekBudget } from '../domain/purchases'
+import { planNeeds } from '../domain/shopping'
 import { nextSession, programWeek } from '../domain/training'
 import { startOfWeek, todayISO } from '../lib/date'
 import { useStore } from '../state/store'
@@ -23,12 +24,16 @@ export function useDayTotals(date: string) {
   return useMemo(() => dayTotals(data, date), [data, date])
 }
 
-export function useShoppingWeek(weekStart: string) {
+/** Wochenbudget aus deinen eigenen Einkaufseinträgen. */
+export function useWeekBudget(weekStart: string) {
   const { data, settings } = useStore()
-  return useMemo(
-    () => computeShopping(weekStart, data.mealPlan, data.pantry, settings, data.shopping),
-    [weekStart, data.mealPlan, data.pantry, data.shopping, settings],
-  )
+  return useMemo(() => weekBudget(data.shoppingItems, weekStart, settings), [data.shoppingItems, weekStart, settings])
+}
+
+/** Zutaten, die der Wochenplan braucht (nur als Vorschlag). */
+export function usePlanNeeds(weekStart: string) {
+  const { data, settings } = useStore()
+  return useMemo(() => planNeeds(weekStart, data.mealPlan, data.pantry, settings), [weekStart, data.mealPlan, data.pantry, settings])
 }
 
 export function useProgram() {

@@ -1,11 +1,10 @@
 import { FOOD_MAP } from '../data/foods'
-import { RECIPE_MAP, RECIPES } from '../data/recipes'
+import { RECIPES } from '../data/recipes'
 import { addDays } from '../lib/date'
-import type { FoodLogEntry, MealPlanEntry, PantryItem, Recipe, Settings } from '../types'
+import type { FoodLogEntry, PantryItem, Recipe, Settings } from '../types'
 import { recipeProfile } from './nutrition'
 import { checkRecipe, includedIngredients } from './preferences'
 import { isAlwaysAvailable, packOf } from './recipes'
-import { pantryAmount, type ShoppingResult } from './shopping'
 
 export type PlanMode = 'abwechslung' | 'mealprep'
 
@@ -128,62 +127,4 @@ export function generateLunchPlan(options: {
     }
   }
   return result
-}
-
-export interface Saving {
-  id: string
-  text: string
-  amount: number
-  swap?: { planId: string; recipeId: string }
-}
-
-/** Sparvorschläge, wenn der Wocheneinkauf über dem Budget liegt. Getränke werden nie automatisch verändert. */
-export function savingsSuggestions(shopping: ShoppingResult, mealPlan: MealPlanEntry[], settings: Settings, pantry: PantryItem[]): Saving[] {
-  const out: Saving[] = []
-  const over = shopping.budgetCash - settings.budget.max
-  if (over <= 0) return out
-  const week = mealPlan.filter((m) => shopping.lunchDays.some((d) => d.date === m.date) && m.slot === 'mittag' && !m.leftoverOf)
-  const candidates = lunchCandidates(settings, 'abwechslung')
-  const stock = new Map<string, number>()
-  for (const p of pantry) if (p.kind === 'food' && p.foodId) stock.set(p.foodId, pantryAmount(pantry, p.foodId))
-
-  for (const entry of week) {
-    const recipe = RECIPE_MAP[entry.recipeId]
-    if (!recipe) continue
-    const current = marginalCash(recipe, entry.portions, settings, stock)
-    let best: { r: Recipe; cash: number } | undefined
-    for (const r of candidates) {
-      if (r.id === recipe.id || week.some((w) => w.recipeId === r.id)) continue
-      const cash = marginalCash(r, entry.portions, settings, stock)
-      if (!best || cash < best.cash) best = { r, cash }
-    }
-    if (best && current - best.cash >= 0.5) {
-      out.push({
-        id: `swap-${entry.id}-${best.r.id}`,
-        text: `${recipe.name} durch ${best.r.name} ersetzen`,
-        amount: current - best.cash,
-        swap: { planId: entry.id, recipeId: best.r.id },
-      })
-    }
-  }
-
-  const expensive = [...shopping.lines].filter((l) => l.food.cheaper && l.cash > 1).sort((a, b) => b.cash - a.cash).slice(0, 3)
-  for (const l of expensive) out.push({ id: `cheaper-${l.foodId}`, text: `${l.food.name}: ${l.food.cheaper}`, amount: 0 })
-
-  const singleDays = shopping.lunchDays.filter((d) => d.recipeId && !d.leftover)
-  if (singleDays.length >= 3) {
-    out.push({
-      id: 'mealprep',
-      text: 'Zwei Gerichte doppelt kochen statt vier verschiedene (Plan → „Meal-Prep“). Das spart meist angebrochene Packungen.',
-      amount: 0,
-    })
-  }
-  if (shopping.drinksCash > 0) {
-    out.push({
-      id: 'drinks-info',
-      text: `Getränke machen ${shopping.drinksCash.toFixed(2).replace('.', ',')} € des Budgets aus. Die App verändert deinen eingestellten Getränkekonsum nicht. Ob du etwas änderst, entscheidest du selbst.`,
-      amount: 0,
-    })
-  }
-  return out.sort((a, b) => b.amount - a.amount)
 }

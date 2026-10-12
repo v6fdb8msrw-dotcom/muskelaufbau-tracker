@@ -16,6 +16,9 @@ export function foodStatus(food: Food, settings: Settings): FoodStatus {
   if (f.excludedFoods.includes(food.id)) {
     return { allowed: false, kind: 'removed', reason: 'Von dir ausgeschlossen' }
   }
+  if (food.id === 'whey' && !settings.supplements.proteinPowderAvailable) {
+    return { allowed: false, kind: 'removed', reason: 'Proteinpulver ist in den Einstellungen ausgeschaltet' }
+  }
   const tags = food.tags ?? []
   const excludedTag = tags.find((t) => f.excludedTags.includes(t))
   const avoidedTag = tags.find((t) => f.avoidTags.includes(t))

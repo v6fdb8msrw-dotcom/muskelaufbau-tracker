@@ -32,10 +32,10 @@ const FORBIDDEN = [
   /kokos/i,
 ]
 
-describe('100 Rezepte', () => {
-  it('es sind genau 100 Rezepte mit eindeutigen IDs', () => {
-    expect(RECIPES).toHaveLength(100)
-    expect(new Set(RECIPES.map((r) => r.id)).size).toBe(100)
+describe('130 Rezepte', () => {
+  it('es sind genau 130 Rezepte mit eindeutigen IDs', () => {
+    expect(RECIPES).toHaveLength(130)
+    expect(new Set(RECIPES.map((r) => r.id)).size).toBe(130)
   })
 
   it('die Verteilung entspricht dem Plan', () => {
@@ -60,7 +60,20 @@ describe('100 Rezepte', () => {
 
   it('die meisten Rezepte dauern höchstens 15 Minuten', () => {
     const quick = RECIPES.filter((r) => r.minutes <= 15).length
-    expect(quick).toBeGreaterThanOrEqual(85)
+    expect(quick).toBeGreaterThanOrEqual(RECIPES.length * 0.8)
+  })
+
+  it('Protein-Kreationen liefern mindestens 40 g Eiweiß', () => {
+    for (const r of RECIPES.filter((x) => x.category === 'protein-kreationen')) {
+      expect(recipeProfile(r, settings).profile.values.protein, r.id).toBeGreaterThanOrEqual(40)
+    }
+  })
+
+  it('ohne Proteinpulver fallen Rezepte mit Whey weg', () => {
+    const noPowder = { ...settings, supplements: { ...settings.supplements, proteinPowderAvailable: false } }
+    const withWhey = RECIPES.filter((r) => r.ingredients.some((i) => i.foodId === 'whey' && !i.optional))
+    expect(withWhey.length).toBeGreaterThan(0)
+    for (const r of withWhey) expect(checkRecipe(r, noPowder).allowed, r.id).toBe(false)
   })
 
   it('kein Rezept enthält ausgeschlossene Zutaten oder Begriffe', () => {

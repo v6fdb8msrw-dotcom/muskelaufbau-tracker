@@ -1,6 +1,6 @@
 # Muscle Studio
 
-Persönliche Web-App für 16 Wochen Muskelaufbau: Trainingsplan und Kalender, Übungsanleitungen, Tagesprotokoll, Wochenkorrektur, Kalorien- und Nährstofftracking, 100 Rezepte, Wochenplan, Einkaufsliste mit Budget, Trinktracker, Supplements, Gewicht, Kraft und Links-rechts-Balance der Arme. Optional mit Spotify.
+Persönliche Web-App für 16 Wochen Muskelaufbau: Trainingsplan und Kalender, Übungsanleitungen, Tagesprotokoll, Wochenkorrektur, Kalorien- und Nährstofftracking, 130 Rezepte (davon 30 Protein-Kreationen), Wochenplan, freie Einkaufsliste mit Budget, Trinktracker, Supplements, Gewicht, Kraft und Links-rechts-Balance der Arme. Optional mit Spotify.
 
 React · TypeScript · Vite · IndexedDB · installierbare PWA (Mac und iPhone). Alle persönlichen Daten bleiben lokal auf dem jeweiligen Gerät.
 
@@ -24,7 +24,7 @@ Weitere Befehle:
 |---|---|
 | `npm run build` | Typprüfung und Produktions-Build nach `dist/` |
 | `npm run preview` | Build lokal ansehen unter http://127.0.0.1:4173, inklusive Service Worker und Offline-Modus |
-| `npm test` | 46 automatische Tests (Rezepte, Ausschlüsse, Nährwerte, Einkauf, Budget, Training, Gewicht, Speicher, Backup) |
+| `npm test` | 52 automatische Tests (Rezepte, Ausschlüsse, Nährwerte, Einkauf, Budget, Produktanalyse, Training, Gewicht, Speicher, Backup) |
 | `npm run lint` | Code-Prüfung mit oxlint |
 | `npm run icons` | App-Icons aus `public/logo.svg` neu erzeugen |
 
@@ -39,7 +39,11 @@ Für den Alltag am besten die Vorschau (`npm run build && npm run preview`) oder
 
 Die App ist auf dich zugeschnitten: Startgewicht 60,3 kg, 171 cm, 22 Jahre, 2.150 kcal, 120 g Protein, 65 g Fett, 270 g Kohlenhydrate, mindestens 30 g Ballaststoffe, 2,3 l Trinken, Budget 15–20 € pro Woche. Diese Werte sind vorbelegt und lassen sich unter *Einstellungen* ändern. Zahlenfelder akzeptieren Komma und Punkt.
 
-**Bedienung:** Die Startseite ist die Übersicht (Kalorien-, Protein- und Trinkringe, Wochenzeitleiste, nächstes Training, Schnellaktionen). Darunter führen große Felder in die Bereiche *Training*, *Ernährung*, *Tagesprotokoll*, *Wochenkorrektur*, *Trinken*, *Einkauf*, *Fortschritt* und *Musik*. Auf jeder Unterseite gibt es oben „Übersicht“, die Punkte des Bereichs und das Zahnrad für die Einstellungen. Die Plus-Taste unten rechts erfasst Essen, Trinken, Gewicht und Training.
+**Bedienung:** Die Startseite ist eine schlanke Übersicht (Kalorien-, Protein- und Trinkringe, Wochenzeitleiste, nächstes Training, Schnellaktionen und eine Rezeptidee, wenn noch viel Protein fehlt). Darunter führen große Felder in die Bereiche *Training*, *Ernährung*, *Tagesprotokoll*, *Wochenkorrektur*, *Trinken*, *Einkauf*, *Fortschritt* und *Musik*. Auf jeder Unterseite gibt es oben „Übersicht“, die Punkte des Bereichs und das Zahnrad für die Einstellungen. Die Plus-Taste unten rechts erfasst Essen, Trinken, Gewicht und Training.
+
+**Einkaufsliste und Budget:** Die Liste füllst du selbst: Produkt, Anzahl, Preis und auf Wunsch, für welches Essen es ist. Getränke wie Afri-Cola oder Energy-Drinks trägst du genauso ein, oben siehst du, wie viel vom Wochenbudget noch frei ist. Mit „Neues Produkt“ gibst du die Werte vom Etikett ein (pro 100 g oder pro Portion, Portionsgröße, Packungsgröße). Die App rechnet daraus Kalorien und Protein pro Portion, Kosten pro Portion, Protein pro Euro und die Proteindichte. Vorschläge aus dem Wochenplan und proteinreiche Ideen stehen daneben, übernommen wird nur, was du antippst. Eingetragene Produkte kannst du danach direkt im Tagesprotokoll mit deiner Portion erfassen.
+
+**Protein-Kreationen:** 30 einfache Rezepte mit mindestens 40 g Eiweiß pro Portion (Hüttenkäse-Fladenbrot, Chicken-Crust-Pizza, Overnight Oats mit Skyr, Käsekuchen im Glas, Quarkteig-Pizza ohne Tomate …). In der Rezeptliste filtert „Ab 40 g Protein“ danach, „Protein/kcal“ sortiert nach Eiweiß pro Kalorie. Rezepte mit Proteinpulver verschwinden, wenn du Proteinpulver in den Einstellungen ausschaltest.
 
 **ESN-Produkte:** Vorinstalliert sind ESN Designer Whey in den Sorten Vanilla Milk, Stracciatella und Dark Cookie & Cream (Herstellerangaben laut Händlern, bitte mit deiner Dose abgleichen) sowie ESN Ultrapure Creatine Monohydrate mit 3 g pro Tag. Nussige Sorten sind wegen deiner Ausschlüsse nicht dabei. Die Standardsorte für Shakes wählst du unter *Einstellungen → Supplements*.
 
@@ -91,15 +95,15 @@ Ohne Einrichtung kannst du Links zu deinen Playlists speichern und mit einem Tip
 
 - **Nährwerte** sind gerundete Durchschnittswerte aus Nährwerttabellen (angelehnt an USDA FoodData Central und übliche deutsche Etiketten), berechnet aus den Zutatenmengen. Es sind Schätzwerte, keine Laborwerte. Fehlende Werte werden nie als 0 gezählt, sondern als „≥“ (Untergrenze) bzw. „keine Daten“ angezeigt.
 - **Referenzwerte**: DGE/ÖGE für Männer von 19 bis unter 25 Jahren, abgeglichen am 12.10.2026 mit den DGE-Einzelseiten (3. Auflage 2025). Zum Beispiel Jod 150 µg, Vitamin E 8 mg, Magnesium 350 mg, Phosphor 550 mg.
-- **Preise** sind grobe Schätzungen pro Packung, keine aktuellen Supermarktpreise. Eigene Preise trägst du unter *Einstellungen → Preise & Packungen* ein.
-- **Gekaufte Smoothies, Proteinpulver** und andere Produkte legst du mit den Werten vom Etikett an. Die App erfindet keine Produktwerte. Afri-Cola und Energy-Drink haben gekennzeichnete Schätzwerte, die du mit dem Etikett abgleichen solltest.
+- **Preise:** Das Budget rechnet nur mit den Preisen, die du selbst auf der Einkaufsliste einträgst. Die Rezeptkosten und Wochenplan-Vorschläge nutzen grobe Schätzungen pro Packung (keine aktuellen Supermarktpreise), die du unter *Einstellungen → Preise & Packungen* anpassen kannst.
+- **Gekaufte Smoothies, Proteinpulver** und andere Produkte legst du mit den Werten vom Etikett an. Die App erfindet keine Produktwerte. Afri-Cola und Energy-Drink haben im Trinktracker gekennzeichnete Schätzwerte, die du mit dem Etikett abgleichen solltest. Im Budget zählen sie nur, wenn du sie auf der Einkaufsliste einträgst.
 - Die App stellt keine Diagnosen und empfiehlt keine Nahrungsergänzungsmittel aufgrund geschätzter Werte. Ziele (z. B. Kalorien) ändern sich nie automatisch, nur nach deiner Bestätigung.
 
 ## 7. Projektstruktur
 
 ```
 src/
-  data/        Lebensmittel, 100 Rezepte, Übungen, Trainingsplan, DGE-Referenzwerte, Startwerte, ESN-Produkte
+  data/        Lebensmittel, 130 Rezepte, Übungen, Trainingsplan, DGE-Referenzwerte, Startwerte, ESN-Produkte
   domain/      Reine Logik: Nährwerte, Ausschlüsse, Training, Gewicht, Einkauf, Wochenplan, Wochenkorrektur
   storage/     DataRepository (Interface), IndexedDBRepository, Backup/Import, localStorage-Helfer
   state/       React-Store, Aktionen, Router, Toasts
