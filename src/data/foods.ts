@@ -613,6 +613,15 @@ export const FOODS: Food[] = [
     per100: { kcal: 100, protein: 8, carbs: 12.5, sugar: 0.5, fat: 0.5, satFat: 0.1, fiber: 6.5, b1: 0.12, b2: 0.06, b3: 0.8, b5: 0.5, b6: 0.15, folate: 120, vitC: 0, vitE: 0.1, vitK: 1.5, calcium: 20, magnesium: 30, potassium: 300, iron: 2.6, zinc: 1.1, selenium: 2.5, phosphorus: 150, copper: 0.2, sodium: 220, omega3: 0.04, ala: 0.04 },
   },
   {
+    id: 'sojaschnetzel',
+    name: 'Sojaschnetzel (trocken)',
+    category: 'huelsenfruechte',
+    unit: 'g',
+    pack: { amount: 300, label: '300-g-Beutel', price: 1.99 },
+    labelEstimate: true,
+    per100: { kcal: 330, protein: 51, carbs: 16, sugar: 8, fat: 1.2, satFat: 0.2, fiber: 17.5, b1: 0.7, b6: 0.5, folate: 300, calcium: 240, magnesium: 290, potassium: 2380, iron: 9, zinc: 2.5, phosphorus: 670, copper: 4, sodium: 20 },
+  },
+  {
     id: 'hummus',
     name: 'Hummus natur',
     category: 'huelsenfruechte',

@@ -1,4 +1,4 @@
-import { Clock, Dumbbell, Search, Star } from 'lucide-react'
+import { Clock, Dumbbell, PiggyBank, Search, Star } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { Card, PageHead, Seg, type HeadStat } from '../components/ui'
 import { RECIPE_CATEGORIES, RECIPE_CATEGORY_LABEL, RECIPE_MAP, RECIPES } from '../data/recipes'
@@ -16,6 +16,8 @@ type Sort = 'protein' | 'dichte' | 'kosten' | 'zeit' | 'name'
 
 /** Ab dieser Menge gilt ein Rezept als proteinreich. */
 const HIGH_PROTEIN = 40
+/** Bis zu diesem Betrag (Zutaten zum Einkaufen pro Portion) gilt ein Rezept als günstig. */
+const CHEAP = 2
 
 export default function Recipes({ route }: { route: Route }) {
   const id = route.segments[1]
@@ -27,13 +29,13 @@ export default function Recipes({ route }: { route: Route }) {
   const stats: HeadStat[] = [
     { label: 'Rezepte', value: allowed.length },
     { label: `Ab ${HIGH_PROTEIN} g Protein`, value: allowed.filter((s) => s.protein >= HIGH_PROTEIN).length, accent: true },
-    { label: 'In 15 min', value: allowed.filter((s) => s.recipe.minutes <= 15).length },
+    { label: `40 g+ bis ${CHEAP} €`, value: allowed.filter((s) => s.protein >= HIGH_PROTEIN && s.cost.shopping <= CHEAP).length },
   ]
   const head: Record<Tab, { eyebrow: string; title: string; lead: string }> = {
     rezepte: {
       eyebrow: `${RECIPES.length} Rezepte`,
       title: 'Rezepte',
-      lead: 'Alltagstauglich, ohne deine Ausschlüsse, meist in 5–15 Minuten. Neu: 30 Protein-Kreationen mit 40 g Eiweiß und mehr pro Portion.',
+      lead: 'Alltagstauglich, ohne deine Ausschlüsse, meist in 5–15 Minuten. Neu: 50 Rezepte mit mindestens 40 g Eiweiß, davon 20 für höchstens 2 € pro Portion.',
     },
     plan: {
       eyebrow: 'Mittagessen Mo–Fr',
@@ -63,6 +65,7 @@ function RecipeList({ summaries }: { summaries: ReturnType<typeof allRecipeSumma
   const [cat, setCat] = useState<RecipeCategory | 'alle'>('alle')
   const [favOnly, setFavOnly] = useState(false)
   const [highProtein, setHighProtein] = useState(false)
+  const [cheap, setCheap] = useState(false)
   const [time, setTime] = useState<'alle' | '10' | '15'>('alle')
   const [sort, setSort] = useState<Sort>('protein')
   const list = useMemo(() => {
@@ -72,6 +75,7 @@ function RecipeList({ summaries }: { summaries: ReturnType<typeof allRecipeSumma
       .filter((s) => cat === 'alle' || s.recipe.category === cat)
       .filter((s) => !favOnly || settings.favorites.includes(s.recipe.id))
       .filter((s) => !highProtein || s.protein >= HIGH_PROTEIN)
+      .filter((s) => !cheap || s.cost.shopping <= CHEAP)
       .filter((s) => time === 'alle' || s.recipe.minutes <= Number(time))
       .filter((s) => !query || s.recipe.name.toLowerCase().includes(query) || s.calc.lines.some((l) => l.included && l.food.name.toLowerCase().includes(query)))
       .sort((a, b) => {
@@ -81,7 +85,7 @@ function RecipeList({ summaries }: { summaries: ReturnType<typeof allRecipeSumma
         if (sort === 'zeit') return a.recipe.minutes - b.recipe.minutes
         return a.recipe.name.localeCompare(b.recipe.name)
       })
-  }, [summaries, q, cat, favOnly, highProtein, time, sort, settings.favorites])
+  }, [summaries, q, cat, favOnly, highProtein, cheap, time, sort, settings.favorites])
   const blocked = summaries.filter((s) => !s.allowed).length
 
   const toggleFav = (id: string) =>
@@ -110,6 +114,9 @@ function RecipeList({ summaries }: { summaries: ReturnType<typeof allRecipeSumma
         />
         <button type="button" className="chip" aria-pressed={highProtein} onClick={() => setHighProtein(!highProtein)}>
           <Dumbbell size={14} /> Ab {HIGH_PROTEIN} g Protein
+        </button>
+        <button type="button" className="chip" aria-pressed={cheap} onClick={() => setCheap(!cheap)}>
+          <PiggyBank size={14} /> Bis {CHEAP} €
         </button>
         <button type="button" className="chip" aria-pressed={favOnly} onClick={() => setFavOnly(!favOnly)}>
           <Star size={14} /> Favoriten

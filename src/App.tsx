@@ -66,6 +66,13 @@ function Loading() {
   return <div className="page muted small" style={{ padding: 40 }} aria-busy="true" />
 }
 
+/** Darf die Seite für ein Update neu laden, ohne dass Eingaben verloren gehen? */
+function safeToReload(): boolean {
+  if (document.querySelector('.overlay')) return false
+  const el = document.activeElement
+  return !(el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement || el instanceof HTMLSelectElement)
+}
+
 function AppInner() {
   const route = useRoute()
   const { ready, error } = useStore()
@@ -87,18 +94,59 @@ function AppInner() {
     })
   }, [toast])
 
-  // Service Worker registrieren (nur im Build). Updates werden angeboten, nicht erzwungen,
-  // damit ein offenes Formular nicht verloren geht.
+  // Service Worker registrieren (nur im Build). Neue Versionen werden automatisch übernommen,
+  // sobald nichts Ungespeichertes offen ist (kein Dialog, kein Eingabefeld im Fokus).
+  // Sonst erscheint ein Hinweis, und das Update folgt beim nächsten Wechsel in die App.
   useEffect(() => {
     if (!import.meta.env.PROD) return
+    let registration: ServiceWorkerRegistration | undefined
+    let timer: number | undefined
+    let pending = false
+    const apply = () => {
+      try {
+        sessionStorage.setItem('ms.updated', '1')
+      } catch {
+        // ohne sessionStorage gibt es nur keinen Hinweis nach dem Neuladen
+      }
+      void updater.current?.(true)
+    }
+    const check = () => {
+      if (pending && safeToReload()) return apply()
+      if (document.visibilityState === 'visible') void registration?.update().catch(() => undefined)
+    }
     void import('virtual:pwa-register').then(({ registerSW }) => {
       updater.current = registerSW({
         // Die Registrierung wird nachgeladen; das load-Ereignis ist dann meist schon vorbei
         immediate: true,
-        onNeedRefresh: () => setUpdateReady(true),
+        onNeedRefresh: () => {
+          pending = true
+          if (safeToReload()) apply()
+          else setUpdateReady(true)
+        },
         onOfflineReady: () => toast('Offline bereit: Die App funktioniert jetzt auch ohne Internet'),
+        onRegisteredSW: (_url, reg) => {
+          registration = reg
+          // Auf dem iPhone bleibt die App oft im Hintergrund offen: regelmäßig und beim Zurückkehren nachsehen
+          timer = window.setInterval(check, 30 * 60 * 1000)
+        },
       })
     })
+    document.addEventListener('visibilitychange', check)
+    return () => {
+      document.removeEventListener('visibilitychange', check)
+      window.clearInterval(timer)
+    }
+  }, [toast])
+
+  useEffect(() => {
+    try {
+      if (sessionStorage.getItem('ms.updated')) {
+        sessionStorage.removeItem('ms.updated')
+        toast('Muscle Studio ist auf dem neuesten Stand')
+      }
+    } catch {
+      // ignorieren
+    }
   }, [toast])
 
   useEffect(() => {

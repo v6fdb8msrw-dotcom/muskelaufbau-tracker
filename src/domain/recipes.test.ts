@@ -32,10 +32,10 @@ const FORBIDDEN = [
   /kokos/i,
 ]
 
-describe('130 Rezepte', () => {
-  it('es sind genau 130 Rezepte mit eindeutigen IDs', () => {
-    expect(RECIPES).toHaveLength(130)
-    expect(new Set(RECIPES.map((r) => r.id)).size).toBe(130)
+describe('150 Rezepte', () => {
+  it('es sind genau 150 Rezepte mit eindeutigen IDs', () => {
+    expect(RECIPES).toHaveLength(150)
+    expect(new Set(RECIPES.map((r) => r.id)).size).toBe(150)
   })
 
   it('die Verteilung entspricht dem Plan', () => {
@@ -63,10 +63,16 @@ describe('130 Rezepte', () => {
     expect(quick).toBeGreaterThanOrEqual(RECIPES.length * 0.8)
   })
 
-  it('Protein-Kreationen liefern mindestens 40 g Eiweiß', () => {
-    for (const r of RECIPES.filter((x) => x.category === 'protein-kreationen')) {
+  it('Protein-Rezepte liefern mindestens 40 g Eiweiß', () => {
+    for (const r of RECIPES.filter((x) => x.category === 'protein-kreationen' || x.category === 'protein-guenstig')) {
       expect(recipeProfile(r, settings).profile.values.protein, r.id).toBeGreaterThanOrEqual(40)
     }
+  })
+
+  it('günstige Protein-Rezepte kosten höchstens 2 € pro Portion', () => {
+    const cheap = RECIPES.filter((x) => x.category === 'protein-guenstig')
+    expect(cheap).toHaveLength(20)
+    for (const r of cheap) expect(recipeCost(r, settings).shopping, r.id).toBeLessThanOrEqual(2)
   })
 
   it('ohne Proteinpulver fallen Rezepte mit Whey weg', () => {
