@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react'
-import { normalizeSettings } from '../data/defaults'
+import { migrateSettings, normalizeSettings } from '../data/defaults'
+import { ESN_PRODUCTS } from '../data/supplements'
 import { uid } from '../lib/id'
 import { IndexedDBRepository } from '../storage/indexeddb'
 import type { DataRepository } from '../storage/repository'
@@ -41,9 +42,15 @@ export function StoreProvider({ children, repo: repoProp }: { children: ReactNod
     try {
       const next = emptyData()
       for (const c of COLLECTIONS) (next as Record<string, unknown[]>)[c] = await repo.getAll(c)
-      const stored = await repo.getSettings()
-      const s = normalizeSettings(stored)
-      if (!stored) await repo.saveSettings(s)
+      const { settings: s, changed } = migrateSettings(await repo.getSettings())
+      if (changed) await repo.saveSettings(s)
+      // ESN-Produkte einmalig mitliefern (gelöschte kommen nicht wieder)
+      if (!(await repo.getMeta<boolean>('seed.esn'))) {
+        const missing = ESN_PRODUCTS.filter((p) => !next.products.some((x) => x.id === p.id))
+        if (missing.length) await repo.putMany('products', missing)
+        next.products = [...next.products, ...missing]
+        await repo.setMeta('seed.esn', true)
+      }
       let deviceId = await repo.getMeta<string>('deviceId')
       if (!deviceId) {
         deviceId = uid()

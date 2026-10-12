@@ -1,6 +1,6 @@
 import type { FoodTag, Settings } from '../types'
 import { todayISO } from '../lib/date'
-import { PERSONAL } from './personal'
+import { ESN_DEFAULT_PROTEIN } from './supplements'
 
 export const EXCLUDED_TAG_LABEL: Record<FoodTag, string> = {
   mushroom: 'Pilze',
@@ -32,23 +32,21 @@ export const DEFAULT_EXCLUDED_TAGS: FoodTag[] = [
 
 export const DEFAULT_AVOID_TAGS: FoodTag[] = ['tomato', 'potato']
 
-/**
- * Standardeinstellungen. Persönliche Startwerte kommen aus personal.local.json (nicht im Repository),
- * sonst gelten neutrale Platzhalter, die du in den Einstellungen anpasst.
- */
+export const SETTINGS_VERSION = 2
+
+/** Deine Startwerte aus dem Auftrag. In den Einstellungen jederzeit änderbar. */
 export function createDefaultSettings(): Settings {
-  const neutral: Settings = {
-    version: 1,
+  return {
+    version: SETTINGS_VERSION,
     profile: {
       name: '',
-      age: 25,
+      age: 22,
       sex: 'm',
-      heightCm: 175,
-      startWeightKg: 70,
-      activity: '',
-      experience: '',
-      goal: 'Muskelaufbau',
-      confirmed: false,
+      heightCm: 171,
+      startWeightKg: 60.3,
+      activity: 'gering, überwiegend sitzend',
+      experience: 'kaum Krafttraining',
+      goal: 'Möglichst viel Muskelmasse in drei bis vier Monaten aufbauen',
     },
     program: {
       startDate: todayISO(),
@@ -61,33 +59,37 @@ export function createDefaultSettings(): Settings {
       equipment: { dumbbells: true, rower: true, treadmill: true, pullupBar: false },
     },
     targets: {
-      kcal: 2200,
-      protein: 110,
-      fat: 70,
+      kcal: 2150,
+      protein: 120,
+      fat: 65,
       carbs: 270,
       fiber: 30,
-      fluidMl: 2000,
+      fluidMl: 2300,
       gainMinG: 100,
       gainMaxG: 250,
-      bmrEstimate: 1700,
-      maintenanceMin: 2000,
-      maintenanceMax: 2300,
+      bmrEstimate: 1567,
+      maintenanceMin: 1900,
+      maintenanceMax: 2100,
     },
     arms: { weakerSide: null },
     supplements: {
-      creatineEnabled: false,
+      creatineEnabled: true,
       creatineDoseG: 3,
       creatineReminder: false,
-      proteinPowderAvailable: false,
+      proteinPowderAvailable: true,
+      proteinProductId: ESN_DEFAULT_PROTEIN,
     },
     budget: {
       min: 15,
-      max: 25,
+      max: 20,
       mondayLeftovers: true,
       co2Needed: false,
       co2Price: 9.99,
     },
-    funDrinks: [],
+    funDrinks: [
+      { id: 'afri-cola', name: 'Afri-Cola', foodId: 'afri-cola', ml: 500, frequency: 'daily', perWeek: 7, packMl: 1000, packPrice: 1.39, inBudget: true },
+      { id: 'energy', name: 'Energy-Drink', foodId: 'energy', ml: 250, frequency: 'perWeek', perWeek: 3, packMl: 250, packPrice: 0.99, inBudget: true },
+    ],
     prices: {},
     basics: {},
     food: {
@@ -98,18 +100,11 @@ export function createDefaultSettings(): Settings {
       excludedFoods: [],
     },
     favorites: [],
-    spotify: { artists: [], savedPlaylists: [] },
+    spotify: {
+      artists: ['Gunna', 'Ty Dolla Sign', 'Kid Cudi', 'Don Toliver', 'Future', 'Young Thug', 'Casper', 'Chapo102', 'Badchieff'],
+      savedPlaylists: [],
+    },
     mealTimes: { lunch: '11:00', dinner: '19:00', late: '22:00' },
-  }
-  const p = PERSONAL
-  if (!p) return neutral
-  return {
-    ...neutral,
-    profile: { ...neutral.profile, ...p.profile },
-    targets: { ...neutral.targets, ...p.targets },
-    budget: { ...neutral.budget, ...p.budget },
-    funDrinks: p.funDrinks ?? neutral.funDrinks,
-    spotify: { ...neutral.spotify, artists: p.artists ?? neutral.spotify.artists },
   }
 }
 
@@ -120,7 +115,7 @@ export function normalizeSettings(input: Partial<Settings> | undefined): Setting
   return {
     ...d,
     ...input,
-    version: 1,
+    version: SETTINGS_VERSION,
     profile: { ...d.profile, ...input.profile },
     program: { ...d.program, ...input.program, equipment: { ...d.program.equipment, ...input.program?.equipment } },
     targets: { ...d.targets, ...input.targets },
@@ -134,6 +129,32 @@ export function normalizeSettings(input: Partial<Settings> | undefined): Setting
     favorites: input.favorites ?? [],
     spotify: { ...d.spotify, ...input.spotify },
     mealTimes: { ...d.mealTimes, ...input.mealTimes },
+  }
+}
+
+/**
+ * Gespeicherte Einstellungen älterer Versionen anheben.
+ * Version 1 → 2: Profil und Ziele auf deine Startwerte aus dem Auftrag setzen (vorher konnten dort
+ * neutrale Platzhalter stehen), Kreatin und Proteinpulver aktivieren, leere Getränke-, Budget- und
+ * Musikangaben mit deinen Werten füllen.
+ */
+export function migrateSettings(stored: Partial<Settings> | undefined): { settings: Settings; changed: boolean } {
+  if (!stored) return { settings: createDefaultSettings(), changed: true }
+  const version = stored.version ?? 1
+  if (version >= SETTINGS_VERSION) return { settings: normalizeSettings(stored), changed: false }
+  const d = createDefaultSettings()
+  const s = normalizeSettings(stored)
+  return {
+    changed: true,
+    settings: {
+      ...s,
+      profile: { ...d.profile, name: s.profile.name },
+      targets: d.targets,
+      supplements: { ...s.supplements, creatineEnabled: true, proteinPowderAvailable: true, proteinProductId: s.supplements.proteinProductId ?? ESN_DEFAULT_PROTEIN },
+      budget: s.budget.max === 25 ? d.budget : s.budget,
+      funDrinks: s.funDrinks.length ? s.funDrinks : d.funDrinks,
+      spotify: { ...s.spotify, artists: s.spotify.artists.length ? s.spotify.artists : d.spotify.artists },
+    },
   }
 }
 

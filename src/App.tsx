@@ -2,7 +2,7 @@ import { lazy, Suspense, useEffect, useRef, useState } from 'react'
 import { applyDisplayPrefs } from './components/displayPrefs'
 import { Shell } from './components/Shell'
 import { UiProvider } from './components/UiContext'
-import { Dashboard } from './pages/Dashboard'
+import { Home } from './pages/Home'
 import { handleCallback } from './spotify/auth'
 import { readDisplayPrefs } from './storage/localPrefs'
 import { navigate, useRoute, type Route } from './state/router'
@@ -28,7 +28,7 @@ function Page({ route }: { route: Route }) {
   const [first] = route.segments
   switch (first) {
     case undefined:
-      return <Dashboard />
+      return <Home />
     case 'protokoll':
       return <DailyLog route={route} />
     case 'woche':
@@ -58,7 +58,7 @@ function Page({ route }: { route: Route }) {
     case 'training':
       return <WorkoutLogger key={route.segments[1] ?? 'frei'} route={route} />
     default:
-      return <Dashboard />
+      return <Home />
   }
 }
 

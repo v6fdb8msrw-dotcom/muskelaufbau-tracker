@@ -338,6 +338,11 @@ export interface Product extends BaseRecord {
   /** Werte laut Etikett pro 100 g/ml. Nur eintragen, was auf dem Etikett steht. */
   per100: Nutrients
   favorite: boolean
+  /** Übliche Portion (z. B. 30 g Pulver pro Shake) */
+  serving?: number
+  /** Von der App mitgeliefert (z. B. ESN), Werte trotzdem änderbar */
+  builtin?: boolean
+  note?: string
 }
 
 export interface DayStatus extends BaseRecord {
@@ -417,7 +422,7 @@ export interface FunDrink {
 }
 
 export interface Settings {
-  version: 1
+  version: number
   profile: {
     name: string
     age: number
@@ -427,8 +432,6 @@ export interface Settings {
     activity: string
     experience: string
     goal: string
-    /** false, solange nur neutrale Platzhalter eingetragen sind */
-    confirmed?: boolean
   }
   program: {
     startDate: string

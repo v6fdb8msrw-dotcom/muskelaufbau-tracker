@@ -8,6 +8,7 @@ import { Bar, Card, CardHead, Disclosure, Field, Modal, NumberInput, PageHead, R
 import { useUi } from '../components/UiContext'
 import { MACRO_KEYS, MICRO_KEYS } from '../data/nutrients'
 import { SESSION_MAP } from '../data/plan'
+import { ESN_CREATINE } from '../data/supplements'
 import { RECIPE_MAP } from '../data/recipes'
 import { dayTotals, entriesForDate } from '../domain/nutrition'
 import { programWeek, plannedSessionsForWeek, sessionStatus } from '../domain/training'
@@ -211,7 +212,7 @@ export default function DailyLog({ route }: { route: Route }) {
               <div className="entry" key={s.id}>
                 <span className="entry-time">{s.time}</span>
                 <div className="entry-main">
-                  <div className="entry-name">{s.kind === 'creatine' ? 'Kreatin-Monohydrat' : 'Proteinshake'}</div>
+                  <div className="entry-name">{s.kind === 'creatine' ? ESN_CREATINE.name : `Proteinshake${s.productId ? ` · ${data.products.find((p) => p.id === s.productId)?.name.replace('ESN Designer Whey · ', '') ?? ''}` : ''}`}</div>
                   <div className="entry-meta">
                     {num(s.grams)} g{s.kind === 'protein' ? ` · ${num(s.nutrients.protein ?? 0)} g Protein · ${num(s.liquidMl ?? 0)} ml ${s.liquid === 'milch' ? 'Milch' : 'Wasser'}` : ' · kein Protein'}
                   </div>

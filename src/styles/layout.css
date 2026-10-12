@@ -1,56 +1,20 @@
-/* ---------- App-Rahmen ---------- */
+/* ---------- App-Rahmen (ohne Seitenmenü) ---------- */
 
 .app {
-  display: grid;
-  grid-template-columns: var(--sidebar-w) minmax(0, 1fr);
   min-height: 100dvh;
-}
-
-.sidebar {
-  position: sticky;
-  top: 0;
-  height: 100dvh;
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-  padding: 26px 16px 18px;
-  background: linear-gradient(180deg, #fbfaf7 0%, #f5f2ec 100%);
-  border-right: 1px solid var(--line);
-  overflow-y: auto;
-  scrollbar-width: thin;
-  isolation: isolate;
-}
-
-.sidebar::before,
-.marble::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image: var(--marble);
-  background-size: 900px 900px;
-  opacity: 0.16;
-  pointer-events: none;
-  z-index: -1;
-  mix-blend-mode: multiply;
-}
-
-html[data-marble='off'] .sidebar::before,
-html[data-marble='off'] .marble::before {
-  display: none;
 }
 
 .brand {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 2px 10px 6px;
   text-decoration: none;
 }
 
 .brand-mark {
-  width: 38px;
-  height: 38px;
-  border-radius: 12px;
+  width: 40px;
+  height: 40px;
+  border-radius: 13px;
   display: grid;
   place-items: center;
   background: var(--ink);
@@ -58,9 +22,15 @@ html[data-marble='off'] .marble::before {
   flex: none;
 }
 
+.brand-mark.sm {
+  width: 28px;
+  height: 28px;
+  border-radius: 9px;
+}
+
 .brand-name {
   font-family: var(--font-display);
-  font-size: 23px;
+  font-size: 24px;
   line-height: 1;
   letter-spacing: -0.01em;
 }
@@ -73,82 +43,130 @@ html[data-marble='off'] .marble::before {
   margin-top: 4px;
 }
 
-.nav {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
+/* Leiste der Unterseiten */
+.appbar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  padding: calc(env(safe-area-inset-top) + 10px) var(--gutter) 10px;
+  background: rgba(244, 241, 235, 0.82);
+  backdrop-filter: saturate(1.4) blur(18px);
+  -webkit-backdrop-filter: saturate(1.4) blur(18px);
+  border-bottom: 1px solid rgba(212, 214, 216, 0.55);
 }
 
-.nav-group-label {
-  padding: 14px 12px 6px;
-}
-
-.nav-link {
-  position: relative;
+.appbar-row {
+  max-width: var(--content-max);
+  margin: 0 auto;
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 9px 12px;
-  border-radius: 11px;
-  color: var(--ink-2);
-  text-decoration: none;
-  font-size: 14px;
-  font-weight: 560;
-  transition: background var(--dur-1) var(--ease), color var(--dur-1) var(--ease);
+  gap: 14px;
 }
 
-.nav-link svg {
-  color: var(--ink-3);
-  transition: color var(--dur-1) var(--ease);
+.appbar-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 5px 12px 5px 8px;
+  border-radius: 14px;
+  color: var(--ink);
+  text-decoration: none;
+  font-weight: 650;
+  font-size: 14px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.7);
+  transition: background var(--dur-1) var(--ease), border-color var(--dur-1) var(--ease), transform var(--dur-1) var(--ease);
   flex: none;
 }
 
-.nav-link:hover {
-  background: rgba(255, 255, 255, 0.75);
-  color: var(--ink);
+.appbar-back:hover {
+  background: var(--white);
+  border-color: var(--silver);
 }
 
-.nav-link[aria-current='page'] {
-  background: var(--white);
+.appbar-back:active {
+  transform: scale(0.98);
+}
+
+.appbar-title {
+  font-weight: 650;
+  font-size: 15px;
+  color: var(--ink-2);
+}
+
+.area-nav {
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  min-width: 0;
+  flex: 1;
+  padding: 2px;
+}
+
+.area-nav::-webkit-scrollbar {
+  display: none;
+}
+
+.area-nav a {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 12px;
+  border-radius: 11px;
+  font-size: 13.5px;
+  font-weight: 620;
+  color: var(--ink-3);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background var(--dur-1) var(--ease), color var(--dur-1) var(--ease), box-shadow var(--dur-1) var(--ease);
+}
+
+.area-nav a:hover {
   color: var(--ink);
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.area-nav a[aria-current='page'] {
+  color: var(--ink);
+  background: var(--white);
   box-shadow: var(--shadow-1), inset 0 0 0 1px var(--line);
 }
 
-.nav-link[aria-current='page'] svg {
-  color: var(--ink);
+.area-nav a[aria-current='page'] svg {
+  color: var(--neon-ink);
 }
 
-.nav-link[aria-current='page']::before {
-  content: '';
-  position: absolute;
-  left: -16px;
-  top: 9px;
-  bottom: 9px;
-  width: 3px;
-  border-radius: 0 3px 3px 0;
-  background: var(--neon-strong);
-  box-shadow: 0 0 12px rgba(60, 240, 124, 0.7);
+.appbar-actions {
+  margin-left: auto;
+  display: flex;
+  gap: 8px;
+  flex: none;
 }
 
-.sidebar-foot {
-  margin-top: auto;
-  padding: 12px;
-  border-radius: var(--radius);
-  background: rgba(255, 255, 255, 0.6);
-  border: 1px solid var(--line);
-  font-size: 12px;
-  color: var(--ink-3);
+.appbar-actions [aria-current='page'] {
+  border-color: var(--ink);
 }
 
 .main {
   min-width: 0;
-  padding: 30px var(--gutter) 80px;
+  padding: 28px var(--gutter) 110px;
+}
+
+.main-home {
+  padding-top: 0;
 }
 
 .page {
   max-width: var(--content-max);
   margin: 0 auto;
   animation: page-in var(--dur-2) var(--ease) both;
+}
+
+.update-banner {
+  max-width: var(--content-max);
+  margin: 18px auto;
+  align-items: center;
 }
 
 .page-head {
@@ -177,130 +195,61 @@ html[data-marble='off'] .marble::before {
   align-items: center;
 }
 
-/* Mobile Elemente standardmäßig aus */
-.topbar,
-.bottom-nav {
-  display: none;
+/* Schnell erfassen */
+.fab {
+  position: fixed;
+  z-index: 41;
+  right: max(20px, env(safe-area-inset-right));
+  bottom: calc(env(safe-area-inset-bottom) + 20px);
+  display: grid;
+  place-items: center;
+  width: 58px;
+  height: 58px;
+  border-radius: 19px;
+  border: 0;
+  background: var(--ink);
+  color: var(--neon);
+  box-shadow: 0 0 0 1px rgba(60, 240, 124, 0.25), 0 12px 30px rgba(30, 33, 37, 0.35), 0 0 26px rgba(60, 240, 124, 0.18);
+  transition: transform var(--dur-2) var(--ease), box-shadow var(--dur-2) var(--ease);
 }
 
-/* ---------- Tablet: schmale Seitenleiste ---------- */
-@media (max-width: 1080px) and (min-width: 761px) {
-  .app {
-    grid-template-columns: 76px minmax(0, 1fr);
-  }
-  .sidebar {
-    padding: 22px 12px;
-    align-items: center;
-  }
-  .brand-text,
-  .nav-link span,
-  .nav-group-label,
-  .sidebar-foot {
-    display: none;
-  }
-  .nav-link {
-    justify-content: center;
-    padding: 11px;
-  }
-  .nav-link[aria-current='page']::before {
-    left: -12px;
-  }
+.fab:hover {
+  transform: translateY(-2px) rotate(90deg);
+  box-shadow: 0 0 0 1px rgba(60, 240, 124, 0.45), 0 16px 34px rgba(30, 33, 37, 0.4), 0 0 34px rgba(60, 240, 124, 0.32);
 }
 
-/* ---------- iPhone: Pocket-Ansicht ---------- */
 @media (max-width: 760px) {
-  .app {
-    display: block;
+  .appbar {
+    padding: calc(env(safe-area-inset-top) + 8px) 0 8px;
   }
-  .sidebar {
+  .appbar-row {
+    flex-wrap: wrap;
+    gap: 8px 10px;
+    padding: 0 var(--gutter);
+  }
+  .appbar-label {
     display: none;
   }
-  .topbar {
-    position: sticky;
-    top: 0;
-    z-index: 30;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    padding: calc(env(safe-area-inset-top) + 10px) var(--gutter) 10px;
-    background: rgba(244, 241, 235, 0.86);
-    backdrop-filter: saturate(1.4) blur(16px);
-    -webkit-backdrop-filter: saturate(1.4) blur(16px);
-    border-bottom: 1px solid rgba(212, 214, 216, 0.6);
+  .area-nav {
+    order: 3;
+    flex-basis: 100%;
+    margin: 0 calc(var(--gutter) * -1);
+    padding: 2px var(--gutter);
   }
-  .topbar .brand {
-    padding: 0;
-  }
-  .topbar .brand-mark {
-    width: 32px;
-    height: 32px;
-    border-radius: 10px;
-  }
-  .topbar .brand-name {
-    font-size: 20px;
+  .appbar-title {
+    flex: 1;
   }
   .main {
-    padding: 18px var(--gutter) calc(env(safe-area-inset-bottom) + 108px);
+    padding: 18px var(--gutter) calc(env(safe-area-inset-bottom) + 100px);
+  }
+  .main-home {
+    padding-top: 0;
   }
   .page-head {
     margin-bottom: 18px;
   }
   h1 {
     font-size: 32px;
-  }
-  .bottom-nav {
-    position: fixed;
-    z-index: 40;
-    left: 10px;
-    right: 10px;
-    bottom: calc(env(safe-area-inset-bottom) + 10px);
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    padding: 6px;
-    border-radius: 22px;
-    background: rgba(253, 252, 249, 0.92);
-    backdrop-filter: saturate(1.5) blur(18px);
-    -webkit-backdrop-filter: saturate(1.5) blur(18px);
-    border: 1px solid var(--line);
-    box-shadow: var(--shadow-3);
-  }
-  .bottom-nav a,
-  .bottom-nav button {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 3px;
-    padding: 7px 2px 6px;
-    border: 0;
-    background: none;
-    border-radius: 16px;
-    color: var(--ink-3);
-    font-size: 10.5px;
-    font-weight: 650;
-    text-decoration: none;
-  }
-  .bottom-nav [aria-current='page'] {
-    color: var(--ink);
-    background: var(--white);
-    box-shadow: inset 0 0 0 1px var(--line);
-  }
-  .bottom-nav [aria-current='page'] svg {
-    color: var(--neon-ink);
-  }
-  .bottom-nav .nav-add {
-    padding: 0;
-    justify-content: center;
-  }
-  .nav-add span {
-    display: grid;
-    place-items: center;
-    width: 48px;
-    height: 48px;
-    border-radius: 16px;
-    background: var(--ink);
-    color: var(--neon);
-    box-shadow: 0 8px 20px rgba(30, 33, 37, 0.3);
   }
   .desktop-only {
     display: none !important;
@@ -311,4 +260,20 @@ html[data-marble='off'] .marble::before {
   .mobile-only {
     display: none !important;
   }
+}
+
+/* Marmorstruktur für Karten */
+.marble::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: var(--marble);
+  background-size: 900px 900px;
+  pointer-events: none;
+  z-index: -1;
+  mix-blend-mode: multiply;
+}
+
+html[data-marble='off'] .marble::before {
+  display: none;
 }

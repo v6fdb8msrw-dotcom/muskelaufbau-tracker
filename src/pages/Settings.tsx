@@ -63,12 +63,7 @@ export default function SettingsPage({ route }: { route: Route }) {
 function useSettingsUpdate() {
   const { settings, updateSettings } = useStore()
   const set = <K extends keyof Settings>(key: K, patch: Partial<Settings[K]>) =>
-    updateSettings((s) => ({
-      ...s,
-      [key]: { ...(s[key] as object), ...patch },
-      // Wer Profil oder Ziele bearbeitet, hat die Platzhalter durch eigene Werte ersetzt
-      ...(key === 'profile' || key === 'targets' ? { profile: { ...s.profile, ...(key === 'profile' ? patch : {}), confirmed: true } } : {}),
-    }))
+    updateSettings((s) => ({ ...s, [key]: { ...(s[key] as object), ...patch } }))
   return { settings, set, updateSettings }
 }
 
@@ -86,18 +81,6 @@ function ProfileSection() {
   const p = settings.profile
   return (
     <Section title="Persönliche Daten" eyebrow="Profil">
-      {!p.confirmed && (
-        <div style={{ marginBottom: 14 }}>
-          <Notice kind="warn">
-            Hier stehen noch neutrale Platzhalter. Trage deine Werte ein (oder importiere unter „Daten & Backup“ ein Backup von deinem anderen Gerät).
-            <div style={{ marginTop: 8 }}>
-              <button type="button" className="btn btn-sm" onClick={() => set('profile', { confirmed: true })}>
-                Werte passen so
-              </button>
-            </div>
-          </Notice>
-        </div>
-      )}
       <div className="form-grid">
         <Field label="Name (optional, für die Begrüßung)">
           <input className="input" value={p.name} onChange={(e) => set('profile', { name: e.target.value })} />
@@ -663,9 +646,6 @@ function DataSection() {
   async function runImport() {
     if (!validation?.backup) return
     const summary = await importBackup(repo, validation.backup, data, mode)
-    // Neues Gerät ohne eigene Startwerte: Einstellungen aus dem Backup übernehmen
-    const adoptSettings = mode === 'merge' && !settings.profile.confirmed
-    if (adoptSettings) await repo.saveSettings(validation.backup.settings)
     await store.reload()
     setValidation(undefined)
     toast(mode === 'replace' ? `Wiederhergestellt: ${summary.added} Einträge` : `Importiert: ${summary.added} neu, ${summary.updated} aktualisiert, ${summary.skipped} doppelt übersprungen`)
@@ -798,9 +778,7 @@ function DataSection() {
               />
               <div className="muted small">
                 {mode === 'merge'
-                  ? settings.profile.confirmed
-                    ? 'Neue Einträge kommen dazu. Bei gleichen Einträgen gewinnt der neuere Stand, Doppelte werden übersprungen. Deine Einstellungen bleiben.'
-                    : 'Neue Einträge kommen dazu, Doppelte werden übersprungen. Weil auf diesem Gerät noch keine eigenen Startwerte stehen, werden die Einstellungen aus dem Backup übernommen.'
+                  ? 'Neue Einträge kommen dazu. Bei gleichen Einträgen gewinnt der neuere Stand, Doppelte werden übersprungen. Deine Einstellungen bleiben.'
                   : 'Alle lokalen Daten und Einstellungen werden durch das Backup ersetzt.'}
               </div>
             </div>

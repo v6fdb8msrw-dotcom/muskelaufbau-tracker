@@ -7,6 +7,7 @@ import { useDayTotals, useToday } from '../components/hooks'
 import { ProductDialog, PRODUCT_KIND_LABEL } from '../components/ProductDialog'
 import { Card, CardHead, Field, Modal, NumberInput, Notice, PageHead, Ring, Seg, Switch } from '../components/ui'
 import { FLUID_DGE_ML } from '../data/nutrients'
+import { ESN_CREATINE } from '../data/supplements'
 import { dayTotals, productProfile } from '../domain/nutrition'
 import { addDays, WEEKDAY_SHORT, weekdayIndex } from '../lib/date'
 import { ml, num } from '../lib/format'
@@ -95,7 +96,7 @@ export default function Hydration() {
         </Card>
 
         <Card index={3}>
-          <CardHead eyebrow="Supplement" title="Kreatin-Monohydrat" />
+          <CardHead eyebrow="Supplement · Kreatin" title={ESN_CREATINE.name} />
           <div className="stack">
             <Switch
               checked={settings.supplements.creatineEnabled}
@@ -137,7 +138,7 @@ export default function Hydration() {
               </>
             )}
             <div className="muted tiny">
-              Üblicher Richtwert bei Verwendung: 3–5 g täglich, keine Ladephase nötig. Kreatin ist keine Proteinquelle und wird nicht beim Protein mitgezählt. Es gibt keine Serien und keinen Druck. Mehr Muskeln sind damit nicht garantiert.
+              {ESN_CREATINE.note} Üblicher Richtwert bei Verwendung: 3–5 g täglich, keine Ladephase nötig. Kreatin ist keine Proteinquelle und wird nicht beim Protein mitgezählt. Es gibt keine Serien und keinen Druck. Mehr Muskeln sind damit nicht garantiert.
             </div>
           </div>
         </Card>
@@ -197,7 +198,7 @@ export default function Hydration() {
               {[...data.products]
                 .sort((a, b) => Number(b.favorite) - Number(a.favorite) || a.name.localeCompare(b.name))
                 .map((p) => {
-                  const portion = p.kind === 'protein' ? 30 : (p.size ?? 250)
+                  const portion = p.serving ?? (p.kind === 'protein' ? 30 : (p.size ?? 250))
                   const prof = productProfile(p, portion).values
                   return (
                     <div className="list-item" key={p.id}>
@@ -213,11 +214,13 @@ export default function Hydration() {
                       <div className="grow">
                         <div className="title">{p.name}</div>
                         <div className="meta">
+                          {p.builtin ? 'ESN · ' : ''}
                           {PRODUCT_KIND_LABEL[p.kind]}
                           {p.shop ? ` · ${p.shop}` : ''} · {portion} {p.unit}: {num(prof.kcal ?? 0)} kcal
                           {prof.protein !== undefined ? `, ${num(prof.protein)} g Protein` : ''}
                           {prof.vitC !== undefined ? `, ${num(prof.vitC)} mg Vit. C` : ''}
                         </div>
+                        {p.note && <div className="meta">{p.note}</div>}
                       </div>
                       <button type="button" className="btn btn-ghost btn-icon sm" onClick={() => setProductDialog({ product: p })} aria-label="Bearbeiten">
                         <Pencil size={15} />

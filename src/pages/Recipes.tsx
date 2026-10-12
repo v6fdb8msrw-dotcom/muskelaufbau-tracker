@@ -1,10 +1,10 @@
 import { Clock, Search, Star } from 'lucide-react'
 import { useMemo, useState } from 'react'
-import { Card, PageHead, Seg, Tabs } from '../components/ui'
+import { Card, PageHead, Seg } from '../components/ui'
 import { RECIPE_CATEGORIES, RECIPE_CATEGORY_LABEL, RECIPE_MAP } from '../data/recipes'
 import { allRecipeSummaries } from '../domain/recipes'
 import { euro, num } from '../lib/format'
-import { href, navigate, type Route } from '../state/router'
+import { href, type Route } from '../state/router'
 import { useStore } from '../state/store'
 import type { RecipeCategory } from '../types'
 import { FoodDatabase } from './recipes/FoodDatabase'
@@ -18,22 +18,26 @@ export default function Recipes({ route }: { route: Route }) {
   const id = route.segments[1]
   if (id && RECIPE_MAP[id]) return <RecipeDetail recipe={RECIPE_MAP[id]} />
   const tab = (route.query.get('tab') as Tab) ?? 'rezepte'
+  const head: Record<Tab, { eyebrow: string; title: string; lead: string }> = {
+    rezepte: {
+      eyebrow: '100 Rezepte',
+      title: 'Rezepte',
+      lead: 'Alltagstaugliche Rezepte ohne deine Ausschlüsse, meist in 5–15 Minuten. Standard ist eine Portion, zwei sind mit einem Klick möglich.',
+    },
+    plan: {
+      eyebrow: 'Mittagessen Mo–Fr',
+      title: 'Wochenplan',
+      lead: 'Plane die Mittagessen der Woche. Die Einkaufsliste und das Budget passen sich automatisch an.',
+    },
+    lebensmittel: {
+      eyebrow: 'Datenbank & Vorlieben',
+      title: 'Lebensmittel & Ausschlüsse',
+      lead: 'Alle Lebensmittel mit Nährwerten und Schätzpreisen, dazu deine Ausschlüsse und freigegebenes Gemüse.',
+    },
+  }
   return (
     <div className="page">
-      <PageHead
-        eyebrow="100 Rezepte · Wochenplan · Lebensmittel"
-        title="Ernährung & Rezepte"
-        lead="Alltagstaugliche Rezepte ohne deine Ausschlüsse, meist in 5–15 Minuten. Standard ist eine Portion, zwei sind mit einem Klick möglich."
-      />
-      <Tabs
-        value={tab}
-        onChange={(t) => navigate(t === 'rezepte' ? '/rezepte' : `/rezepte?tab=${t}`)}
-        options={[
-          { value: 'rezepte', label: 'Rezepte' },
-          { value: 'plan', label: 'Wochenplan' },
-          { value: 'lebensmittel', label: 'Lebensmittel & Ausschlüsse' },
-        ]}
-      />
+      <PageHead eyebrow={head[tab].eyebrow} title={head[tab].title} lead={head[tab].lead} />
       {tab === 'rezepte' && <RecipeList />}
       {tab === 'plan' && <MealPlanView route={route} />}
       {tab === 'lebensmittel' && <FoodDatabase />}

@@ -1,5 +1,5 @@
 import { ChevronDown, Info, X } from 'lucide-react'
-import { useEffect, useId, useRef, type CSSProperties, type ReactNode } from 'react'
+import { useEffect, useId, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { clamp } from '../lib/format'
 
 export function PageHead({ eyebrow, title, lead, actions }: { eyebrow?: string; title: string; lead?: ReactNode; actions?: ReactNode }) {
@@ -190,11 +190,29 @@ export function Field({ label, hint, children, htmlFor }: { label: ReactNode; hi
   )
 }
 
+/** Zahl für die Anzeige mit deutschem Komma. */
+function formatInput(v: number | undefined): string {
+  if (v === undefined || !Number.isFinite(v)) return ''
+  return String(Math.round(v * 1000) / 1000).replace('.', ',')
+}
+
+/** Text in Zahl umwandeln; Komma und Punkt sind erlaubt. Unfertige Eingaben ergeben undefined. */
+export function parseNumberInput(text: string): number | undefined {
+  const t = text.trim().replace(/\s/g, '').replace(',', '.')
+  if (!t || t === '-' || t === '.') return undefined
+  const n = Number(t)
+  return Number.isFinite(n) ? n : undefined
+}
+
+/**
+ * Zahlenfeld, das sich frei bearbeiten lässt: Während der Eingabe darf das Feld leer oder unfertig
+ * sein (z. B. „60,“). Gültige Zahlen werden sofort übernommen, beim Verlassen springt eine
+ * ungültige Eingabe auf den gespeicherten Wert zurück.
+ */
 export function NumberInput({
   value,
   onChange,
   suffix,
-  step = 1,
   min,
   max,
   id,
@@ -211,22 +229,37 @@ export function NumberInput({
   placeholder?: string
   ariaLabel?: string
 }) {
+  const [draft, setDraft] = useState<string | null>(null)
+  const shown = draft ?? formatInput(value)
   return (
     <div className="input-group">
       <input
         id={id}
         className="input num"
-        type="number"
+        type="text"
         inputMode="decimal"
-        step={step}
-        min={min}
-        max={max}
+        autoComplete="off"
         placeholder={placeholder}
         aria-label={ariaLabel}
-        value={value ?? ''}
+        value={shown}
+        onFocus={(e) => {
+          setDraft(formatInput(value))
+          e.currentTarget.select()
+        }}
+        onBlur={() => setDraft(null)}
         onChange={(e) => {
-          const raw = e.target.value.replace(',', '.')
-          onChange(raw === '' ? undefined : Number(raw))
+          const text = e.target.value
+          if (!/^-?[\d\s]*[.,]?\d*$/.test(text)) return
+          setDraft(text)
+          if (text.trim() === '') {
+            onChange(undefined)
+            return
+          }
+          const n = parseNumberInput(text)
+          if (n === undefined) return
+          if (min !== undefined && n < min) return
+          if (max !== undefined && n > max) return
+          onChange(n)
         }}
       />
       {suffix && <span className="input-suffix">{suffix}</span>}

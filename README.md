@@ -24,7 +24,7 @@ Weitere Befehle:
 |---|---|
 | `npm run build` | Typprüfung und Produktions-Build nach `dist/` |
 | `npm run preview` | Build lokal ansehen unter http://127.0.0.1:4173, inklusive Service Worker und Offline-Modus |
-| `npm test` | 41 automatische Tests (Rezepte, Ausschlüsse, Nährwerte, Einkauf, Budget, Training, Gewicht, Speicher, Backup) |
+| `npm test` | 46 automatische Tests (Rezepte, Ausschlüsse, Nährwerte, Einkauf, Budget, Training, Gewicht, Speicher, Backup) |
 | `npm run lint` | Code-Prüfung mit oxlint |
 | `npm run icons` | App-Icons aus `public/logo.svg` neu erzeugen |
 
@@ -35,15 +35,13 @@ Weitere Befehle:
 
 Für den Alltag am besten die Vorschau (`npm run build && npm run preview`) oder später die veröffentlichte Adresse installieren. Dann funktioniert die App auch offline.
 
-## 2. Persönliche Startwerte
+## 2. Deine Startwerte und Bedienung
 
-Deine Startwerte (Alter, Größe, Startgewicht, Kalorien- und Makroziele, Budget, Spaßgetränke, Musikprofil) liegen in `src/data/personal.local.json`. Diese Datei steht in `.gitignore` und landet weder auf GitHub noch in der veröffentlichten App. So bleibt der öffentlich sichtbare Quellcode frei von persönlichen Daten.
+Die App ist auf dich zugeschnitten: Startgewicht 60,3 kg, 171 cm, 22 Jahre, 2.150 kcal, 120 g Protein, 65 g Fett, 270 g Kohlenhydrate, mindestens 30 g Ballaststoffe, 2,3 l Trinken, Budget 15–20 € pro Woche. Diese Werte sind vorbelegt und lassen sich unter *Einstellungen* ändern. Zahlenfelder akzeptieren Komma und Punkt.
 
-- Auf dem Mac (lokaler Start oder Build) sind die Werte automatisch vorausgefüllt.
-- In der veröffentlichten Version (z. B. auf dem iPhone) stehen zunächst neutrale Platzhalter. Die App weist darauf hin. Am einfachsten importierst du dort ein Backup vom Mac, dann werden die Einstellungen übernommen.
-- Vorlage für eine neue Datei: `src/data/personal.example.json`.
+**Bedienung:** Die Startseite ist die Übersicht (Kalorien-, Protein- und Trinkringe, Wochenzeitleiste, nächstes Training, Schnellaktionen). Darunter führen große Felder in die Bereiche *Training*, *Ernährung*, *Tagesprotokoll*, *Wochenkorrektur*, *Trinken*, *Einkauf*, *Fortschritt* und *Musik*. Auf jeder Unterseite gibt es oben „Übersicht“, die Punkte des Bereichs und das Zahnrad für die Einstellungen. Die Plus-Taste unten rechts erfasst Essen, Trinken, Gewicht und Training.
 
-Alles lässt sich jederzeit unter *Einstellungen* ändern.
+**ESN-Produkte:** Vorinstalliert sind ESN Designer Whey in den Sorten Vanilla Milk, Stracciatella und Dark Cookie & Cream (Herstellerangaben laut Händlern, bitte mit deiner Dose abgleichen) sowie ESN Ultrapure Creatine Monohydrate mit 3 g pro Tag. Nussige Sorten sind wegen deiner Ausschlüsse nicht dabei. Die Standardsorte für Shakes wählst du unter *Einstellungen → Supplements*.
 
 ## 3. iPhone-Installation
 
@@ -58,7 +56,7 @@ Auf dem iPhone lässt sich eine PWA nur über eine **HTTPS-Adresse** richtig ins
 5. Danach ist die App erreichbar unter
    **`https://<dein-github-name>.github.io/muskelaufbau-tracker/`**
 
-Hinweis: Bei kostenlosen GitHub-Konten funktioniert Pages nur für **öffentliche** Repositories. Der Code enthält keine persönlichen Daten (siehe Abschnitt 2), deine Einträge liegen ohnehin nur auf deinen Geräten.
+Hinweis: Bei kostenlosen GitHub-Konten funktioniert Pages nur für **öffentliche** Repositories. Dann sind auch deine Startwerte aus Abschnitt 2 im Code sichtbar. Deine Einträge (Essen, Gewicht, Training …) liegen dagegen nur auf deinen Geräten.
 
 ### Auf dem iPhone hinzufügen
 
@@ -101,12 +99,12 @@ Ohne Einrichtung kannst du Links zu deinen Playlists speichern und mit einem Tip
 
 ```
 src/
-  data/        Lebensmittel, 100 Rezepte, Übungen, Trainingsplan, DGE-Referenzwerte, Standardeinstellungen
+  data/        Lebensmittel, 100 Rezepte, Übungen, Trainingsplan, DGE-Referenzwerte, Startwerte, ESN-Produkte
   domain/      Reine Logik: Nährwerte, Ausschlüsse, Training, Gewicht, Einkauf, Wochenplan, Wochenkorrektur
   storage/     DataRepository (Interface), IndexedDBRepository, Backup/Import, localStorage-Helfer
   state/       React-Store, Aktionen, Router, Toasts
   components/  UI-Bausteine, Diagramme, Dialoge, App-Rahmen
-  pages/       Die 14 Bereiche plus Trainings-Logger
+  pages/       Startseite (Home), alle Bereiche, Trainings-Logger
   spotify/     PKCE-Anmeldung, Web-API-Aufrufe, Playlist-Builder
   styles/      Designsystem (Tokens, Layout, Komponenten, Seiten)
 docs/          SYNC.md (spätere Synchronisierung), SPOTIFY.md
