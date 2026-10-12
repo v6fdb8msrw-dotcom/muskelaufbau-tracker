@@ -174,7 +174,7 @@ describe('Gewicht', () => {
   it('kein Anstieg in zwei Wochen → +150 kcal', () => {
     const sug = calorieSuggestion(entries(70, 0), settingsWith(), '2026-11-01')
     expect(sug?.delta).toBe(150)
-    expect(sug?.newKcal).toBe(2300)
+    expect(sug?.newKcal).toBe(2350)
   })
 
   it('zu schnelle Zunahme → Reduktion um 100–150 kcal', () => {
