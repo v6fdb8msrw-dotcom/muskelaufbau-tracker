@@ -1,4 +1,4 @@
-import { AlertTriangle, Search, Star } from 'lucide-react'
+import { AlertTriangle, Plus, Search, Star } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { FOOD_MAP, FOODS } from '../data/foods'
 import { RECIPE_MAP, RECIPES } from '../data/recipes'
@@ -20,6 +20,7 @@ import { useStore } from '../state/store'
 import { useToast } from '../state/toast'
 import type { FoodLogEntry, MealSlot, Nutrients } from '../types'
 import { MEAL_LABEL, MEAL_ORDER } from './labels'
+import { ProductDialog } from './ProductDialog'
 import { Field, Modal, NumberInput, Seg, Switch, Tabs } from './ui'
 
 type Tab = 'rezept' | 'lebensmittel' | 'produkt' | 'frei' | 'rest'
@@ -83,6 +84,7 @@ export function AddFoodDialog({
   // Lebensmittel / Produkt
   const [foodId, setFoodId] = useState<string>()
   const [productId, setProductId] = useState<string>()
+  const [newProduct, setNewProduct] = useState(false)
   const [amount, setAmount] = useState<number | undefined>()
 
   // Frei
@@ -383,10 +385,18 @@ export function AddFoodDialog({
 
       {tab === 'produkt' && (
         <div className="stack">
-          {products.length === 0 && (
-            <div className="muted small">
-              Noch keine eigenen Produkte. Produkte, die du auf der Einkaufsliste mit Etikettwerten einträgst, erscheinen hier automatisch.
-            </div>
+          {products.length === 0 && <div className="muted small">Noch keine eigenen Produkte. Lege eins mit den Werten vom Etikett an.</div>}
+          <button type="button" className="btn btn-sm" style={{ alignSelf: 'flex-start' }} onClick={() => setNewProduct(true)}>
+            <Plus size={14} /> Produkt anlegen
+          </button>
+          {newProduct && (
+            <ProductDialog
+              onClose={() => setNewProduct(false)}
+              onSaved={(p) => {
+                setProductId(p.id)
+                setAmount(p.serving ?? 100)
+              }}
+            />
           )}
           <div className="row-wrap">
             {products.map((p) => (

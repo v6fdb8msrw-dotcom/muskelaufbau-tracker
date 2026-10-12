@@ -1,7 +1,6 @@
-import { Dumbbell, GlassWater, Music, Scale, ShoppingBasket, UtensilsCrossed } from 'lucide-react'
+import { ArrowLeftRight, Dumbbell, GlassWater, Scale, ShoppingBasket, UtensilsCrossed } from 'lucide-react'
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react'
 import { navigate } from '../state/router'
-import { useStore } from '../state/store'
 import type { MealSlot } from '../types'
 import { AddFoodDialog } from './AddFoodDialog'
 import { DrinkQuick } from './DrinkQuick'
@@ -69,16 +68,18 @@ export function UiProvider({ children }: { children: ReactNode }) {
             setQuick(false)
             setWeight(true)
           }}
+          onSync={() => {
+            setQuick(false)
+            setSync(true)
+          }}
         />
       )}
     </UiContext.Provider>
   )
 }
 
-function QuickSheet({ onClose, onFood, onDrink, onWeight }: { onClose: () => void; onFood: () => void; onDrink: () => void; onWeight: () => void }) {
+function QuickSheet({ onClose, onFood, onDrink, onWeight, onSync }: { onClose: () => void; onFood: () => void; onDrink: () => void; onWeight: () => void; onSync: () => void }) {
   const { next } = useProgram()
-  const { settings } = useStore()
-  const playlist = settings.spotify.savedPlaylists.find((p) => p.sessionId === next?.sessionId) ?? settings.spotify.savedPlaylists[0]
   const go = (path: string) => {
     onClose()
     navigate(path)
@@ -92,17 +93,8 @@ function QuickSheet({ onClose, onFood, onDrink, onWeight }: { onClose: () => voi
       label: next ? 'Training loggen' : 'Training',
       onClick: () => go(next ? `/training/${next.key}` : '/plan'),
     },
-    { icon: <ShoppingBasket size={20} />, label: 'Einkaufsliste', onClick: () => go('/einkauf') },
-    {
-      icon: <Music size={20} />,
-      label: playlist ? 'Playlist öffnen' : 'Spotify',
-      onClick: () => {
-        if (playlist) {
-          window.open(playlist.url, '_blank', 'noopener')
-          onClose()
-        } else go('/spotify')
-      },
-    },
+    { icon: <ShoppingBasket size={20} />, label: 'Einkauf', onClick: () => go('/rezepte?tab=einkauf') },
+    { icon: <ArrowLeftRight size={20} />, label: 'iPhone ↔ Mac', onClick: onSync },
   ]
   return (
     <Modal title="Schnell erfassen" onClose={onClose}>

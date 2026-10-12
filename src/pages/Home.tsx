@@ -1,15 +1,15 @@
-import { ArrowLeftRight, ArrowUpRight, ChefHat, ClipboardCheck, Dumbbell, GlassWater, Music, NotebookPen, Pill, Scale, Settings2, ShoppingBasket, TrendingUp, UtensilsCrossed } from 'lucide-react'
+import { ArrowLeftRight, ArrowUpRight, ChefHat, Dumbbell, GlassWater, Music, NotebookPen, Pill, Scale, Settings2, ShoppingBasket, TrendingUp, UtensilsCrossed } from 'lucide-react'
 import { useEffect, useMemo, useState, type CSSProperties, type ReactNode } from 'react'
 import type { Icon } from '../components/areas'
 import { BrandMark } from '../components/BrandMark'
-import { prefersReducedMotion, useClock, useCountUp, useDayTotals, useIsMobile, useProgram, useWeekBudget } from '../components/hooks'
+import { prefersReducedMotion, useClock, useCountUp, useDayTotals, useIsMobile, useProgram } from '../components/hooks'
 import { useUi } from '../components/UiContext'
 import { SESSION_MAP } from '../data/plan'
 import { RECIPES } from '../data/recipes'
 import { ESN_CREATINE } from '../data/supplements'
 import { recipeIdeas } from '../domain/ideas'
 import { plannedSessionsForWeek, sessionStatus } from '../domain/training'
-import { buildWeeklyReport } from '../domain/weekly'
+import { planForWeek } from '../domain/shopping'
 import { withMovingAverage } from '../domain/weight'
 import { diffDays, formatDateLong, relativeDay } from '../lib/date'
 import { clamp, num } from '../lib/format'
@@ -34,7 +34,6 @@ export function Home() {
   const clock = useClock()
   const isMobile = useIsMobile()
   const totals = useDayTotals(today)
-  const budget = useWeekBudget(weekStart)
   const t = settings.targets
   const v = totals.profile.values
   const kcal = v.kcal ?? 0
@@ -44,20 +43,17 @@ export function Home() {
 
   const weights = useMemo(() => withMovingAverage(data.weights), [data.weights])
   const sessions = useMemo(() => (week >= 1 ? plannedSessionsForWeek(settings, data.schedule, week) : []), [settings, data.schedule, week])
-  const report = useMemo(() => buildWeeklyReport(data, settings, weekStart, today), [data, settings, weekStart, today])
-  const openSuggestions = report.suggestions.filter((s) => !data.suggestions.some((x) => x.id === s.id))
   const done = sessions.filter((s) => sessionStatus(s, data.workouts, today) === 'done').length
   const lastWeight = weights[weights.length - 1]
   const nextSession = next ? SESSION_MAP[next.sessionId] : undefined
   const playlist = settings.spotify.savedPlaylists.find((p) => p.sessionId === next?.sessionId) ?? settings.spotify.savedPlaylists[0]
   const creatineToday = data.supplementLogs.some((s) => s.date === today && s.kind === 'creatine')
-  const openItems = data.shoppingItems.filter((i) => i.week === weekStart && !i.checked).length
+  const plannedMeals = planForWeek(data.mealPlan, weekStart).filter((m) => !m.leftoverOf).length
   const lastCopy = [meta.lastSyncAt, meta.lastBackupAt].filter(Boolean).sort().pop()
   const copyAge = lastCopy ? diffDays(today, lastCopy.slice(0, 10)) : undefined
   const recipeIdea = proteinOpen > 25 && remaining > 300 ? recipeIdeas('protein', settings, { maxKcal: remaining + 150, limit: 1 })[0] : undefined
   const hh = String(clock.getHours()).padStart(2, '0')
   const mm = String(clock.getMinutes()).padStart(2, '0')
-  const euro2 = (n: number) => n.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
   async function addWater(ml: number) {
     await store.save('drinkLogs', buildDrinkLog({ drinkId: 'wasser', ml, date: today }))
@@ -70,20 +66,17 @@ export function Home() {
   }
 
   const links: { to?: string; onClick?: () => void; icon: Icon; label: string; value: string; warn?: boolean }[] = [
-    { to: '/plan', icon: Dumbbell, label: 'Training', value: `${done}/${sessions.length || 4} Einheiten` },
+    { to: '/plan', icon: Dumbbell, label: 'Training', value: `${done}/${sessions.length || 4} diese Woche` },
     { to: '/rezepte', icon: ChefHat, label: 'Rezepte', value: `${RECIPES.length} Rezepte` },
+    { to: '/rezepte?tab=einkauf', icon: ShoppingBasket, label: 'Einkauf', value: plannedMeals ? `${plannedMeals} Gerichte geplant` : 'Woche planen' },
     { to: '/protokoll', icon: NotebookPen, label: 'Protokoll', value: `${num(kcal)} kcal heute` },
-    { to: '/einkauf', icon: ShoppingBasket, label: 'Einkauf', value: openItems ? `${openItems} offen · ${euro2(budget.free)} €` : `${euro2(budget.free)} € frei`, warn: budget.status === 'ueber' },
-    { to: '/trinken', icon: GlassWater, label: 'Trinken', value: `${num(totals.fluidMl / 1000, 1)} von ${num(t.fluidMl / 1000, 1)} l` },
-    { to: '/woche', icon: ClipboardCheck, label: 'Woche', value: openSuggestions.length ? `${openSuggestions.length} Vorschläge` : 'alles im Plan' },
     { to: '/fortschritt', icon: TrendingUp, label: 'Fortschritt', value: `${num(lastWeight ? lastWeight.avg7 : settings.profile.startWeightKg, 1)} kg` },
-    { to: '/spotify', icon: Music, label: 'Musik', value: `${settings.spotify.savedPlaylists.length} Playlists` },
     {
       onClick: openSync,
       icon: ArrowLeftRight,
       label: 'Sync',
       value: copyAge === undefined ? 'iPhone ↔ Mac' : copyAge === 0 ? 'heute abgeglichen' : `vor ${copyAge} Tagen`,
-      warn: copyAge === undefined || copyAge > 14,
+      warn: copyAge !== undefined && copyAge > 14,
     },
   ]
 

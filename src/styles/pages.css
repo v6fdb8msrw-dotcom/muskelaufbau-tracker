@@ -116,7 +116,7 @@
 
 .complete-toggle.on {
   border-style: solid;
-  border-color: #b9f0cf;
+  border-color: rgba(60, 240, 124, 0.3);
   background: var(--neon-soft);
 }
 
@@ -221,7 +221,7 @@
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: var(--ink);
+  background: var(--contrast);
   color: var(--neon);
   font-size: 13px;
   font-weight: 700;
@@ -270,11 +270,22 @@
 }
 
 @media (max-width: 1080px) {
+  /* iPhone: Wochentage seitlich wischen, damit der Einkaufszettel schnell sichtbar ist */
   .plan-week {
-    grid-template-columns: minmax(0, 1fr);
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    margin: 0 calc(var(--gutter) * -1);
+    padding: 2px var(--gutter) 6px;
+    scrollbar-width: none;
+  }
+  .plan-week::-webkit-scrollbar {
+    display: none;
   }
   .plan-day {
+    flex: 0 0 min(72%, 260px);
     min-height: 0;
+    scroll-snap-align: start;
   }
 }
 
@@ -423,11 +434,11 @@ button.cal-cell:hover {
 
 .cal-chip.missed {
   background: var(--warn-soft);
-  color: #8a5a10;
+  color: var(--warn);
 }
 
 .cal-chip.today {
-  background: var(--ink);
+  background: var(--contrast);
   color: var(--neon);
 }
 

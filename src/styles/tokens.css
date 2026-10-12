@@ -1,43 +1,45 @@
-/* Muscle Studio – Designsystem: Cremeweiß, Marmor, Silber, gezieltes Neon-Grün */
+/* Muscle Studio – Designsystem: dunkles Cockpit, feine Linien, gezieltes Neon-Grün */
 
 :root {
-  color-scheme: light;
+  color-scheme: dark;
 
-  /* Flächen */
-  --bg: #f4f1eb;
-  --bg-deep: #ece7df;
-  --surface: #fdfcf9;
-  --surface-2: #f8f5f0;
-  --surface-3: #f1ede6;
-  --white: #ffffff;
+  /* Flächen: dunkel wie das Cockpit der Startseite */
+  --bg: #0b0d0f;
+  --bg-deep: #08090b;
+  --surface: #15181c;
+  --surface-2: #1a1e22;
+  --surface-3: #22272c;
+  --white: #1c2025;
+  /* Betonte Flächen (aktive Auswahl, dunkle Knöpfe) */
+  --contrast: #2c3238;
 
   /* Text */
-  --ink: #1e2125;
-  --ink-2: #474c53;
-  --ink-3: #7a8088;
-  --ink-4: #a2a7ad;
+  --ink: #eef0f1;
+  --ink-2: #c3c8ce;
+  --ink-3: #8c949c;
+  --ink-4: #646b73;
 
-  /* Silberlinien */
-  --line: #e3e3e1;
-  --line-2: #d4d6d8;
-  --silver: #b9bec4;
+  /* Linien */
+  --line: rgba(255, 255, 255, 0.08);
+  --line-2: rgba(255, 255, 255, 0.14);
+  --silver: rgba(255, 255, 255, 0.24);
   --silver-deep: #8e959d;
-  --silver-grad: linear-gradient(135deg, #f3f4f5 0%, #d9dcdf 45%, #f7f7f8 60%, #c9cdd1 100%);
+  --silver-grad: linear-gradient(135deg, #3a4047 0%, #23282d 45%, #3c4248 60%, #2a2f35 100%);
 
   /* Neon-Grün */
   --neon: #3cf07c;
   --neon-strong: #17d861;
-  --neon-soft: #d9fce6;
-  --neon-wash: rgba(60, 240, 124, 0.12);
-  --neon-glow: 0 0 0 1px rgba(23, 216, 97, 0.25), 0 6px 22px rgba(60, 240, 124, 0.28);
-  --neon-ink: #0b7436;
+  --neon-soft: rgba(60, 240, 124, 0.14);
+  --neon-wash: rgba(60, 240, 124, 0.14);
+  --neon-glow: 0 0 0 1px rgba(23, 216, 97, 0.3), 0 6px 22px rgba(60, 240, 124, 0.22);
+  --neon-ink: #5ff59a;
 
   /* Status */
-  --warn: #b7791f;
-  --warn-soft: #fbf1dc;
-  --danger: #b8432f;
-  --danger-soft: #f8e4df;
-  --info-soft: #eef1f4;
+  --warn: #f2b660;
+  --warn-soft: rgba(242, 182, 96, 0.1);
+  --danger: #ff8a75;
+  --danger-soft: rgba(255, 138, 117, 0.1);
+  --info-soft: rgba(255, 255, 255, 0.05);
 
   /* Form */
   --radius-xs: 6px;
@@ -46,10 +48,10 @@
   --radius-lg: 20px;
   --radius-xl: 28px;
 
-  --shadow-1: 0 1px 1px rgba(30, 33, 37, 0.03), 0 2px 6px rgba(30, 33, 37, 0.04);
-  --shadow-2: 0 1px 2px rgba(30, 33, 37, 0.04), 0 10px 28px rgba(30, 33, 37, 0.07);
-  --shadow-3: 0 18px 48px rgba(30, 33, 37, 0.14);
-  --inset-hairline: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-2: 0 10px 28px rgba(0, 0, 0, 0.35);
+  --shadow-3: 0 24px 60px rgba(0, 0, 0, 0.55);
+  --inset-hairline: inset 0 1px 0 rgba(255, 255, 255, 0.05);
 
   --font-sans: 'Manrope Variable', 'Manrope', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-display: 'Instrument Serif', 'Iowan Old Style', Georgia, serif;

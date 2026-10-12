@@ -44,13 +44,13 @@
 .home-aurora span:nth-child(1) {
   top: -26vmax;
   left: -14vmax;
-  background: radial-gradient(circle, rgba(60, 240, 124, 0.28), transparent 62%);
+  background: radial-gradient(circle, rgba(60, 240, 124, 0.14), transparent 62%);
 }
 
 .home-aurora span:nth-child(2) {
   top: 6vmax;
   right: -24vmax;
-  background: radial-gradient(circle, rgba(185, 190, 196, 0.6), transparent 62%);
+  background: radial-gradient(circle, rgba(60, 240, 200, 0.06), transparent 62%);
   animation-duration: 38s;
   animation-direction: alternate-reverse;
 }
@@ -77,7 +77,7 @@
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  background-image: linear-gradient(rgba(30, 33, 37, 0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(30, 33, 37, 0.04) 1px, transparent 1px);
+  background-image: linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
   background-size: 46px 46px;
   -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 25%, transparent 75%);
   mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 25%, transparent 75%);
@@ -646,7 +646,7 @@
 /* Shortcuts in alle Bereiche */
 .hud-nav {
   display: grid;
-  grid-template-columns: repeat(9, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 10px;
   padding-top: 22px;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
@@ -753,7 +753,7 @@
     grid-column: 1 / -1;
   }
   .hud-nav {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 

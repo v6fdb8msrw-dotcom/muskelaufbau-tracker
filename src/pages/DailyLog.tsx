@@ -13,13 +13,12 @@ import { RECIPE_MAP } from '../data/recipes'
 import { dayTotals, entriesForDate } from '../domain/nutrition'
 import { programWeek, plannedSessionsForWeek, sessionStatus } from '../domain/training'
 import { addDays, formatDateLong, relativeDay } from '../lib/date'
-import { stamp } from '../lib/id'
 import { ml, num } from '../lib/format'
 import { buildCreatineLog } from '../state/actions'
 import { href, navigate, type Route } from '../state/router'
 import { useStore } from '../state/store'
 import { useToast } from '../state/toast'
-import type { DayStatus, FoodLogEntry, MealSlot, NutrientKey } from '../types'
+import type { FoodLogEntry, MealSlot, NutrientKey } from '../types'
 import { ProteinShakeDialog } from './Hydration'
 
 export default function DailyLog({ route }: { route: Route }) {
@@ -33,8 +32,6 @@ export default function DailyLog({ route }: { route: Route }) {
   const [shake, setShake] = useState(false)
   const totals = useMemo(() => dayTotals(data, date), [data, date])
   const { foods, drinks, supplements } = useMemo(() => entriesForDate(data, date), [data, date])
-  const status = data.days.find((d) => d.date === date)
-  const complete = !!status?.complete
   const t = settings.targets
   const v = totals.profile.values
   const week = programWeek(settings, date)
@@ -43,12 +40,6 @@ export default function DailyLog({ route }: { route: Route }) {
   const plannedMeals = data.mealPlan.filter((m) => m.date === date && !data.foodLogs.some((f) => f.planId === m.id))
 
   const setDate = (d: string) => navigate(d === today ? '/protokoll' : `/protokoll?datum=${d}`)
-
-  async function toggleComplete() {
-    const record: DayStatus = status ? { ...status, complete: !complete, updatedAt: new Date().toISOString() } : stamp<DayStatus>({ id: date, date, complete: true } as DayStatus)
-    await store.save('days', record)
-    toast(record.complete ? 'Tag als vollständig markiert' : 'Markierung entfernt')
-  }
 
   const open: string[] = []
   if ((v.kcal ?? 0) < t.kcal) open.push(`${num(t.kcal - (v.kcal ?? 0))} kcal`)
@@ -227,7 +218,7 @@ export default function DailyLog({ route }: { route: Route }) {
                 </div>
               </div>
             ))}
-            {supplements.length === 0 && <div className="muted small">Nur eintragen, was du tatsächlich genommen hast. Beide laufen getrennt vom Lebensmittelbudget.</div>}
+            {supplements.length === 0 && <div className="muted small">Nur eintragen, was du tatsächlich genommen hast.</div>}
           </Card>
 
           {/* Training */}
@@ -319,18 +310,8 @@ export default function DailyLog({ route }: { route: Route }) {
             </div>
           </Card>
 
-          <div className={`complete-toggle ${complete ? 'on' : ''}`}>
-            <div>
-              <div className="strong small">{complete ? 'Tag vollständig erfasst' : 'Tag unvollständig'}</div>
-              <div className="muted tiny">Nur vollständige Tage zählen voll in die Wochenauswertung.</div>
-            </div>
-            <button type="button" className={`btn btn-sm ${complete ? '' : 'btn-dark'}`} onClick={toggleComplete}>
-              {complete ? 'Zurücksetzen' : 'Als vollständig markieren'}
-            </button>
-          </div>
-
           <Card index={2}>
-            <Disclosure title="Makronährstoffe im Detail" defaultOpen>
+            <Disclosure title="Makronährstoffe im Detail">
               <NutrientRows keys={MACRO_KEYS} values={(k: NutrientKey) => ({ value: v[k], partial: totals.profile.partial.includes(k) })} />
             </Disclosure>
             <Disclosure title="Vitamine & Mineralstoffe (geschätzt)">

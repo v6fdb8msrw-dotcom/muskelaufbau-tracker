@@ -1,19 +1,4 @@
-import {
-  BookOpen,
-  CalendarDays,
-  ChefHat,
-  ClipboardCheck,
-  Dumbbell,
-  FlaskConical,
-  GlassWater,
-  Music,
-  NotebookPen,
-  Settings2,
-  ShoppingBasket,
-  Target,
-  TrendingUp,
-  UtensilsCrossed,
-} from 'lucide-react'
+import { BookOpen, ChefHat, Dumbbell, NotebookPen, Settings2, ShoppingBasket, TrendingUp } from 'lucide-react'
 import type { ComponentType } from 'react'
 import type { Route } from '../state/router'
 
@@ -34,26 +19,15 @@ export interface Area {
   items: AreaItem[]
 }
 
-/** Bereiche der App. Die Startseite verlinkt sie als große Felder, Unterseiten zeigen die Punkte ihres Bereichs. */
+/** Bereiche der App. Die Startseite verlinkt sie als Shortcuts, Unterseiten zeigen die Punkte ihres Bereichs. */
 export const AREAS: Area[] = [
-  {
-    id: 'heute',
-    title: 'Heute',
-    icon: NotebookPen,
-    items: [
-      { path: '/protokoll', label: 'Tagesprotokoll', icon: NotebookPen },
-      { path: '/woche', label: 'Wochenkorrektur', icon: ClipboardCheck },
-    ],
-  },
   {
     id: 'training',
     title: 'Training',
     icon: Dumbbell,
     items: [
-      { path: '/plan', label: 'Trainingsplan', icon: Dumbbell, match: (r) => r.segments[0] === 'training' },
-      { path: '/kalender', label: 'Kalender', icon: CalendarDays },
+      { path: '/plan', label: 'Training', icon: Dumbbell, match: (r) => r.segments[0] === 'training' },
       { path: '/uebungen', label: 'Übungen', icon: BookOpen },
-      { path: '/core', label: 'Bauch & Core', icon: Target },
     ],
   },
   {
@@ -62,20 +36,16 @@ export const AREAS: Area[] = [
     icon: ChefHat,
     items: [
       { path: '/rezepte', label: 'Rezepte', icon: ChefHat },
-      { path: '/rezepte?tab=plan', label: 'Wochenplan', icon: UtensilsCrossed, match: (r) => r.segments[0] === 'rezepte' && r.query.get('tab') === 'plan' },
-      { path: '/naehrstoffe', label: 'Nährstoffe & Mikronährstoffe', icon: FlaskConical },
-      { path: '/einkauf', label: 'Einkaufsliste', icon: ShoppingBasket },
-      { path: '/trinken', label: 'Trinken & Hydration', icon: GlassWater },
       {
-        path: '/rezepte?tab=lebensmittel',
-        label: 'Lebensmittel',
-        icon: ChefHat,
-        match: (r) => r.segments[0] === 'rezepte' && r.query.get('tab') === 'lebensmittel',
+        path: '/rezepte?tab=einkauf',
+        label: 'Einkauf',
+        icon: ShoppingBasket,
+        match: (r) => r.segments[0] === 'rezepte' && (r.query.get('tab') === 'einkauf' || r.query.get('tab') === 'plan'),
       },
     ],
   },
+  { id: 'protokoll', title: 'Protokoll', icon: NotebookPen, items: [{ path: '/protokoll', label: 'Protokoll', icon: NotebookPen }] },
   { id: 'fortschritt', title: 'Fortschritt', icon: TrendingUp, items: [{ path: '/fortschritt', label: 'Fortschritt', icon: TrendingUp }] },
-  { id: 'musik', title: 'Musik', icon: Music, items: [{ path: '/spotify', label: 'Spotify & Training Music', icon: Music }] },
   { id: 'einstellungen', title: 'Einstellungen', icon: Settings2, items: [{ path: '/einstellungen', label: 'Einstellungen', icon: Settings2 }] },
 ]
 

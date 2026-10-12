@@ -140,7 +140,7 @@ export function BarChart({
       <svg className="chart" width={width} height={height} role="img">
         {target !== undefined && (
           <>
-            <line x1={pad.l} x2={pad.l + w} y1={pad.t + h - (target / max) * h} y2={pad.t + h - (target / max) * h} stroke="#1e2125" strokeOpacity={0.35} strokeDasharray="4 4" />
+            <line x1={pad.l} x2={pad.l + w} y1={pad.t + h - (target / max) * h} y2={pad.t + h - (target / max) * h} style={{ stroke: 'var(--ink)' }} strokeOpacity={0.35} strokeDasharray="4 4" />
             <text x={pad.l + w} y={pad.t + h - (target / max) * h - 5} textAnchor="end">
               Ziel {format(target)} {unit}
             </text>
@@ -160,7 +160,7 @@ export function BarChart({
                 y={pad.t + h - bh}
                 height={Math.max(bh, d.value === undefined ? 0 : 2)}
                 rx={6}
-                fill={d.value === undefined ? 'transparent' : reached ? '#3cf07c' : d.muted ? '#d4d6d8' : '#1e2125'}
+                style={{ fill: d.value === undefined ? 'transparent' : reached ? 'var(--neon)' : d.muted ? 'var(--line-2)' : 'var(--ink-2)' }}
                 opacity={d.highlight ? 1 : 0.92}
               >
                 <title>
@@ -168,9 +168,9 @@ export function BarChart({
                 </title>
               </rect>
               {d.value === undefined && (
-                <rect x={x} width={bw * 0.6} y={pad.t + h - 14} height={14} rx={5} fill="none" stroke="#c9cdd1" strokeDasharray="3 3" />
+                <rect x={x} width={bw * 0.6} y={pad.t + h - 14} height={14} rx={5} fill="none" style={{ stroke: 'var(--line-2)' }} strokeDasharray="3 3" />
               )}
-              <text x={x + bw * 0.3} y={height - 6} textAnchor="middle" style={{ fontWeight: d.highlight ? 700 : 500, fill: d.highlight ? '#1e2125' : undefined }}>
+              <text x={x + bw * 0.3} y={height - 6} textAnchor="middle" style={{ fontWeight: d.highlight ? 700 : 500, fill: d.highlight ? 'var(--ink)' : undefined }}>
                 {d.label}
               </text>
             </g>

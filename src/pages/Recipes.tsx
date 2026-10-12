@@ -11,7 +11,7 @@ import { FoodDatabase } from './recipes/FoodDatabase'
 import { MealPlanView } from './recipes/MealPlanView'
 import { RecipeDetail } from './recipes/RecipeDetail'
 
-type Tab = 'rezepte' | 'plan' | 'lebensmittel'
+type Tab = 'rezepte' | 'einkauf' | 'lebensmittel'
 type Sort = 'protein' | 'dichte' | 'kosten' | 'zeit' | 'name'
 
 /** Ab dieser Menge gilt ein Rezept als proteinreich. */
@@ -24,35 +24,25 @@ export default function Recipes({ route }: { route: Route }) {
   const { settings } = useStore()
   const summaries = useMemo(() => allRecipeSummaries(settings), [settings])
   if (id && RECIPE_MAP[id]) return <RecipeDetail recipe={RECIPE_MAP[id]} />
-  const tab = (route.query.get('tab') as Tab) ?? 'rezepte'
+  const raw = route.query.get('tab')
+  // „plan“ war der frühere Name des Einkauf-Tabs
+  const tab: Tab = raw === 'plan' || raw === 'einkauf' ? 'einkauf' : raw === 'lebensmittel' ? 'lebensmittel' : 'rezepte'
   const allowed = summaries.filter((s) => s.allowed)
   const stats: HeadStat[] = [
     { label: 'Rezepte', value: allowed.length },
     { label: `Ab ${HIGH_PROTEIN} g Protein`, value: allowed.filter((s) => s.protein >= HIGH_PROTEIN).length, accent: true },
     { label: `40 g+ bis ${CHEAP} €`, value: allowed.filter((s) => s.protein >= HIGH_PROTEIN && s.cost.shopping <= CHEAP).length },
   ]
-  const head: Record<Tab, { eyebrow: string; title: string; lead: string }> = {
-    rezepte: {
-      eyebrow: `${RECIPES.length} Rezepte`,
-      title: 'Rezepte',
-      lead: 'Alltagstauglich, ohne deine Ausschlüsse, meist in 5–15 Minuten. Neu: 50 Rezepte mit mindestens 40 g Eiweiß, davon 20 für höchstens 2 € pro Portion.',
-    },
-    plan: {
-      eyebrow: 'Mittagessen Mo–Fr',
-      title: 'Wochenplan',
-      lead: 'Plane die Mittagessen der Woche. Die Zutaten erscheinen als Vorschläge auf deiner Einkaufsliste.',
-    },
-    lebensmittel: {
-      eyebrow: 'Datenbank & Vorlieben',
-      title: 'Lebensmittel & Ausschlüsse',
-      lead: 'Alle Lebensmittel mit Nährwerten und Schätzpreisen, dazu deine Ausschlüsse und freigegebenes Gemüse.',
-    },
+  const head: Record<Tab, { eyebrow: string; title: string }> = {
+    rezepte: { eyebrow: `${RECIPES.length} Rezepte`, title: 'Rezepte' },
+    einkauf: { eyebrow: 'Mittagessen der Woche', title: 'Einkauf' },
+    lebensmittel: { eyebrow: 'Datenbank & Vorlieben', title: 'Lebensmittel' },
   }
   return (
     <div className="page">
-      <PageHead eyebrow={head[tab].eyebrow} title={head[tab].title} lead={head[tab].lead} stats={tab === 'rezepte' ? stats : undefined} />
+      <PageHead eyebrow={head[tab].eyebrow} title={head[tab].title} stats={tab === 'rezepte' ? stats : undefined} />
       {tab === 'rezepte' && <RecipeList summaries={summaries} />}
-      {tab === 'plan' && <MealPlanView route={route} />}
+      {tab === 'einkauf' && <MealPlanView route={route} />}
       {tab === 'lebensmittel' && <FoodDatabase />}
     </div>
   )

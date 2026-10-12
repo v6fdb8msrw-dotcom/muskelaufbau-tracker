@@ -22,7 +22,6 @@ const SECTIONS: { id: Section; label: string }[] = [
   { id: 'ziele', label: 'Ziele' },
   { id: 'training', label: 'Training & Arme' },
   { id: 'supplements', label: 'Supplements' },
-  { id: 'budget', label: 'Budget' },
   { id: 'preise', label: 'Preise & Packungen' },
   { id: 'vorrat', label: 'Grundvorrat' },
   { id: 'lebensmittel', label: 'Lebensmittel' },

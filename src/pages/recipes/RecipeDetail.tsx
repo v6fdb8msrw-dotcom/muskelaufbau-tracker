@@ -89,7 +89,7 @@ export function RecipeDetail({ recipe }: { recipe: Recipe }) {
               <Star size={17} fill={fav ? '#17d861' : 'none'} color={fav ? '#17d861' : 'currentColor'} />
             </button>
             <button type="button" className="btn" onClick={() => setPlanOpen(true)}>
-              <CalendarPlus size={16} /> Zum Wochenplan
+              <CalendarPlus size={16} /> Einplanen
             </button>
             <button type="button" className="btn" onClick={() => openFood({ recipeId: recipe.id })}>
               Mit Details eintragen
@@ -307,7 +307,7 @@ function AddToPlanDialog({ recipe, optional, onClose }: { recipe: Recipe; option
         </div>
         <Seg value={portions} onChange={setPortions} options={[{ value: '1', label: '1 Portion' }, { value: '2', label: '2 Portionen (Rest für morgen)' }]} />
         {existing && <Notice kind="warn">An diesem Tag ist schon „{RECIPE_MAP[existing.recipeId]?.name ?? existing.recipeId}“ geplant und wird ersetzt.</Notice>}
-        <div className="muted small">Die Einkaufsliste passt sich automatisch an.</div>
+        <div className="muted small">Der Einkaufszettel unter „Einkauf“ passt sich automatisch an.</div>
       </div>
     </Modal>
   )
