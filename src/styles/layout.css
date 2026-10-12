@@ -155,6 +155,7 @@
 
 .main-home {
   padding-top: 0;
+  padding-bottom: 0;
 }
 
 .page {
@@ -224,7 +225,7 @@
     padding: 18px var(--gutter) calc(env(safe-area-inset-bottom) + 100px);
   }
   .main-home {
-    padding-top: 0;
+    padding: 0 10px env(safe-area-inset-bottom);
   }
   h1 {
     font-size: 32px;

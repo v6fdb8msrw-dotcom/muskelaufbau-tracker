@@ -94,3 +94,14 @@ export function timeToSlot(time: string): 'fruehstueck' | 'mittag' | 'snack' | '
   if (h < 21) return 'abend'
   return 'spaet'
 }
+
+/** „gerade eben“, „vor 5 Minuten“, „vor 3 Stunden“, „gestern“, „vor 4 Tagen“ für einen ISO-Zeitstempel. */
+export function relativeTime(isoTimestamp: string, now = new Date()): string {
+  const diff = (now.getTime() - new Date(isoTimestamp).getTime()) / 60_000
+  if (!Number.isFinite(diff)) return 'unbekannt'
+  if (diff < 1) return 'gerade eben'
+  if (diff < 60) return `vor ${Math.round(diff)} ${Math.round(diff) === 1 ? 'Minute' : 'Minuten'}`
+  if (diff < 60 * 24) return `vor ${Math.round(diff / 60)} ${Math.round(diff / 60) === 1 ? 'Stunde' : 'Stunden'}`
+  const days = diffDays(toISO(now), toISO(new Date(isoTimestamp)))
+  return days <= 1 ? 'gestern' : `vor ${days} Tagen`
+}

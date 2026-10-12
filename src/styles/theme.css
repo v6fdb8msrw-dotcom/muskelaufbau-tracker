@@ -458,3 +458,25 @@
 .neon-text {
   color: var(--neon-ink);
 }
+
+/* ---------- Abgleich iPhone ↔ Mac ---------- */
+.sync-step {
+  display: flex;
+  gap: 14px;
+  padding: 16px;
+  border-radius: 18px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.sync-num {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 10px;
+  background: var(--ink);
+  color: var(--neon);
+  font-weight: 700;
+}

@@ -3,6 +3,7 @@ import { migrateSettings, normalizeSettings } from '../data/defaults'
 import { ESN_PRODUCTS } from '../data/supplements'
 import { uid } from '../lib/id'
 import { IndexedDBRepository } from '../storage/indexeddb'
+import { META_LAST_SYNC, META_SETTINGS_UPDATED, META_TOMBSTONES, pruneTombstones, type Tombstone } from '../storage/sync'
 import type { DataRepository } from '../storage/repository'
 import { COLLECTIONS, type CollectionMap, type CollectionName, type DataSet, type Settings } from '../types'
 
@@ -10,6 +11,8 @@ export interface Meta {
   deviceId: string
   lastBackupAt?: string
   firstRunAt?: string
+  /** Letzter Abgleich mit einem anderen Gerät */
+  lastSyncAt?: string
 }
 
 export interface Store {
@@ -62,9 +65,10 @@ export function StoreProvider({ children, repo: repoProp }: { children: ReactNod
         await repo.setMeta('firstRunAt', firstRunAt)
       }
       const lastBackupAt = await repo.getMeta<string>('lastBackupAt')
+      const lastSyncAt = await repo.getMeta<string>(META_LAST_SYNC)
       setData(next)
       setSettings(s)
-      setMetaState({ deviceId, lastBackupAt, firstRunAt })
+      setMetaState({ deviceId, lastBackupAt, firstRunAt, lastSyncAt })
       setReady(true)
       setError(undefined)
     } catch (e) {
@@ -103,6 +107,10 @@ export function StoreProvider({ children, repo: repoProp }: { children: ReactNod
       setData((prev) => ({ ...prev, [collection]: (prev[collection] as { id: string }[]).filter((x) => !list.includes(x.id)) }))
       try {
         for (const id of list) await repo.remove(collection, id)
+        // Löschungen merken, damit ein Abgleich mit dem anderen Gerät sie nicht zurückholt
+        const at = new Date().toISOString()
+        const tombstones = (await repo.getMeta<Tombstone[]>(META_TOMBSTONES)) ?? []
+        await repo.setMeta(META_TOMBSTONES, pruneTombstones([...tombstones, ...list.map((id) => ({ c: collection, id, at }))]))
       } catch (e) {
         setError(`Löschen fehlgeschlagen: ${e instanceof Error ? e.message : String(e)}`)
         await load()
@@ -123,6 +131,7 @@ export function StoreProvider({ children, repo: repoProp }: { children: ReactNod
       settingsRef.current = next
       setSettings(next)
       await repo.saveSettings(next)
+      await repo.setMeta(META_SETTINGS_UPDATED, new Date().toISOString())
     },
     [repo],
   )

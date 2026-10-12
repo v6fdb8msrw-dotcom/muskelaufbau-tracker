@@ -24,7 +24,7 @@ Weitere Befehle:
 |---|---|
 | `npm run build` | Typprüfung und Produktions-Build nach `dist/` |
 | `npm run preview` | Build lokal ansehen unter http://127.0.0.1:4173, inklusive Service Worker und Offline-Modus |
-| `npm test` | 53 automatische Tests (Rezepte, Ausschlüsse, Nährwerte, Einkauf, Budget, Produktanalyse, Training, Gewicht, Speicher, Backup) |
+| `npm test` | 60 automatische Tests (Rezepte, Ausschlüsse, Nährwerte, Einkauf, Budget, Produktanalyse, Training, Gewicht, Speicher, Backup) |
 | `npm run lint` | Code-Prüfung mit oxlint |
 | `npm run icons` | App-Icons aus `public/logo.svg` neu erzeugen |
 
@@ -39,13 +39,15 @@ Für den Alltag am besten die Vorschau (`npm run build && npm run preview`) oder
 
 Die App ist auf dich zugeschnitten: Startgewicht 60,3 kg, 171 cm, 22 Jahre, 2.150 kcal, 120 g Protein, 65 g Fett, 270 g Kohlenhydrate, mindestens 30 g Ballaststoffe, 2,3 l Trinken, Budget 15–20 € pro Woche. Diese Werte sind vorbelegt und lassen sich unter *Einstellungen* ändern. Zahlenfelder akzeptieren Komma und Punkt.
 
-**Bedienung:** Die Startseite ist eine schlanke Übersicht (Kalorien-, Protein- und Trinkringe, Wochenzeitleiste, nächstes Training, Schnellaktionen und eine Rezeptidee, wenn noch viel Protein fehlt). Darunter führen große Felder in die Bereiche *Training*, *Ernährung*, *Tagesprotokoll*, *Wochenkorrektur*, *Trinken*, *Einkauf*, *Fortschritt* und *Musik*. Auf jeder Unterseite gibt es oben „Übersicht“, die Punkte des Bereichs und das Zahnrad für die Einstellungen. Die Plus-Taste unten rechts erfasst Essen, Trinken, Gewicht und Training.
+**Bedienung:** Die Startseite ist ein einziger dunkler Bildschirm: Kalorien-, Protein- und Trinkringe, Wochenzeitleiste, nächstes Training, Schnellaktionen (Essen, +250 ml, Gewicht, Kreatin) und eine Rezeptidee, wenn noch viel Protein fehlt. Unten führen Shortcuts zu *Training*, *Rezepte*, *Protokoll*, *Einkauf*, *Trinken*, *Woche*, *Fortschritt*, *Musik* und *Sync*. Auf jeder Unterseite gibt es oben „Übersicht“, die Punkte des Bereichs und das Zahnrad für die Einstellungen. Die Plus-Taste unten rechts erfasst Essen, Trinken, Gewicht und Training.
 
 **Einkaufsliste und Budget:** Die Liste füllst du selbst: Produkt, Anzahl, Preis und auf Wunsch, für welches Essen es ist. Getränke wie Afri-Cola oder Energy-Drinks trägst du genauso ein, oben siehst du, wie viel vom Wochenbudget noch frei ist. Mit „Neues Produkt“ gibst du die Werte vom Etikett ein (pro 100 g oder pro Portion, Portionsgröße, Packungsgröße). Die App rechnet daraus Kalorien und Protein pro Portion, Kosten pro Portion, Protein pro Euro und die Proteindichte. Vorschläge aus dem Wochenplan und proteinreiche Ideen stehen daneben, übernommen wird nur, was du antippst. Eingetragene Produkte kannst du danach direkt im Tagesprotokoll mit deiner Portion erfassen.
 
 **Protein-Kreationen:** 30 einfache Rezepte mit mindestens 40 g Eiweiß pro Portion (Hüttenkäse-Fladenbrot, Chicken-Crust-Pizza, Overnight Oats mit Skyr, Käsekuchen im Glas, Quarkteig-Pizza ohne Tomate …). In der Rezeptliste filtert „Ab 40 g Protein“ danach, „Protein/kcal“ sortiert nach Eiweiß pro Kalorie. Rezepte mit Proteinpulver verschwinden, wenn du Proteinpulver in den Einstellungen ausschaltest.
 
 **Günstig & proteinreich:** 20 weitere Rezepte mit mindestens 40 g Eiweiß für höchstens 2 € Zutaten pro Portion (Schätzpreise), z. B. Rote-Linsen-Dal, Quarkbrötchen, Soja-Gyros, Eiersalat mit Quark, Seelachs in Haferflocken-Kruste. Der Filter „Bis 2 €“ in der Rezeptliste zeigt alle günstigen Rezepte.
+
+**iPhone ↔ Mac per AirDrop:** Shortcut *Sync* auf der Startseite (oder *Einstellungen → Daten & Sync*). Auf dem einen Gerät „Per AirDrop senden“ (am Mac ohne Teilen-Menü: Datei erstellen und im Finder per AirDrop teilen), auf dem anderen „Datei auswählen“ und „Übernehmen“. Die Daten werden zusammengeführt: Neues kommt dazu, bei gleichen Einträgen gewinnt der neuere Stand, Gelöschtes bleibt gelöscht, Einstellungen kommen vom Gerät, auf dem sie zuletzt geändert wurden. Es gibt keinen Server, die Datei geht nur dorthin, wohin du sie schickst.
 
 **Updates:** Nach jedem Push lädt die installierte App die neue Version von selbst, sobald kein Dialog offen ist und du nichts tippst. Sie schaut beim Öffnen und alle 30 Minuten nach.
 

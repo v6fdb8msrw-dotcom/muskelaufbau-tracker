@@ -7,6 +7,7 @@ import { AddFoodDialog } from './AddFoodDialog'
 import { DrinkQuick } from './DrinkQuick'
 import { useProgram } from './hooks'
 import { WeightDialog } from './MeasureDialogs'
+import { SyncDialog } from './SyncDialog'
 import { Modal } from './ui'
 
 interface FoodOpts {
@@ -22,6 +23,8 @@ interface UiApi {
   openDrink: (date?: string) => void
   openWeight: () => void
   openQuick: () => void
+  /** iPhone ↔ Mac per AirDrop abgleichen */
+  openSync: () => void
 }
 
 const UiContext = createContext<UiApi | null>(null)
@@ -31,12 +34,14 @@ export function UiProvider({ children }: { children: ReactNode }) {
   const [drink, setDrink] = useState<{ date?: string } | null>(null)
   const [weight, setWeight] = useState(false)
   const [quick, setQuick] = useState(false)
+  const [sync, setSync] = useState(false)
 
   const openFood = useCallback((opts: FoodOpts = {}) => setFood(opts), [])
   const openDrink = useCallback((date?: string) => setDrink({ date }), [])
   const openWeight = useCallback(() => setWeight(true), [])
   const openQuick = useCallback(() => setQuick(true), [])
-  const api = useMemo(() => ({ openFood, openDrink, openWeight, openQuick }), [openFood, openDrink, openWeight, openQuick])
+  const openSync = useCallback(() => setSync(true), [])
+  const api = useMemo(() => ({ openFood, openDrink, openWeight, openQuick, openSync }), [openFood, openDrink, openWeight, openQuick, openSync])
 
   return (
     <UiContext.Provider value={api}>
@@ -48,6 +53,7 @@ export function UiProvider({ children }: { children: ReactNode }) {
         </Modal>
       )}
       {weight && <WeightDialog onClose={() => setWeight(false)} />}
+      {sync && <SyncDialog onClose={() => setSync(false)} />}
       {quick && (
         <QuickSheet
           onClose={() => setQuick(false)}

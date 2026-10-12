@@ -1,12 +1,13 @@
-import { Download, HardDrive, RotateCcw, ShieldCheck, Trash2, Upload } from 'lucide-react'
+import { ArrowLeftRight, Download, HardDrive, RotateCcw, ShieldCheck, Trash2, Upload } from 'lucide-react'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { useDisplayPrefs } from '../components/displayPrefs'
 import { useToday } from '../components/hooks'
+import { useUi } from '../components/UiContext'
 import { Card, CardHead, Field, Modal, Notice, NumberInput, PageHead, Seg, Switch } from '../components/ui'
 import { createDefaultSettings, EXCLUDED_TAG_LABEL } from '../data/defaults'
 import { FOOD_CATEGORY_LABEL, FOODS } from '../data/foods'
 import { RECIPE_MAP } from '../data/recipes'
-import { formatDateFull } from '../lib/date'
+import { formatDateFull, relativeTime } from '../lib/date'
 import { euro, num } from '../lib/format'
 import { backupFileName, buildBackup, importBackup, validateBackup, type ValidationResult } from '../storage/backup'
 import { href, navigate, type Route } from '../state/router'
@@ -26,7 +27,7 @@ const SECTIONS: { id: Section; label: string }[] = [
   { id: 'vorrat', label: 'Grundvorrat' },
   { id: 'lebensmittel', label: 'Lebensmittel' },
   { id: 'anzeige', label: 'Anzeige' },
-  { id: 'daten', label: 'Daten & Backup' },
+  { id: 'daten', label: 'Daten & Sync' },
 ]
 
 export default function SettingsPage({ route }: { route: Route }) {
@@ -554,6 +555,7 @@ function DisplaySection() {
 function DataSection() {
   const store = useStore()
   const { data, settings, meta, repo } = store
+  const { openSync } = useUi()
   const { toast } = useToast()
   const today = useToday()
   const fileRef = useRef<HTMLInputElement>(null)
@@ -613,6 +615,19 @@ function DataSection() {
 
   return (
     <>
+      <Section title="iPhone ↔ Mac abgleichen" eyebrow="AirDrop">
+        <div className="small" style={{ marginBottom: 12 }}>
+          Auf dem einen Gerät „Senden“ (öffnet das Teilen-Menü mit AirDrop), auf dem anderen die Datei „Übernehmen“. Neues kommt dazu, der neuere Stand gewinnt, Gelöschtes bleibt gelöscht. So hast du Einkaufsliste,
+          Protokoll und Training auf beiden Geräten. Am besten immer in beide Richtungen abgleichen, wenn du auf beiden etwas eingetragen hast.
+        </div>
+        <div className="row-wrap" style={{ alignItems: 'center' }}>
+          <button type="button" className="btn btn-primary" onClick={openSync}>
+            <ArrowLeftRight size={16} /> Abgleichen …
+          </button>
+          <span className="muted small">{meta.lastSyncAt ? `Zuletzt übernommen ${relativeTime(meta.lastSyncAt)}` : 'Noch kein Abgleich auf diesem Gerät'}</span>
+        </div>
+      </Section>
+
       <Section title="Lokale Datenspeicherung" eyebrow="Status">
         <div className="stack-sm small">
           <div className="row-between">
@@ -656,7 +671,7 @@ function DataSection() {
         </div>
         <div style={{ marginTop: 14 }}>
           <Notice>
-            Alle persönlichen Daten liegen nur auf diesem Gerät. Mac und iPhone haben getrennte Datenbestände, es gibt keine automatische Synchronisierung. Zum Übertragen: hier exportieren und auf dem anderen Gerät importieren (zum Beispiel per AirDrop oder iCloud Drive).
+            Alle persönlichen Daten liegen nur auf diesem Gerät, es gibt keinen Server und keine automatische Synchronisierung. Mac und iPhone gleichst du oben per AirDrop ab.
           </Notice>
         </div>
       </Section>

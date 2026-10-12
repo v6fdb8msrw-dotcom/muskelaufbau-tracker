@@ -67,7 +67,8 @@ export function Shell({ route, children, updateReady, onUpdate }: { route: Route
         <div key={route.path + (route.query.get('tab') ?? '')}>{children}</div>
       </main>
 
-      {route.segments[0] !== 'einstellungen' && (
+      {/* Auf der Startseite sind alle Aktionen im dunklen Bildschirm */}
+      {!isHome && route.segments[0] !== 'einstellungen' && (
         <button type="button" className="fab" onClick={openQuick} aria-label="Schnell erfassen">
           <Plus size={26} strokeWidth={2.4} />
         </button>

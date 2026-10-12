@@ -1,6 +1,6 @@
 # Technische Notiz: spätere Synchronisierung Mac ↔ iPhone
 
-Stand Version 1: **keine** Synchronisierung. Jedes Gerät speichert seine Daten in der eigenen IndexedDB (`muscle-studio`). Der Austausch läuft manuell über JSON-Export und -Import. Diese Notiz beschreibt, was sich ändern müsste, um Mac und iPhone später synchron zu betreiben. Nichts davon ist umgesetzt.
+Stand: **keine automatische** Synchronisierung. Jedes Gerät speichert seine Daten in der eigenen IndexedDB (`muscle-studio`). Abgeglichen wird per Datei (AirDrop): `src/storage/sync.ts` führt zusammen (neuerer Stand gewinnt, gelöschte IDs werden als Grabsteine gemerkt). Diese Notiz beschreibt, was sich ändern müsste, um Mac und iPhone später synchron zu betreiben. Nichts davon ist umgesetzt.
 
 ## Was schon vorbereitet ist
 
