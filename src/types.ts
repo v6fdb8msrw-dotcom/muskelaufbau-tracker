@@ -1,0 +1,490 @@
+// Gemeinsame Typen der App. Reine Datenstrukturen, keine Logik.
+
+export const NUTRIENT_KEYS = [
+  'kcal',
+  'protein',
+  'carbs',
+  'sugar',
+  'fat',
+  'satFat',
+  'fiber',
+  'vitA',
+  'b1',
+  'b2',
+  'b3',
+  'b5',
+  'b6',
+  'biotin',
+  'folate',
+  'b12',
+  'vitC',
+  'vitD',
+  'vitE',
+  'vitK',
+  'calcium',
+  'magnesium',
+  'potassium',
+  'iron',
+  'zinc',
+  'iodine',
+  'selenium',
+  'phosphorus',
+  'copper',
+  'sodium',
+  'omega3',
+  'epaDha',
+  'ala',
+] as const
+
+export type NutrientKey = (typeof NUTRIENT_KEYS)[number]
+
+/** Nährwerte. Fehlender Schlüssel = keine Daten (nicht 0!). */
+export type Nutrients = Partial<Record<NutrientKey, number>>
+
+/**
+ * Nährwerte mit Angabe, wo Daten nur teilweise vorliegen.
+ * `partial` enthält Schlüssel, deren Wert eine Untergrenze ist, weil
+ * mindestens eine Zutat dafür keine Daten hat.
+ */
+export interface NutrientProfile {
+  values: Nutrients
+  partial: NutrientKey[]
+}
+
+export type FoodTag =
+  | 'mushroom'
+  | 'cauliflower'
+  | 'brussels'
+  | 'broccoli'
+  | 'spinach-cooked'
+  | 'nut'
+  | 'peanut'
+  | 'shrimp'
+  | 'mollusc'
+  | 'kohlrabi'
+  | 'tomato'
+  | 'potato'
+
+export type FoodCategory =
+  | 'fleisch'
+  | 'fisch'
+  | 'milch'
+  | 'ei'
+  | 'getreide'
+  | 'huelsenfruechte'
+  | 'gemuese'
+  | 'salat'
+  | 'obst'
+  | 'fertig'
+  | 'fett'
+  | 'wuerze'
+  | 'sauce'
+  | 'getraenk'
+
+export interface Food {
+  id: string
+  name: string
+  category: FoodCategory
+  unit: 'g' | 'ml'
+  /** Nährwerte pro 100 g bzw. 100 ml. Fehlende Werte = keine Daten. */
+  per100: Nutrients
+  /** Übliche Stückgröße, z. B. Ei ≈ 55 g essbarer Anteil. */
+  piece?: { label: string; amount: number }
+  /** Standardpackung und geschätzter Kassenpreis (editierbar). */
+  pack?: { amount: number; label: string; price: number }
+  tags?: FoodTag[]
+  /**
+   * liked: ausdrücklich gemocht · optional: Gemüse, bei dem die App vorsichtig ist
+   * (wird nur nach Freigabe fest eingeplant).
+   */
+  pref?: 'liked' | 'optional'
+  /** Brot, Toast, üblicher Belag: immer vorhanden, nie auf der Einkaufsliste. */
+  staple?: boolean
+  /** Grundvorrat (Öl, Salz, Gewürze …): als vorhanden angenommen, in den Einstellungen änderbar. */
+  basic?: boolean
+  /** Günstigere Alternative als Text. */
+  cheaper?: string
+  /** Liefert praktisch keine Nährstoffe (Wasser, Tee): fehlende Werte gelten nicht als Datenlücke. */
+  negligible?: boolean
+  /** Werte sind grobe Produktschätzungen und sollten mit dem Etikett abgeglichen werden. */
+  labelEstimate?: boolean
+  note?: string
+}
+
+export type RecipeCategory =
+  | 'reis-nudel-pfanne'
+  | 'tortellini-maultaschen'
+  | 'fleisch'
+  | 'fisch'
+  | 'huelsenfruechte'
+  | 'salat-kalt'
+  | 'brot-ei-kaese'
+  | 'convenience'
+
+export type MealSlot = 'fruehstueck' | 'mittag' | 'snack' | 'abend' | 'spaet'
+
+export interface RecipeIngredient {
+  foodId: string
+  amount: number
+  optional?: boolean
+  note?: string
+}
+
+export interface Recipe {
+  id: string
+  name: string
+  category: RecipeCategory
+  servings: number
+  minutes: number
+  ingredients: RecipeIngredient[]
+  steps: string[]
+  /** Rezeptspezifische Spartipps, zusätzlich zu den automatisch ermittelten. */
+  tips?: string[]
+  meals: MealSlot[]
+  /** Hält sich gut bis zum nächsten Tag (Reste, Meal-Prep). */
+  keeps?: boolean
+  intro?: string
+}
+
+// ---------- Training ----------
+
+export type MuscleGroup = 'brust' | 'ruecken' | 'schulter' | 'bizeps' | 'trizeps' | 'bauch' | 'ausdauer'
+
+export interface Exercise {
+  id: string
+  name: string
+  group: MuscleGroup
+  unilateral: boolean
+  measure: 'reps' | 'time'
+  core?: boolean
+  equipment: string[]
+  muscles: string[]
+  start: string[]
+  execution: string[]
+  breathing: string
+  mistakes: string[]
+  safety: string[]
+  variants: string[]
+  /** Bei Körpergewichtsübungen: kein Hantelgewicht. */
+  bodyweight?: boolean
+}
+
+export interface PlannedExercise {
+  exerciseId: string
+  sets: number
+  /** Sätze gelten je Seite (einarmige Übungen, Side Plank). */
+  perSide?: boolean
+  min: number
+  max: number
+  unit: 'reps' | 'sec'
+  /** Wiederholungen je Seite innerhalb eines Satzes (Dead Bug). */
+  repsPerSide?: boolean
+  note?: string
+}
+
+export type SessionId = 'mo-a' | 'arme-a' | 'fr-b' | 'ok-b'
+
+export interface TrainingSession {
+  id: SessionId
+  title: string
+  short: string
+  focus: string
+  exercises: PlannedExercise[]
+  flexible?: boolean
+}
+
+// ---------- Gespeicherte Einträge ----------
+
+interface BaseRecord {
+  id: string
+  createdAt: string
+  updatedAt: string
+}
+
+export type FoodLogSource =
+  | { kind: 'recipe'; recipeId: string; portions: number; optionalIncluded: string[] }
+  | { kind: 'food'; foodId: string; amount: number }
+  | { kind: 'product'; productId: string; amount: number }
+  | { kind: 'leftover'; pantryId: string; recipeId?: string; portions: number }
+  | { kind: 'free' }
+
+export interface FoodLogEntry extends BaseRecord {
+  date: string
+  time: string
+  meal: MealSlot
+  name: string
+  source: FoodLogSource
+  nutrients: Nutrients
+  partial: NutrientKey[]
+  /** Liefert praktisch keine Nährstoffe: fehlende Werte gelten nicht als Datenlücke. */
+  negligible?: boolean
+  note?: string
+  /** Verknüpfter Eintrag im Wochenplan, damit er nicht doppelt zählt. */
+  planId?: string
+}
+
+export interface DrinkLogEntry extends BaseRecord {
+  date: string
+  time: string
+  drinkId: string
+  productId?: string
+  name: string
+  ml: number
+  nutrients: Nutrients
+  partial: NutrientKey[]
+  negligible?: boolean
+}
+
+export interface SupplementLogEntry extends BaseRecord {
+  date: string
+  time: string
+  kind: 'creatine' | 'protein'
+  grams: number
+  productId?: string
+  liquid?: 'wasser' | 'milch'
+  liquidMl?: number
+  nutrients: Nutrients
+  partial: NutrientKey[]
+  negligible?: boolean
+  note?: string
+}
+
+export interface SetLog {
+  side?: 'left' | 'right'
+  weightKg?: number
+  reps?: number
+  seconds?: number
+  clean: boolean
+  extra?: boolean
+}
+
+export interface ExerciseLog {
+  exerciseId: string
+  sets: SetLog[]
+  note?: string
+}
+
+export interface WorkoutLog extends BaseRecord {
+  date: string
+  sessionId?: SessionId
+  /** Schlüssel der Kalendereinheit (z. B. "w3-mo-a"). Verknüpft Kalender und Protokoll. */
+  plannedKey?: string
+  title: string
+  exercises: ExerciseLog[]
+  durationMin?: number
+  recovery?: 1 | 2 | 3
+  cardio?: { kind: 'rudern' | 'laufband'; minutes: number }[]
+  notes?: string
+}
+
+export interface WeightEntry extends BaseRecord {
+  date: string
+  kg: number
+  note?: string
+}
+
+export interface ArmMeasurement extends BaseRecord {
+  date: string
+  leftCm: number
+  rightCm: number
+  state: 'entspannt' | 'angespannt'
+  note?: string
+}
+
+export interface MealPlanEntry extends BaseRecord {
+  date: string
+  slot: MealSlot
+  recipeId: string
+  /** Gekochte Portionen (2 = Rest für den nächsten Tag). */
+  portions: number
+  /** Dieser Eintrag isst den Rest eines anderen Plan-Eintrags. */
+  leftoverOf?: string
+  optionalIncluded?: string[]
+}
+
+export interface PantryItem extends BaseRecord {
+  kind: 'food' | 'leftover'
+  foodId?: string
+  recipeId?: string
+  name: string
+  amount: number
+  unit: 'g' | 'ml' | 'Portion'
+  /** Bei Resten: Nährwerte pro Portion. */
+  nutrients?: Nutrients
+  partial?: NutrientKey[]
+  bestBefore?: string
+}
+
+export interface ShoppingCheck extends BaseRecord {
+  week: string
+  foodId: string
+  checked: boolean
+  transferred?: boolean
+  /** Beim Übernehmen in den Vorrat gekaufte Packungen (für die Budgetübersicht) */
+  boughtPacks?: number
+  /** Zusätzlich von Hand oder per Vorschlag hinzugefügte Menge (außerhalb des Wochenplans) */
+  extraAmount?: number
+}
+
+export interface Product extends BaseRecord {
+  kind: 'smoothie' | 'protein' | 'drink' | 'food'
+  name: string
+  brand?: string
+  shop?: string
+  unit: 'g' | 'ml'
+  /** Packungs- bzw. Flaschengröße. */
+  size?: number
+  price?: number
+  /** Werte laut Etikett pro 100 g/ml. Nur eintragen, was auf dem Etikett steht. */
+  per100: Nutrients
+  favorite: boolean
+}
+
+export interface DayStatus extends BaseRecord {
+  date: string
+  complete: boolean
+  note?: string
+}
+
+export interface SuggestionState extends BaseRecord {
+  status: 'accepted' | 'ignored'
+}
+
+export interface ScheduleChange extends BaseRecord {
+  /** = plannedKey */
+  movedTo?: string
+  skipped?: boolean
+}
+
+export interface TargetWeight extends BaseRecord {
+  /** = exerciseId */
+  kg: number
+}
+
+export interface CollectionMap {
+  foodLogs: FoodLogEntry
+  drinkLogs: DrinkLogEntry
+  supplementLogs: SupplementLogEntry
+  workouts: WorkoutLog
+  weights: WeightEntry
+  arms: ArmMeasurement
+  mealPlan: MealPlanEntry
+  pantry: PantryItem
+  shopping: ShoppingCheck
+  products: Product
+  days: DayStatus
+  suggestions: SuggestionState
+  schedule: ScheduleChange
+  targetWeights: TargetWeight
+}
+
+export type CollectionName = keyof CollectionMap
+
+export const COLLECTIONS: CollectionName[] = [
+  'foodLogs',
+  'drinkLogs',
+  'supplementLogs',
+  'workouts',
+  'weights',
+  'arms',
+  'mealPlan',
+  'pantry',
+  'shopping',
+  'products',
+  'days',
+  'suggestions',
+  'schedule',
+  'targetWeights',
+]
+
+export type DataSet = { [K in CollectionName]: CollectionMap[K][] }
+
+// ---------- Einstellungen ----------
+
+export type Weekday = 'mo' | 'di' | 'mi' | 'do' | 'fr' | 'sa' | 'so'
+
+export interface FunDrink {
+  id: string
+  name: string
+  foodId?: string
+  /** Menge pro Tag (daily) bzw. pro Portion (perWeek). */
+  ml: number
+  frequency: 'daily' | 'perWeek'
+  perWeek: number
+  packMl: number
+  packPrice: number
+  inBudget: boolean
+}
+
+export interface Settings {
+  version: 1
+  profile: {
+    name: string
+    age: number
+    sex: 'm' | 'w' | 'd'
+    heightCm: number
+    startWeightKg: number
+    activity: string
+    experience: string
+    goal: string
+    /** false, solange nur neutrale Platzhalter eingetragen sind */
+    confirmed?: boolean
+  }
+  program: {
+    startDate: string
+    weeks: number
+    secondDay: 'di' | 'mi'
+    weekendDay: 'sa' | 'so'
+    pulloverSuitable: boolean
+    extraWeakSet: boolean
+    dumbbellStepKg: number
+    equipment: { dumbbells: boolean; rower: boolean; treadmill: boolean; pullupBar: boolean }
+  }
+  targets: {
+    kcal: number
+    protein: number
+    fat: number
+    carbs: number
+    fiber: number
+    fluidMl: number
+    gainMinG: number
+    gainMaxG: number
+    bmrEstimate: number
+    maintenanceMin: number
+    maintenanceMax: number
+  }
+  arms: { weakerSide: 'left' | 'right' | null }
+  supplements: {
+    creatineEnabled: boolean
+    creatineDoseG: number
+    creatineReminder: boolean
+    proteinPowderAvailable: boolean
+    proteinProductId?: string
+  }
+  budget: {
+    min: number
+    max: number
+    mondayLeftovers: boolean
+    co2Needed: boolean
+    co2Price: number
+  }
+  funDrinks: FunDrink[]
+  prices: Record<string, { price?: number; amount?: number }>
+  /** Grundvorrat: false = nicht vorhanden, erscheint dann auf der Einkaufsliste. */
+  basics: Record<string, boolean>
+  food: {
+    excludedTags: FoodTag[]
+    avoidTags: FoodTag[]
+    /** Optionale Gemüse, die du freigegeben hast (werden fest eingeplant). */
+    acceptedOptional: string[]
+    /** Produkte, die trotz Tag erlaubt sind (z. B. Fertigpizza trotz Tomatensoße). */
+    exceptions: string[]
+    excludedFoods: string[]
+  }
+  favorites: string[]
+  spotify: {
+    artists: string[]
+    savedPlaylists: { id: string; name: string; url: string; sessionId?: SessionId }[]
+  }
+  mealTimes: { lunch: string; dinner: string; late: string }
+}

@@ -1,122 +1,129 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import './App.css'
+import { lazy, Suspense, useEffect, useRef, useState } from 'react'
+import { applyDisplayPrefs } from './components/displayPrefs'
+import { Shell } from './components/Shell'
+import { UiProvider } from './components/UiContext'
+import { Dashboard } from './pages/Dashboard'
+import { handleCallback } from './spotify/auth'
+import { readDisplayPrefs } from './storage/localPrefs'
+import { navigate, useRoute, type Route } from './state/router'
+import { StoreProvider, useStore } from './state/store'
+import { ToastProvider, useToast } from './state/toast'
 
-function App() {
-  const [count, setCount] = useState(0)
+const DailyLog = lazy(() => import('./pages/DailyLog'))
+const Weekly = lazy(() => import('./pages/Weekly'))
+const Plan = lazy(() => import('./pages/Plan'))
+const CalendarPage = lazy(() => import('./pages/Calendar'))
+const Exercises = lazy(() => import('./pages/Exercises'))
+const Core = lazy(() => import('./pages/Core'))
+const Recipes = lazy(() => import('./pages/Recipes'))
+const Nutrients = lazy(() => import('./pages/Nutrients'))
+const Shopping = lazy(() => import('./pages/Shopping'))
+const Hydration = lazy(() => import('./pages/Hydration'))
+const Progress = lazy(() => import('./pages/Progress'))
+const Spotify = lazy(() => import('./pages/Spotify'))
+const SettingsPage = lazy(() => import('./pages/Settings'))
+const WorkoutLogger = lazy(() => import('./pages/WorkoutLogger'))
+
+function Page({ route }: { route: Route }) {
+  const [first] = route.segments
+  switch (first) {
+    case undefined:
+      return <Dashboard />
+    case 'protokoll':
+      return <DailyLog route={route} />
+    case 'woche':
+      return <Weekly route={route} />
+    case 'plan':
+      return <Plan />
+    case 'kalender':
+      return <CalendarPage />
+    case 'uebungen':
+      return <Exercises route={route} />
+    case 'core':
+      return <Core />
+    case 'rezepte':
+      return <Recipes route={route} />
+    case 'naehrstoffe':
+      return <Nutrients />
+    case 'einkauf':
+      return <Shopping route={route} />
+    case 'trinken':
+      return <Hydration />
+    case 'fortschritt':
+      return <Progress route={route} />
+    case 'spotify':
+      return <Spotify />
+    case 'einstellungen':
+      return <SettingsPage route={route} />
+    case 'training':
+      return <WorkoutLogger key={route.segments[1] ?? 'frei'} route={route} />
+    default:
+      return <Dashboard />
+  }
+}
+
+function Loading() {
+  return <div className="page muted small" style={{ padding: 40 }} aria-busy="true" />
+}
+
+function AppInner() {
+  const route = useRoute()
+  const { ready, error } = useStore()
+  const { toast } = useToast()
+  const [updateReady, setUpdateReady] = useState(false)
+  const updater = useRef<((reload?: boolean) => Promise<void>) | undefined>(undefined)
+
+  useEffect(() => {
+    applyDisplayPrefs(readDisplayPrefs())
+  }, [])
+
+  // Rückleitung von Spotify verarbeiten (?code=…&state=…)
+  useEffect(() => {
+    void handleCallback().then((r) => {
+      if (!r.handled) return
+      if (r.error) toast(r.error, 'error')
+      else toast('Mit Spotify verbunden')
+      navigate('/spotify')
+    })
+  }, [toast])
+
+  // Service Worker registrieren (nur im Build). Updates werden angeboten, nicht erzwungen,
+  // damit ein offenes Formular nicht verloren geht.
+  useEffect(() => {
+    if (!import.meta.env.PROD) return
+    void import('virtual:pwa-register').then(({ registerSW }) => {
+      updater.current = registerSW({
+        // Die Registrierung wird nachgeladen; das load-Ereignis ist dann meist schon vorbei
+        immediate: true,
+        onNeedRefresh: () => setUpdateReady(true),
+        onOfflineReady: () => toast('Offline bereit: Die App funktioniert jetzt auch ohne Internet'),
+      })
+    })
+  }, [toast])
+
+  useEffect(() => {
+    if (error) toast(error, 'error')
+  }, [error, toast])
+
+  if (!ready) return <Loading />
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
-
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+    <UiProvider>
+      <Shell route={route} updateReady={updateReady} onUpdate={() => void updater.current?.(true)}>
+        <Suspense fallback={<Loading />}>
+          <Page route={route} />
+        </Suspense>
+      </Shell>
+    </UiProvider>
   )
 }
 
-export default App
+export default function App() {
+  return (
+    <ToastProvider>
+      <StoreProvider>
+        <AppInner />
+      </StoreProvider>
+    </ToastProvider>
+  )
+}

@@ -1,0 +1,36 @@
+{
+  "_hinweis": "Kopie als personal.local.json speichern und eigene Werte eintragen. personal.local.json wird nicht ins Git-Repo übernommen.",
+  "profile": {
+    "name": "",
+    "age": 25,
+    "sex": "m",
+    "heightCm": 175,
+    "startWeightKg": 70,
+    "activity": "",
+    "experience": "",
+    "goal": "",
+    "confirmed": true
+  },
+  "targets": {
+    "kcal": 2150,
+    "protein": 120,
+    "fat": 65,
+    "carbs": 270,
+    "fiber": 30,
+    "fluidMl": 2300,
+    "gainMinG": 100,
+    "gainMaxG": 250,
+    "bmrEstimate": 1567,
+    "maintenanceMin": 1900,
+    "maintenanceMax": 2100
+  },
+  "budget": {
+    "min": 15,
+    "max": 20,
+    "mondayLeftovers": true,
+    "co2Needed": false,
+    "co2Price": 9.99
+  },
+  "funDrinks": [],
+  "artists": []
+}

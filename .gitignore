@@ -22,3 +22,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Persönliche Startwerte (Profil, Ziele, Budget) nie ins Repository
+src/data/personal.local.json
+
+# Lokale Claude-Code-Einstellungen
+.claude/
