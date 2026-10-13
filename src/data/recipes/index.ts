@@ -41,7 +41,7 @@ export const RECIPE_CATEGORIES: { id: RecipeCategory; label: string; target: num
   { id: 'protein-kreationen', label: 'Protein-Kreationen', target: 30 },
   { id: 'protein-guenstig', label: 'Günstig & proteinreich', target: 20 },
   { id: 'kalorien-protein', label: 'Kalorien & Protein', target: 20 },
-  { id: 'kalorien-booster', label: 'Kalorien-Booster', target: 12 },
+  { id: 'kalorien-booster', label: 'Kalorien-Rezepte', target: 50 },
 ]
 
 export const RECIPE_CATEGORY_LABEL = Object.fromEntries(RECIPE_CATEGORIES.map((c) => [c.id, c.label])) as Record<

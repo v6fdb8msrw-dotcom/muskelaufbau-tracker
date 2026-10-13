@@ -1,6 +1,6 @@
 # Muscle Studio
 
-Persönliche Web-App für 16 Wochen Muskelaufbau: Trainingsplan und Kalender, Übungsanleitungen, Tagesprotokoll, Wochenkorrektur, Kalorien- und Nährstofftracking, 182 Rezepte (davon 70 mit mindestens 40 g Eiweiß), Wochenplan, freie Einkaufsliste mit Budget, Trinktracker, Supplements, Gewicht, Kraft und Links-rechts-Balance der Arme. Optional mit Spotify.
+Persönliche Web-App für 16 Wochen Muskelaufbau: Trainingsplan und Kalender, Übungsanleitungen, Tagesprotokoll, Wochenkorrektur, Kalorien- und Nährstofftracking, 220 Rezepte in den Tabs Eiweiß, Kalorien und Beides, Wochenplan, freie Einkaufsliste mit Budget, Trinktracker, Supplements, Gewicht, Kraft und Links-rechts-Balance der Arme. Optional mit Spotify.
 
 React · TypeScript · Vite · IndexedDB · installierbare PWA (Mac und iPhone). Alle persönlichen Daten bleiben lokal auf dem jeweiligen Gerät.
 
@@ -59,7 +59,7 @@ Die App ist auf dich zugeschnitten: Startgewicht 60,3 kg, 171 cm, 22 Jahre. Ziel
 
 **Kalorien & Protein:** 20 Rezepte mit 720–1.050 kcal und mindestens 40 g Eiweiß auf kleiner Portion, für Tage, an denen du nicht genug Kalorien schaffst: fünf Shakes (Flüssiges macht kaum satt) und Gerichte wie Carbonara, Käsespätzle mit Hähnchen, Gyros-Reispfanne, Burrito oder Lachs mit Butterreis. Dafür neu in der Datenbank: Vollmilch 3,5 % und Sahnequark 40 %. In der Rezeptliste sortiert „Kalorien“ danach, und die Rezeptidee auf der Startseite schlägt bei über 700 offenen kcal ein solches Rezept vor.
 
-**Kalorien-Booster:** 12 Rezepte mit 580–850 kcal und bewusst normalem Eiweiß (Arme Ritter, Milchreis, Pfannkuchen mit Banane, Kaiserschmarrn, Mac and Cheese, Pizzatoast ohne Tomate …). Für Tage, an denen das Eiweiß schon geschafft ist, aber Kalorien fehlen: Kohlenhydrate und Fett machen weniger satt als Eiweiß. Die Startseite schlägt sie dann automatisch vor.
+**Rezept-Tabs:** In der Rezeptliste gibt es vier Tabs. *Eiweiß* (50 Rezepte mit mindestens 40 g Eiweiß, eher leicht, gut fürs Mittagessen), *Kalorien* (50 Rezepte mit 550–1.050 kcal und normalem Eiweiß, gut fürs Abendessen: Nudeln Alfredo, Bergsteiger-Spätzle, Nasi Goreng, Hühnerfrikassee, Smash-Burger-Wrap, Flammkuchen, Cornflakes-Schnitzel …), *Beides* (alle Rezepte mit mindestens 700 kcal und 40 g Eiweiß) und *Alle*. Jeder Tab ist passend vorsortiert. Ist das Eiweiß des Tages geschafft, schlägt die Startseite ein Kalorien-Rezept vor.
 
 **Snacks:** Im Fenster *Essen eintragen* gibt es den Tab *Snacks* mit 26 schnellen Snacks (höchstens 5 Minuten, ohne Kochen), filterbar nach „Viele Kalorien“ und „Viel Eiweiß“, mit 1 oder 2 Portionen. Kreative Kalorien-Snacks wie Schoko-Bananen-Toast, Feta-Honig-Toast, Käse-Quesadilla, Schoko-Cornflakes-Crossies oder Wrap-Pizza ohne Tomate. Kein Snack mit einem Glas Milch, Milch gibt es nur im Proteinshake.
 
@@ -123,7 +123,7 @@ Ohne Einrichtung kannst du Links zu deinen Playlists speichern und mit einem Tip
 
 ```
 src/
-  data/        Lebensmittel, 182 Rezepte, Übungen, Trainingsplan, DGE-Referenzwerte, Startwerte, ESN-Produkte
+  data/        Lebensmittel, 220 Rezepte, Übungen, Trainingsplan, DGE-Referenzwerte, Startwerte, ESN-Produkte
   domain/      Reine Logik: Nährwerte, Ausschlüsse, Training, Gewicht, Einkauf, Wochenplan, Wochenkorrektur
   storage/     DataRepository (Interface), IndexedDBRepository, Backup/Import, localStorage-Helfer
   state/       React-Store, Aktionen, Router, Toasts
