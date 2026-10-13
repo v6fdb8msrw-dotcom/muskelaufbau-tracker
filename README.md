@@ -24,7 +24,7 @@ Weitere Befehle:
 |---|---|
 | `npm run build` | Typprüfung und Produktions-Build nach `dist/` |
 | `npm run preview` | Build lokal ansehen unter http://127.0.0.1:4173, inklusive Service Worker und Offline-Modus |
-| `npm test` | 75 automatische Tests (Rezepte, Ausschlüsse, Nährwerte, Einkauf, Budget, Produktanalyse, Training, Gewicht, Speicher, Backup) |
+| `npm test` | 76 automatische Tests (Rezepte, Ausschlüsse, Nährwerte, Einkauf, Budget, Produktanalyse, Training, Gewicht, Speicher, Backup) |
 | `npm run lint` | Code-Prüfung mit oxlint |
 | `npm run icons` | App-Icons aus `public/logo.svg` neu erzeugen |
 
@@ -53,7 +53,8 @@ Die App ist auf dich zugeschnitten: Startgewicht 60,3 kg, 171 cm, 22 Jahre. Ziel
 - *Tag C · Arme & Calisthenics:* enge Liegestütze, Dips an Stuhl oder Sofa, Konzentrationscurls, Trizeps-Kickbacks, Hollow Body, Russian Twist. Optional Halo.
 - *Phasen:* Woche 1–3 Technik (2 Sätze, 2–3 Wiederholungen Reserve), 4–8 Aufbau (3 Sätze, 1–2 Reserve, Zusatzsatz für den linken Arm), 9–12 Intensiv (Schwerpunkt-Übungen 4 Sätze, letzter Satz knapp ans Versagen), 13–15 Peak (letzter Satz bis zum Versagen, langsame Negative), 16 Test & Entlastung.
 - Einarmig immer links zuerst, rechts gleiches Gewicht und gleiche Wiederholungen. Steigerung: Schaffst du in allen Sätzen die obere Zahl sauber, schlägt die App mehr Gewicht oder die nächste Stufe vor.
-- Ein Tipp auf eine Übung öffnet ein Mini-Tutorial: animierte Figur, drei Kernpunkte, typische Fehler, YouTube-Kurzvideos und die passende Übung für später im Gym. Keine Beinübungen, keine Klimmzugstange.
+- Ein Tipp auf eine Übung öffnet ein Mini-Tutorial: animierte Figur, Startgewicht („Zum Start“), drei Kernpunkte, typische Fehler, YouTube-Kurzvideos und die passende Übung für später im Gym. Keine Beinübungen, keine Klimmzugstange.
+- Startgewichte: Jede Planübung hat eine Empfehlung (z. B. Bizepscurls 5–6 kg, Floor Press 8–10 kg pro Hand, Seitheben 2–3 kg pro Hand; bei Körpergewichtsübungen die passende Stufe). Solange es zu einer Übung noch keinen Eintrag gibt, zeigt der Logger sie als Hinweis und als Platzhalter im kg-Feld. Danach zählt das zuletzt eingetragene Gewicht. Faustregel: Schaffst du in allen Sätzen sauber die obere Wiederholungszahl, +1–2 kg; schaffst du keine 10, leichter. Der schwächere linke Arm bestimmt das Gewicht.
 
 **iPhone ↔ Mac per AirDrop:** Shortcut *Sync* auf der Startseite (oder *Einstellungen → Daten & Sync*). Auf dem einen Gerät „Per AirDrop senden“ (am Mac ohne Teilen-Menü: Datei erstellen und im Finder per AirDrop teilen), auf dem anderen „Datei auswählen“ und „Übernehmen“. Die Daten werden zusammengeführt: Neues kommt dazu, bei gleichen Einträgen gewinnt der neuere Stand, Gelöschtes bleibt gelöscht, Einstellungen kommen vom Gerät, auf dem sie zuletzt geändert wurden. Es gibt keinen Server, die Datei geht nur dorthin, wohin du sie schickst.
 

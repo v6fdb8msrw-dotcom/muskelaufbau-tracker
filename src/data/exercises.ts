@@ -5,6 +5,7 @@ export const EXERCISES: Exercise[] = [
   {
     id: 'floor-press',
     name: 'Kurzhantel-Floor-Press',
+    startWeight: { kg: [8, 10], per: 'hand' },
     cues: ['Rückenlage, Knie gebeugt, Oberarme etwa 45° vom Körper.', 'Hanteln senkrecht über die Brust drücken, oben kurz die Brust anspannen.', '3 Sekunden absenken, bis die Oberarme sanft den Boden berühren.'],
     video: 'Kurzhantel Floor Press richtig',
     gym: 'Kurzhantel- oder Langhantel-Bankdrücken auf der Flachbank',
@@ -43,8 +44,9 @@ export const EXERCISES: Exercise[] = [
   {
     id: 'rudern',
     name: 'Einarmiges Kurzhantelrudern',
+    startWeight: { kg: [8, 10], per: 'hantel' },
     gym: 'Kabelrudern einarmig oder Rudermaschine',
-    cues: ['Hand und Knie auf Bank oder Sofa, Rücken gerade.', 'Ellbogen nah am Körper zur Hüfte ziehen, Schulterblatt nach hinten.', 'Kontrolliert absenken. Links beginnen, rechts gleich viele.'],
+    cues: ['Hand und Knie auf Bank oder Sofa, Rücken gerade.', 'Ellbogen nah am Körper zur Hüfte ziehen, Schulterblatt nach hinten.', 'Kontrolliert absenken, der Rücken bleibt gerade.'],
     video: 'Einarmiges Kurzhantelrudern abgestützt richtig',
     group: 'ruecken',
     unilateral: true,
@@ -74,6 +76,7 @@ export const EXERCISES: Exercise[] = [
   {
     id: 'liegestuetze',
     name: 'Liegestütze',
+    startWeight: { text: 'Die Stufe, mit der du 8–15 saubere Wiederholungen schaffst. Meist am Anfang auf den Knien oder mit den Händen auf dem Sofa.' },
     gym: 'Bankdrücken (Langhantel oder Kurzhanteln)',
     cues: ['Hände etwas breiter als schulterbreit, Körper bildet eine gerade Linie.', 'Brust kontrolliert bis knapp über den Boden senken, Ellbogen etwa 45° vom Körper.', 'Kraftvoll hochdrücken, Bauch und Po bleiben fest. Leichter: auf den Knien.'],
     video: 'Liegestütze richtige Ausführung',
@@ -106,6 +109,7 @@ export const EXERCISES: Exercise[] = [
   {
     id: 'schulterdruecken',
     name: 'Kurzhantel-Schulterdrücken',
+    startWeight: { kg: [5, 6], per: 'hand' },
     gym: 'Kurzhanteldrücken sitzend oder Schulterdrückmaschine',
     cues: ['Hanteln auf Schulterhöhe, Handflächen nach vorn, Bauch fest.', 'Senkrecht nach oben drücken, bis die Arme fast gestreckt sind.', 'Langsam zurück auf Schulterhöhe, kein Hohlkreuz.'],
     video: 'Kurzhantel Schulterdrücken richtig',
@@ -131,6 +135,7 @@ export const EXERCISES: Exercise[] = [
   {
     id: 'reverse-crunch',
     name: 'Reverse Crunch',
+    startWeight: { text: 'Ohne Gewicht.' },
     cues: ['Rückenlage, Arme neben dem Körper, Knie über der Hüfte.', 'Becken einrollen und vom Boden heben, Knie Richtung Brust.', 'Langsam abrollen, der untere Rücken bleibt am Boden.'],
     video: 'Reverse Crunch richtig',
     gym: 'Hängendes Knieheben',
@@ -155,6 +160,7 @@ export const EXERCISES: Exercise[] = [
   {
     id: 'plank',
     name: 'Plank (Unterarmstütz)',
+    startWeight: { text: 'Ohne Gewicht. Ziel am Anfang: 30–60 Sekunden.' },
     gym: 'Wie zu Hause, später Ab-Wheel oder Hängendes Beinheben',
     cues: ['Unterarme unter den Schultern, Körper gerade wie ein Brett.', 'Bauch und Po anspannen, Hüfte weder hängen lassen noch hochschieben.', 'Halten bis zum Muskelversagen, ruhig weiteratmen.'],
     video: 'Plank Unterarmstütz richtig',
@@ -179,8 +185,9 @@ export const EXERCISES: Exercise[] = [
   {
     id: 'bizepscurl',
     name: 'Einarmige Bizepscurls',
+    startWeight: { kg: [5, 6], per: 'hantel' },
     gym: 'Kabelcurls oder SZ-Stangen-Curls',
-    cues: ['Ellbogen eng am Körper, Handfläche zeigt nach vorn.', 'Hantel ohne Schwung zur Schulter beugen, oben kurz anspannen.', 'Langsam absenken. Links beginnen, rechts gleich viele Wiederholungen.'],
+    cues: ['Ellbogen eng am Körper, Handfläche zeigt nach vorn.', 'Hantel ohne Schwung zur Schulter beugen, oben kurz anspannen.', 'Langsam absenken, der Ellbogen bleibt am Körper.'],
     video: 'Kurzhantel Bizepscurl einarmig richtig',
     group: 'bizeps',
     unilateral: true,
@@ -202,6 +209,7 @@ export const EXERCISES: Exercise[] = [
   {
     id: 'hammer-curl',
     name: 'Hammer Curls',
+    startWeight: { kg: [5, 7], per: 'hantel' },
     cues: ['Daumen zeigt nach oben (neutraler Griff), Ellbogen am Körper.', 'Hantel ohne Schwung bis zur Schulter beugen.', '3 Sekunden absenken. Trainiert Armdicke und Unterarm.'],
     video: 'Hammer Curls Kurzhantel richtig',
     gym: 'Hammercurls am Seil (Kabelzug)',
@@ -224,6 +232,7 @@ export const EXERCISES: Exercise[] = [
   {
     id: 'trizeps-ueberkopf',
     name: 'Einarmiges Trizepsstrecken über Kopf',
+    startWeight: { kg: [4, 5], per: 'hantel' },
     cues: ['Hantel mit gestrecktem Arm über den Kopf, Oberarm bleibt neben dem Ohr.', 'Unterarm langsam hinter den Kopf absenken, bis der Trizeps gedehnt ist.', 'Nur den Unterarm wieder strecken, der Ellbogen zeigt nach oben.'],
     video: 'Einarmiges Trizepsdrücken über Kopf Kurzhantel',
     gym: 'Überkopf-Trizepsdrücken am Kabelzug',
@@ -250,6 +259,7 @@ export const EXERCISES: Exercise[] = [
   {
     id: 'seitheben',
     name: 'Seitheben',
+    startWeight: { kg: [2, 3], per: 'hand', text: 'Lieber zu leicht: Schwung macht die Übung wirkungslos.' },
     gym: 'Seitheben am Kabelzug',
     cues: ['Arme leicht gebeugt, Hanteln neben dem Körper.', 'Seitlich bis Schulterhöhe heben, die Ellbogen führen.', 'Langsam absenken, ohne Schwung aus dem Rücken.'],
     video: 'Kurzhantel Seitheben richtig',
@@ -339,6 +349,7 @@ export const EXERCISES: Exercise[] = [
   {
     id: 'reverse-fly',
     name: 'Vorgebeugtes Reverse Fly',
+    startWeight: { kg: [2, 3], per: 'hand', text: 'Sehr leicht anfangen, die hintere Schulter ist klein.' },
     cues: ['Vorgebeugt mit geradem Rücken, Arme hängen, Ellbogen leicht gebeugt.', 'Arme seitlich anheben, bis sie etwa auf Rückenhöhe sind, Schulterblätter zusammen.', 'Leichte Hanteln, langsam absenken. Für Haltung und hintere Schulter.'],
     video: 'Reverse Fly Kurzhantel vorgebeugt richtig',
     gym: 'Reverse-Butterfly-Maschine oder Face Pulls am Kabel',
@@ -361,6 +372,7 @@ export const EXERCISES: Exercise[] = [
   {
     id: 'crunch',
     name: 'Crunches',
+    startWeight: { text: 'Ohne Gewicht, später eine Hantel auf der Brust.' },
     gym: 'Kabel-Crunch kniend',
     cues: ['Rückenlage, Knie gebeugt, Arme vor der Brust gekreuzt.', 'Oberkörper einrollen, bis die Schulterblätter abheben.', 'Langsam abrollen. Schwerer: Kurzhantel auf der Brust. Alternative: Beinheben.'],
     video: 'Crunches richtig ausführen',
@@ -385,6 +397,7 @@ export const EXERCISES: Exercise[] = [
   {
     id: 'rudergeraet',
     name: 'Wasser-Rudergerät',
+    startWeight: { text: 'Locker, 20–24 Züge pro Minute.' },
     gym: 'Rudergerät (dort meist mit Luftwiderstand und Stufen)',
     cues: ['Zug: erst Beine drücken, dann Oberkörper leicht zurück, zuletzt Arme zum Bauch.', 'Zurück in umgekehrter Reihenfolge: Arme, Oberkörper, Beine.', 'Wasser-Widerstand: Je kräftiger du ziehst, desto schwerer. Locker mit 20–24 Zügen pro Minute.'],
     video: 'Wasser Rudergerät richtige Technik',
@@ -423,6 +436,7 @@ export const EXERCISES: Exercise[] = [
   {
     id: 'kh-rudern-vorgebeugt',
     name: 'Vorgebeugtes Kurzhantel-Rudern',
+    startWeight: { kg: [5, 7], per: 'hand' },
     group: 'ruecken',
     unilateral: false,
     measure: 'reps',
@@ -449,6 +463,7 @@ export const EXERCISES: Exercise[] = [
   {
     id: 'boden-flys',
     name: 'Kurzhantel-Flys am Boden',
+    startWeight: { kg: [3, 5], per: 'hand' },
     gym: 'Butterfly-Maschine oder Kabelzug-Flys',
     group: 'brust',
     unilateral: false,
@@ -471,6 +486,7 @@ export const EXERCISES: Exercise[] = [
   {
     id: 'russian-twist',
     name: 'Russian Twist mit Kurzhantel',
+    startWeight: { kg: [3, 4], per: 'hantel', text: 'In der ersten Woche ohne Gewicht.' },
     gym: 'Kabel-Rotation (Woodchopper)',
     group: 'bauch',
     core: true,
@@ -494,6 +510,7 @@ export const EXERCISES: Exercise[] = [
   {
     id: 'kh-swing',
     name: 'Kurzhantel-Swing',
+    startWeight: { kg: [8, 10], per: 'hantel' },
     gym: 'Kettlebell-Swing',
     group: 'ruecken',
     unilateral: false,
@@ -517,6 +534,7 @@ export const EXERCISES: Exercise[] = [
   {
     id: 'kh-halo',
     name: 'Kurzhantel-Halo',
+    startWeight: { kg: [3, 5], per: 'hantel' },
     gym: 'Kettlebell-Halo',
     group: 'schulter',
     unilateral: false,
@@ -540,11 +558,12 @@ export const EXERCISES: Exercise[] = [
   {
     id: 'farmers-walk',
     name: 'Farmer’s Walk auf dem Walking-Pad',
+    startWeight: { kg: [4, 6], per: 'hand', text: 'Leicht genug, dass der Griff danach noch frisch ist.' },
     gym: 'Farmer’s Walk mit schweren Kurzhanteln',
     group: 'ausdauer',
     unilateral: false,
     measure: 'time',
-    cues: ['Walking-Pad auf 2–4 km/h, in jeder Hand eine leichte Kurzhantel (etwa ein Drittel deines Curl-Gewichts).', 'Aufrecht gehen: Brust raus, Schultern nach hinten unten.', '15 Minuten zu Beginn jeder Einheit. Der Griff soll danach noch frisch sein.'],
+    cues: ['Walking-Pad auf 2–4 km/h, in jeder Hand eine leichte Kurzhantel (etwa 4–6 kg).', 'Aufrecht gehen: Brust raus, Schultern nach hinten unten.', '15 Minuten zu Beginn jeder Einheit. Der Griff soll danach noch frisch sein.'],
     video: 'Farmers Walk Kurzhantel Technik',
     equipment: ['Walking-Pad (2–4 km/h)', '2 leichte Kurzhanteln'],
     muscles: ['Unterarme und Griff', 'Oberer Rücken', 'Rumpf', 'Haltung'],
@@ -562,6 +581,7 @@ export const EXERCISES: Exercise[] = [
   {
     id: 'diamant-liegestuetze',
     name: 'Enge Liegestütze (Diamond)',
+    startWeight: { text: 'Am Anfang auf den Knien.' },
     group: 'trizeps',
     unilateral: false,
     measure: 'reps',
@@ -585,6 +605,7 @@ export const EXERCISES: Exercise[] = [
   {
     id: 'stuhl-dips',
     name: 'Dips an Stuhl oder Sofa',
+    startWeight: { text: 'Knie gebeugt, Füße nah an der Kante.' },
     group: 'trizeps',
     unilateral: false,
     measure: 'reps',
@@ -608,6 +629,7 @@ export const EXERCISES: Exercise[] = [
   {
     id: 'konzentrationscurl',
     name: 'Konzentrationscurls',
+    startWeight: { kg: [4, 5], per: 'hantel' },
     group: 'bizeps',
     unilateral: true,
     measure: 'reps',
@@ -630,6 +652,7 @@ export const EXERCISES: Exercise[] = [
   {
     id: 'trizeps-kickback',
     name: 'Trizeps-Kickbacks',
+    startWeight: { kg: [2, 4], per: 'hantel' },
     group: 'trizeps',
     unilateral: true,
     measure: 'reps',
@@ -652,6 +675,7 @@ export const EXERCISES: Exercise[] = [
   {
     id: 'hollow-body',
     name: 'Hollow Body Hold',
+    startWeight: { text: 'Mit angezogenen Knien (Tuck) anfangen. Ziel: 20–30 Sekunden.' },
     group: 'bauch',
     core: true,
     unilateral: false,
@@ -676,6 +700,7 @@ export const EXERCISES: Exercise[] = [
   {
     id: 'tischrudern',
     name: 'Tischrudern (Australian Row)',
+    startWeight: { text: 'Knie gebeugt, Füße nah am Tisch. Je steiler der Körper, desto leichter.' },
     group: 'ruecken',
     unilateral: false,
     measure: 'reps',

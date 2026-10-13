@@ -18,6 +18,7 @@ import {
   sessionStatus,
   setSlots,
   setsForWeek,
+  startWeightLabel,
   videoSearchUrl,
 } from './training'
 import { buildWeeklyReport } from './weekly'
@@ -174,6 +175,17 @@ describe('Training', () => {
       for (const f of pic.frames) for (const n of names) expect(f[n], `${id}: ${n}`).toBeDefined()
     }
     expect(videoSearchUrl('Seitheben')).toMatch(/^https:\/\/www\.youtube\.com\/results\?search_query=/)
+  })
+
+  it('Startgewicht für jede Planübung, Hantelübungen mit kg', () => {
+    const ids = [...SESSIONS.flatMap((x) => [x.warmup?.exerciseId, ...x.exercises.map((e) => e.exerciseId), x.finisher?.exerciseId]).filter(Boolean), WEEKLY_ROWING.exerciseId] as string[]
+    for (const id of new Set(ids)) {
+      const ex = EXERCISE_MAP[id]
+      expect(ex.startWeight?.kg ?? ex.startWeight?.text, id).toBeTruthy()
+      if (!ex.bodyweight && ex.group !== 'ausdauer' && ex.measure === 'reps') expect(ex.startWeight?.kg, id).toBeDefined()
+    }
+    expect(startWeightLabel(EXERCISE_MAP['bizepscurl'])).toBe('5–6 kg (eine Hantel)')
+    expect(startWeightLabel(EXERCISE_MAP['seitheben'])).toBe('2–3 kg pro Hand')
   })
 
   it('Dosierung für die Anzeige', () => {

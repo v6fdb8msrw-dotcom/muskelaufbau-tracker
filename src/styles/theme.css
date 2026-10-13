@@ -948,3 +948,25 @@
   background: rgba(60, 240, 124, 0.08);
   box-shadow: inset 3px 0 0 var(--neon);
 }
+
+/* Startgewicht im Tutorial und im Logger */
+.tut-start {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--line-2);
+  font-size: 13.5px;
+  color: var(--ink-2);
+}
+
+.tut-start strong {
+  color: var(--neon);
+}
+
+.start-hint {
+  margin-top: 4px;
+  color: var(--neon-ink);
+}

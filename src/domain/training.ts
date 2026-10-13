@@ -1,7 +1,7 @@
 import { ARM_BALANCE_EXERCISES, EXERCISE_MAP } from '../data/exercises'
 import { phaseFor, PLAN_RULES, SESSION_MAP, SESSIONS } from '../data/plan'
 import { addDays, diffDays, startOfWeek, todayISO, weekdayIndex } from '../lib/date'
-import type { PlannedExercise, ScheduleChange, SessionId, Settings, SetLog, TargetWeight, WorkoutLog } from '../types'
+import type { Exercise, PlannedExercise, ScheduleChange, SessionId, Settings, SetLog, TargetWeight, WorkoutLog } from '../types'
 
 export interface PlannedSession {
   key: string
@@ -287,4 +287,12 @@ export function formatDosage(pe: PlannedExercise, week = 3): string {
 /** Link zu Kurzvideos auf YouTube (Suche, damit der Link nie ins Leere führt). */
 export function videoSearchUrl(query: string): string {
   return `https://www.youtube.com/results?search_query=${encodeURIComponent(`${query} shorts`)}`
+}
+
+/** Startgewicht als Text, z. B. „5–6 kg pro Hand“ oder „8–10 kg (eine Hantel)“. */
+export function startWeightLabel(ex: Exercise): string | undefined {
+  const st = ex.startWeight
+  if (!st?.kg) return undefined
+  const [a, b] = st.kg
+  return `${a === b ? a : `${a}–${b}`} kg ${st.per === 'hand' ? 'pro Hand' : '(eine Hantel)'}`
 }

@@ -179,6 +179,8 @@ export interface Exercise {
   later?: string
   /** Entsprechende Übung im Fitnessstudio */
   gym?: string
+  /** Empfehlung für den Start (Oberkörper-Einsteiger, 10–15 Wiederholungen mit 2–3 in Reserve) */
+  startWeight?: { kg?: [number, number]; per?: 'hand' | 'hantel'; text?: string }
 }
 
 export interface PlannedExercise {

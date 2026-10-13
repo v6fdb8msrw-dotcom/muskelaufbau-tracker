@@ -7,7 +7,7 @@ import { SIDE_LABEL } from '../components/labels'
 import { Card, Field, NumberInput, PageHead, Seg, Switch } from '../components/ui'
 import { CORE_EXERCISES, EXERCISE_MAP, EXERCISES } from '../data/exercises'
 import { PHASES, phaseFor, PLAN_RULES, SESSION_MAP, SESSIONS } from '../data/plan'
-import { effectiveExerciseId, formatDosage, lastExerciseLog, plannedSessionsForWeek, programWeek, setSlots, targetKey } from '../domain/training'
+import { effectiveExerciseId, formatDosage, lastExerciseLog, plannedSessionsForWeek, programWeek, setSlots, startWeightLabel, targetKey } from '../domain/training'
 import { formatDateLong } from '../lib/date'
 import { stamp } from '../lib/id'
 import { num } from '../lib/format'
@@ -309,6 +309,12 @@ export default function WorkoutLogger({ route }: { route: Route }) {
                     {exId !== pe.exerciseId ? ' · Alternative zu Überzügen' : ''}
                   </div>
                   {pe.note && <div className="muted tiny">{pe.note}</div>}
+                  {!last && (startWeightLabel(ex) || ex.startWeight?.text) && (
+                    <div className="tiny start-hint">
+                      Zum Start: {startWeightLabel(ex) ?? ex.startWeight?.text}
+                      {startWeightLabel(ex) ? ' · zu leicht? +1–2 kg, schaffst du keine 10: leichter.' : ''}
+                    </div>
+                  )}
                 </div>
                 {last && (
                   <div className="muted tiny" style={{ textAlign: 'right' }}>
@@ -343,7 +349,14 @@ export default function WorkoutLogger({ route }: { route: Route }) {
                     {ex.bodyweight ? (
                       <div className="muted tiny">Körpergewicht</div>
                     ) : (
-                      <NumberInput value={value.weightKg} onChange={(v) => setSet(exId, idx, { weightKg: v }, slots.length, base)} suffix="kg" step={0.5} ariaLabel="Gewicht" />
+                      <NumberInput
+                        value={value.weightKg}
+                        onChange={(v) => setSet(exId, idx, { weightKg: v }, slots.length, base)}
+                        suffix="kg"
+                        step={0.5}
+                        placeholder={ex.startWeight?.kg ? String(ex.startWeight.kg[0]) : undefined}
+                        ariaLabel="Gewicht"
+                      />
                     )}
                     <div>
                       <NumberInput

@@ -1,7 +1,7 @@
 import { BookOpen, PlayCircle } from 'lucide-react'
 import { ARM_BALANCE_EXERCISES, EXERCISE_MAP } from '../data/exercises'
 import { PLAN_RULES } from '../data/plan'
-import { formatDosage, videoSearchUrl } from '../domain/training'
+import { formatDosage, startWeightLabel, videoSearchUrl } from '../domain/training'
 import { href } from '../state/router'
 import { useStore } from '../state/store'
 import type { CardioBlock, PlannedExercise } from '../types'
@@ -27,6 +27,15 @@ export function ExerciseTutorial({ exerciseId, planned, cardio, onClose }: { exe
             <strong className="num">{planned ? formatDosage(planned) : cardio!.min === cardio!.max ? `${cardio!.min} Minuten` : `${cardio!.min}–${cardio!.max} Minuten`}</strong>
             {planned?.note && <span>{planned.note}</span>}
             {cardio?.note && <span>{cardio.note}</span>}
+          </div>
+        )}
+        {(startWeightLabel(ex) || ex.startWeight?.text) && (
+          <div className="tut-start">
+            <span className="eyebrow">Zum Start</span>
+            <span>
+              {startWeightLabel(ex) && <strong>{startWeightLabel(ex)}. </strong>}
+              {ex.startWeight?.text}
+            </span>
           </div>
         )}
         <ol className="tut-cues">
