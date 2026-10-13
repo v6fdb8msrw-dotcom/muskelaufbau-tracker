@@ -41,8 +41,8 @@ export interface WeekSlot {
 }
 
 /**
- * Wochenraster: Pull und Push im Wechsel an Mo, Di, Do, Fr. Die optionale 5. Einheit
- * (Sa oder So) ist Tag C für Arme und Calisthenics.
+ * Wochenraster: Pull und Push im Wechsel an Mo, Di, Do, Fr. Bei 5 Einheiten kommt Tag C
+ * (Arme und Calisthenics) am Samstag oder Sonntag dazu.
  */
 export function weekSlots(settings: Settings, _week?: number): WeekSlot[] {
   const slots: WeekSlot[] = [
@@ -53,7 +53,7 @@ export function weekSlots(settings: Settings, _week?: number): WeekSlot[] {
   ]
   const extra = settings.program.extraDay
   if (extra === 'sa' || extra === 'so') {
-    slots.push({ slot: extra, offset: extra === 'sa' ? 5 : 6, sessionId: 'arme-c', optional: true })
+    slots.push({ slot: extra, offset: extra === 'sa' ? 5 : 6, sessionId: 'arme-c', optional: false })
   }
   return slots
 }

@@ -24,7 +24,7 @@ export function ExerciseTutorial({ exerciseId, planned, cardio, onClose }: { exe
         </div>
         {(planned || cardio) && (
           <div className="tut-dose">
-            <strong className="num">{planned ? formatDosage(planned) : `${cardio!.min}–${cardio!.max} Minuten`}</strong>
+            <strong className="num">{planned ? formatDosage(planned) : cardio!.min === cardio!.max ? `${cardio!.min} Minuten` : `${cardio!.min}–${cardio!.max} Minuten`}</strong>
             {planned?.note && <span>{planned.note}</span>}
             {cardio?.note && <span>{cardio.note}</span>}
           </div>

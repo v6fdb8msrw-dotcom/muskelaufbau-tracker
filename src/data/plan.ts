@@ -2,8 +2,8 @@ import type { SessionId, TrainingSession } from '../types'
 
 /**
  * Der Trainingsplan: 100 % Oberkörper für einen Einsteiger mit großem Seitenunterschied.
- * Pull und Push im Wechsel (jeder Muskel 2× pro Woche), dazu optional Tag C für Arme und
- * Calisthenics. Der Umfang steigt über 16 Wochen in Phasen (siehe PHASES): Technik zuerst,
+ * Pull und Push im Wechsel (jeder Muskel 2× pro Woche), dazu als 5. Einheit Tag C für Arme
+ * und Calisthenics (Bizeps und Trizeps 3× pro Woche). Der Umfang steigt über 16 Wochen in Phasen (siehe PHASES): Technik zuerst,
  * dann mehr Sätze und Sätze näher am Muskelversagen. Einarmig immer links zuerst.
  * Keine Beinübungen, keine Klimmzugstange.
  */
@@ -13,7 +13,7 @@ export const SESSIONS: TrainingSession[] = [
     title: 'Tag A · Pull',
     short: 'Pull',
     focus: 'Rücken und Bizeps, dazu unterer Bauch.',
-    warmup: { exerciseId: 'rudergeraet', min: 10, max: 15, note: 'Locker, als Einstieg für den Rücken' },
+    warmup: { exerciseId: 'rudergeraet', min: 10, max: 15, note: 'Locker, 20–24 Züge pro Minute' },
     exercises: [
       { exerciseId: 'rudern', sets: 3, perSide: true, min: 10, max: 15, unit: 'reps', priority: true, note: 'Hauptübung Rücken' },
       { exerciseId: 'kh-rudern-vorgebeugt', sets: 3, min: 10, max: 15, unit: 'reps', priority: true },
@@ -31,6 +31,7 @@ export const SESSIONS: TrainingSession[] = [
     title: 'Tag B · Push',
     short: 'Push',
     focus: 'Brust, Schultern und Trizeps, dazu Rumpf.',
+    warmup: { exerciseId: 'rudergeraet', min: 5, max: 5, note: 'Schultern und Kreislauf warm machen' },
     exercises: [
       { exerciseId: 'liegestuetze', sets: 3, min: 8, max: 20, unit: 'reps', priority: true, note: 'Deine Stufe, siehe Anleitung' },
       { exerciseId: 'floor-press', sets: 3, min: 10, max: 15, unit: 'reps', priority: true },
@@ -46,7 +47,8 @@ export const SESSIONS: TrainingSession[] = [
     id: 'arme-c',
     title: 'Tag C · Arme & Calisthenics',
     short: 'Arme',
-    focus: 'Extra-Einheit für Bizeps und Trizeps mit Körpergewicht-Übungen. Optional, wenn du dich erholt fühlst.',
+    focus: 'Fünfte Einheit für Bizeps und Trizeps mit Calisthenics-Übungen.',
+    warmup: { exerciseId: 'rudergeraet', min: 5, max: 5, note: 'Schultern und Ellbogen warm machen' },
     exercises: [
       { exerciseId: 'diamant-liegestuetze', sets: 3, min: 6, max: 15, unit: 'reps', priority: true },
       { exerciseId: 'stuhl-dips', sets: 3, min: 8, max: 15, unit: 'reps', priority: true },

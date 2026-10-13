@@ -47,7 +47,7 @@ Die App ist auf dich zugeschnitten: Startgewicht 60,3 kg, 171 cm, 22 Jahre, 2.15
 
 **Günstig & proteinreich:** 20 weitere Rezepte mit mindestens 40 g Eiweiß für höchstens 2 € Zutaten pro Portion (Schätzpreise), z. B. Rote-Linsen-Dal, Quarkbrötchen, Soja-Gyros, Eiersalat mit Quark, Seelachs in Haferflocken-Kruste. Der Filter „Bis 2 €“ in der Rezeptliste zeigt alle günstigen Rezepte.
 
-**Trainingsplan (16 Wochen, nur Oberkörper):** Pull und Push im Wechsel, damit jeder Muskel 2× pro Woche dran ist: Montag Tag A (Pull), Dienstag Tag B (Push), Donnerstag Pull, Freitag Push, dazu optional Tag C (Arme & Calisthenics) am Samstag (in den Einstellungen auf Sonntag oder „keine“ stellbar).
+**Trainingsplan (16 Wochen, nur Oberkörper, 5× pro Woche):** Pull und Push im Wechsel, damit jeder Muskel 2× pro Woche dran ist: Montag Tag A (Pull), Dienstag Tag B (Push), Donnerstag Pull, Freitag Push, Samstag Tag C (Arme & Calisthenics), damit Bizeps und Trizeps 3× pro Woche trainiert werden. Unter *Einstellungen → Training* auf Sonntag legen oder auf 4 Einheiten reduzieren. Aufwärmen auf dem Wasser-Rudergerät (am Pull-Tag 10–15 Minuten, sonst 5 Minuten, Intensität nur über Kraft und Schlagzahl).
 - *Tag A · Pull:* Rudergerät 10–15 min, einarmiges Rudern, vorgebeugtes Rudern, Reverse Fly, Bizepscurls, Hammer Curls, Reverse Crunch. Optional Tischrudern und Kurzhantel-Swing.
 - *Tag B · Push:* Liegestütze (in Stufen), Floor Press, Schulterdrücken, Seitheben, Trizepsstrecken über Kopf, Plank bis zum Versagen. Optional Boden-Flys.
 - *Tag C · Arme & Calisthenics:* enge Liegestütze, Dips an Stuhl oder Sofa, Konzentrationscurls, Trizeps-Kickbacks, Hollow Body, Russian Twist. Optional Halo.

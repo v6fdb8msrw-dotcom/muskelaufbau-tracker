@@ -238,13 +238,13 @@ export function buildWeeklyReport(data: DataSet, settings: Settings, weekStart: 
   }
   const lastRecoveries = [...data.workouts].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 2)
   if (lastRecoveries.length && lastRecoveries.every((w) => w.recovery === 1)) {
-    const extra = sessions.find((s) => s.optional && s.date >= today)
+    const extra = sessions.find((s) => s.sessionId === 'arme-c' && s.date >= today)
     if (extra) {
       suggestions.push({
         id: sid('reduce-extra'),
         area: 'training',
-        title: 'Optionale Einheit auslassen',
-        detail: 'Deine letzten Einheiten hast du mit schlechter Erholung bewertet. Vorschlag: die optionale Einheit am Wochenende weglassen oder nur einen Farmer’s Walk auf dem Walking-Pad machen.',
+        title: 'Tag C diese Woche leichter',
+        detail: 'Deine letzten Einheiten hast du mit schlechter Erholung bewertet. Vorschlag: Tag C nur mit 2 Sätzen machen oder diese Woche auslassen.',
         action: { type: 'note' },
         acceptLabel: 'Merken',
       })

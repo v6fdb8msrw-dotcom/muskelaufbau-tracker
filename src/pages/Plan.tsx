@@ -52,9 +52,7 @@ export default function Plan() {
         {EXERCISE_MAP[c.exerciseId].name}
         {c.optional && <span className="opt-tag">optional</span>}
       </span>
-      <span className="num muted">
-        {c.min}–{c.max} min
-      </span>
+      <span className="num muted">{c.min === c.max ? `${c.min} min` : `${c.min}–${c.max} min`}</span>
     </button>
   )
 
@@ -167,7 +165,7 @@ export default function Plan() {
       </div>
 
       <div className="muted tiny" style={{ marginTop: 14 }}>
-        Tipp auf eine Übung zeigt das Mini-Tutorial mit Bewegungsablauf, Kurzvideos und der passenden Gym-Übung. Tag C ist optional: nur bei guter Erholung. Ruhetage: gern Farmer’s Walk auf dem Walking-Pad.
+        Tipp auf eine Übung zeigt das Mini-Tutorial mit Bewegungsablauf, Kurzvideos und der passenden Gym-Übung. Einheiten pro Woche (4× oder 5×) stellst du unter Einstellungen → Training ein.
       </div>
 
       {tutorial && <ExerciseTutorial exerciseId={tutorial.exerciseId} planned={tutorial.planned} cardio={tutorial.cardio} onClose={() => setTutorial(null)} />}

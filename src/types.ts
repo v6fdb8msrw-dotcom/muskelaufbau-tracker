@@ -476,7 +476,7 @@ export interface Settings {
   program: {
     startDate: string
     weeks: number
-    /** Optionale 5. Einheit: Samstag, Sonntag oder keine */
+    /** 5. Einheit (Tag C): Samstag, Sonntag oder „aus“ für 4 Einheiten pro Woche */
     extraDay: 'sa' | 'so' | 'aus'
     pulloverSuitable: boolean
     extraWeakSet: boolean

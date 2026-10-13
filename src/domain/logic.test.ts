@@ -102,18 +102,18 @@ describe('Tagesprotokoll und Nährwerte', () => {
 })
 
 describe('Training', () => {
-  it('Pull und Push im Wechsel: Mo, Di, Do, Fr plus optionale 5. Einheit', () => {
+  it('Pull und Push im Wechsel: Mo, Di, Do, Fr plus Tag C als 5. Einheit', () => {
     const s = settingsWith()
     const week1 = plannedSessionsForWeek(s, [], 1)
     expect(week1.map((p) => p.date)).toEqual(['2026-10-12', '2026-10-13', '2026-10-15', '2026-10-16', '2026-10-17'])
     expect(week1.map((p) => p.sessionId)).toEqual(['pull-a', 'push-b', 'pull-a', 'push-b', 'arme-c'])
-    expect(week1.map((p) => p.optional)).toEqual([false, false, false, false, true])
+    expect(week1.every((p) => !p.optional)).toBe(true)
     const sunday = settingsWith((x) => ({ ...x, program: { ...x.program, extraDay: 'so' } }))
     expect(plannedSessionsForWeek(sunday, [], 1).at(-1)?.date).toBe('2026-10-18')
     const four = settingsWith((x) => ({ ...x, program: { ...x.program, extraDay: 'aus' } }))
     expect(plannedSessionsForWeek(four, [], 1)).toHaveLength(4)
-    // Optional verpasst ist kein „verpasst“
-    expect(sessionStatus(week1[4], [], '2026-10-19')).toBe('skipped')
+    // Tag C zählt bei 5 Einheiten wie jede andere Einheit
+    expect(sessionStatus(week1[4], [], '2026-10-19')).toBe('missed')
   })
 
   it('Plan: nur Oberkörper, jeder Muskel 2× pro Woche, keine Klimmzugstange', () => {
