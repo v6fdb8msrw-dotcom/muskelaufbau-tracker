@@ -277,7 +277,7 @@ export function buildWeeklyReport(data: DataSet, settings: Settings, weekStart: 
   const trend = weeklyTrend(data.weights, today)
   if (trend.enoughData && trend.perWeek !== undefined) {
     const g = Math.round(trend.perWeek * 1000)
-    if (g >= t.gainMinG && g <= t.gainMaxG) good.push(`Gewicht steigt im geplanten Rahmen (${g > 0 ? '+' : ''}${g} g/Woche im 7-Tage-Schnitt).`)
+    if (g >= t.gainMinG - (t.gainMinG > 0 ? 0 : 100) && g <= t.gainMaxG) good.push(`Gewicht im geplanten Rahmen (${g > 0 ? '+' : ''}${g} g/Woche im 7-Tage-Schnitt).`)
     else open.push(`Gewichtsverlauf: ${g > 0 ? '+' : ''}${g} g/Woche im 7-Tage-Schnitt (geplant +${t.gainMinG}–${t.gainMaxG} g).`)
   }
   const kcalSug = calorieSuggestion(data.weights, settings, today)

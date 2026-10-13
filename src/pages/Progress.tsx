@@ -76,7 +76,9 @@ function WeightTab() {
         <Card index={2}>
           <div className="eyebrow">Seit Start</div>
           <div className="stat-value">{last ? `${last.avg7 - start >= 0 ? '+' : ''}${num((last.avg7 - start) * 1000)} g` : '–'}</div>
-          <div className="stat-sub">Ziel +{settings.targets.gainMinG}–{settings.targets.gainMaxG} g pro Woche</div>
+          <div className="stat-sub">
+            {settings.targets.gainMinG > 0 ? `Ziel +${settings.targets.gainMinG}–${settings.targets.gainMaxG} g pro Woche` : `Ziel: Gewicht halten bis +${settings.targets.gainMaxG} g pro Woche`}
+          </div>
         </Card>
         <Card index={3}>
           <div className="eyebrow">Trend</div>

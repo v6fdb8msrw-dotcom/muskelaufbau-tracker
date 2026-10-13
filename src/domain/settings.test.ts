@@ -4,19 +4,19 @@ import { createDefaultSettings, migrateSettings, SETTINGS_VERSION } from '../dat
 import { ESN_PRODUCTS } from '../data/supplements'
 import type { Settings } from '../types'
 
-describe('Startwerte aus dem Auftrag', () => {
-  it('Profil und Ziele entsprechen genau den Vorgaben', () => {
+describe('Startwerte', () => {
+  it('Profil wie im Auftrag, Ziele wie am 13.10.2026 vereinbart', () => {
     const s = createDefaultSettings()
     expect(s.profile).toMatchObject({ age: 22, sex: 'm', heightCm: 171, startWeightKg: 60.3 })
     expect(s.targets).toEqual({
-      kcal: 2150,
-      protein: 120,
-      fat: 65,
-      carbs: 270,
-      fiber: 30,
-      fluidMl: 2300,
-      gainMinG: 100,
-      gainMaxG: 250,
+      kcal: 1500,
+      protein: 130,
+      fat: 55,
+      carbs: 120,
+      fiber: 25,
+      fluidMl: 1500,
+      gainMinG: 0,
+      gainMaxG: 150,
       bmrEstimate: 1567,
       maintenanceMin: 1900,
       maintenanceMax: 2100,
@@ -31,8 +31,8 @@ describe('Startwerte aus dem Auftrag', () => {
     expect(changed).toBe(true)
     expect(settings.version).toBe(SETTINGS_VERSION)
     expect(settings.profile.startWeightKg).toBe(60.3)
-    expect(settings.targets.kcal).toBe(2150)
-    expect(settings.targets.protein).toBe(120)
+    expect(settings.targets.kcal).toBe(1500)
+    expect(settings.targets.protein).toBe(130)
   })
 
   it('aktuelle Einstellungen bleiben unverändert', () => {
@@ -49,7 +49,7 @@ describe('Startwerte aus dem Auftrag', () => {
     expect(settings.version).toBe(SETTINGS_VERSION)
     expect('funDrinks' in settings).toBe(false)
     expect(settings.budget.max).toBe(18)
-    expect(settings.targets.kcal).toBe(2150)
+    expect(settings.targets.kcal).toBe(1500)
   })
 
   it('Version 3 → 4: Pull/Push mit optionaler 5. Einheit, links als schwächerer Arm', () => {
@@ -59,6 +59,13 @@ describe('Startwerte aus dem Auftrag', () => {
     expect('secondDay' in settings.program).toBe(false)
     expect(settings.arms.weakerSide).toBe('left')
     expect(settings.program.extraWeakSet).toBe(true)
+  })
+
+  it('Version 5 → 6: Ziele 1.500 kcal, 130 g Eiweiß, 1,5 l, Profil bleibt', () => {
+    const v5 = { ...createDefaultSettings(), version: 5, profile: { ...createDefaultSettings().profile, name: 'Tim' }, targets: { ...createDefaultSettings().targets, kcal: 2150, protein: 120, fluidMl: 2300, gainMinG: 100 } }
+    const { settings } = migrateSettings(v5)
+    expect(settings.targets).toMatchObject({ kcal: 1500, protein: 130, fluidMl: 1500, gainMinG: 0 })
+    expect(settings.profile.name).toBe('Tim')
   })
 
   it('ESN-Produkte haben Etikettwerte und keine nussigen Sorten', () => {

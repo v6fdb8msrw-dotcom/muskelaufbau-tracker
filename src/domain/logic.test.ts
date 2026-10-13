@@ -268,6 +268,14 @@ describe('Gewicht', () => {
     expect(sug!.delta).toBeGreaterThanOrEqual(-150)
   })
 
+  it('Schlank bleiben: stabiles Gewicht ist ok, erst bei Abnahme +100 kcal', () => {
+    const lean = settingsWith((x) => ({ ...x, targets: { ...x.targets, kcal: 1500, gainMinG: 0, gainMaxG: 150 } }))
+    expect(calorieSuggestion(entries(60, 0), lean, '2026-11-01')).toBeUndefined()
+    const losing = calorieSuggestion(entries(60, -0.04), lean, '2026-11-01')
+    expect(losing?.delta).toBe(100)
+    expect(losing?.newKcal).toBe(1600)
+  })
+
   it('Zunahme im Plan → kein Vorschlag', () => {
     expect(calorieSuggestion(entries(70, 0.025), settingsWith(), '2026-11-01')).toBeUndefined()
   })

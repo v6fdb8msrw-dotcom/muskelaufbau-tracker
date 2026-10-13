@@ -32,7 +32,7 @@ export const DEFAULT_EXCLUDED_TAGS: FoodTag[] = [
 
 export const DEFAULT_AVOID_TAGS: FoodTag[] = ['tomato', 'potato']
 
-export const SETTINGS_VERSION = 5
+export const SETTINGS_VERSION = 6
 
 /** Deine Startwerte aus dem Auftrag. In den Einstellungen jederzeit änderbar. */
 export function createDefaultSettings(): Settings {
@@ -57,15 +57,17 @@ export function createDefaultSettings(): Settings {
       dumbbellStepKg: 1,
       equipment: { dumbbells: true, rower: true, treadmill: true, pullupBar: false },
     },
+    // Ziele seit 13.10.2026 (Tims Wunsch): schlank bleiben und sichtbar Muskeln aufbauen.
+    // Etwa Erhaltungsbedarf mit viel Eiweiß; mehr Kalorien nur, wenn das Gewicht sinkt.
     targets: {
-      kcal: 2150,
-      protein: 120,
-      fat: 65,
-      carbs: 270,
-      fiber: 30,
-      fluidMl: 2300,
-      gainMinG: 100,
-      gainMaxG: 250,
+      kcal: 1500,
+      protein: 130,
+      fat: 55,
+      carbs: 120,
+      fiber: 25,
+      fluidMl: 1500,
+      gainMinG: 0,
+      gainMaxG: 150,
       bmrEstimate: 1567,
       maintenanceMin: 1900,
       maintenanceMax: 2100,
@@ -159,6 +161,11 @@ export function migrateSettings(stored: (Partial<Settings> & { funDrinks?: unkno
     delete program.secondDay
     delete program.weekendDay
     s = { ...s, program, arms: { ...s.arms, weakerSide: s.arms.weakerSide ?? 'left' } }
+  }
+  if (version < 6) {
+    // Version 6: realistische Ziele (1.500 kcal, 130 g Eiweiß, 1,5 l), mehr Kalorien nur bei Gewichtsverlust
+    const d = createDefaultSettings()
+    s = { ...s, targets: { ...s.targets, kcal: d.targets.kcal, protein: d.targets.protein, fat: d.targets.fat, carbs: d.targets.carbs, fiber: d.targets.fiber, fluidMl: d.targets.fluidMl, gainMinG: d.targets.gainMinG, gainMaxG: d.targets.gainMaxG } }
   }
   if (version < 5) {
     // Version 5: Zusatzsatz für die schwächere Seite ab Woche 4 standardmäßig an

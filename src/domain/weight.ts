@@ -78,23 +78,30 @@ export function calorieSuggestion(weights: WeightEntry[], settings: Settings, to
   const change = recent.avg - earlier.avg
   const perWeek = change / 2
   const kcal = settings.targets.kcal
-  if (change <= 0) {
+  const { gainMinG, gainMaxG } = settings.targets
+  // Schlank bleiben (gainMinG 0): erst bei spürbarem Gewichtsverlust mehr essen. Aufbau (gainMinG > 0): schon bei Stillstand.
+  const tooLow = gainMinG > 0 ? change <= 0 : perWeek < -0.1
+  if (tooLow) {
+    const delta = gainMinG > 0 ? 150 : 100
     return {
       id: `kcal-up-${today}`,
-      delta: 150,
-      newKcal: kcal + 150,
+      delta,
+      newKcal: kcal + delta,
       change,
-      reason: `Dein 7-Tage-Durchschnitt ist in zwei Wochen nicht gestiegen (${formatKg(change)}). Für Muskelaufbau sind etwa +${settings.targets.gainMinG}–${settings.targets.gainMaxG} g pro Woche geplant.`,
+      reason:
+        gainMinG > 0
+          ? `Dein 7-Tage-Durchschnitt ist in zwei Wochen nicht gestiegen (${formatKg(change)}). Für Muskelaufbau sind etwa +${gainMinG}–${gainMaxG} g pro Woche geplant.`
+          : `Du nimmst etwa ${formatKg(-Math.abs(perWeek))} pro Woche ab. Damit die Muskeln wachsen können, etwas mehr essen: +${delta} kcal, zum Beispiel ein Glas Vollmilch oder Öl im Salat.`,
     }
   }
-  if (perWeek > 0.3) {
-    const delta = perWeek > 0.4 ? -150 : -100
+  if (perWeek > gainMaxG / 1000 + 0.05) {
+    const delta = perWeek > gainMaxG / 1000 + 0.15 ? -150 : -100
     return {
       id: `kcal-down-${today}`,
       delta,
       newKcal: kcal + delta,
       change,
-      reason: `Du nimmst etwa ${formatKg(perWeek)} pro Woche zu. Das ist mehr als geplant (bis ${settings.targets.gainMaxG} g). Eine kleine Reduzierung hält die Zunahme näher am Muskelaufbau.`,
+      reason: `Du nimmst etwa ${formatKg(perWeek)} pro Woche zu. Das ist mehr als geplant (bis ${gainMaxG} g). Eine kleine Reduzierung hält die Zunahme näher am Muskelaufbau.`,
     }
   }
   return undefined
