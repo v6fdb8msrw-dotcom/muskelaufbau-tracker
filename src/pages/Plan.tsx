@@ -1,16 +1,17 @@
 import { ArrowUpRight, CheckCircle2, Dumbbell, TrendingUp } from 'lucide-react'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
+import { ExerciseTutorial } from '../components/ExerciseTutorial'
 import { useProgram } from '../components/hooks'
 import { Card, CardHead, PageHead } from '../components/ui'
 import { EXERCISE_MAP } from '../data/exercises'
-import { SESSIONS } from '../data/plan'
-import { effectiveExerciseId, plannedSessionsForWeek, progressionHints, sessionStatus, setsForWeek, targetKey } from '../domain/training'
-import { formatDate, relativeDay, WEEKDAY_LONG } from '../lib/date'
+import { SESSION_MAP, SESSIONS } from '../data/plan'
+import { effectiveExerciseId, formatDosage, plannedSessionsForWeek, progressionHints, sessionStatus, targetKey } from '../domain/training'
+import { formatDate, relativeDay } from '../lib/date'
 import { stamp } from '../lib/id'
 import { href } from '../state/router'
 import { useStore } from '../state/store'
 import { useToast } from '../state/toast'
-import type { SuggestionState, TargetWeight } from '../types'
+import type { CardioBlock, PlannedExercise, SuggestionState, TargetWeight } from '../types'
 
 export default function Plan() {
   const store = useStore()
@@ -35,17 +36,31 @@ export default function Plan() {
     toast(kg ? `Zielgewicht ${kg} kg übernommen` : 'Gemerkt')
   }
 
-  const sessions = SESSIONS.map((s) => {
-    const offset = { 'mo-a': 0, 'arme-a': p.secondDay === 'di' ? 1 : 2, 'fr-b': 4, 'ok-b': p.weekendDay === 'sa' ? 5 : 6 }[s.id]
-    const planned = thisWeek.find((x) => x.sessionId === s.id)
-    return { s, offset, planned, status: planned ? sessionStatus(planned, data.workouts, today) : undefined }
-  }).sort((a, b) => (a.planned?.date ?? String(a.offset)).localeCompare(b.planned?.date ?? String(b.offset)))
-  const done = sessions.filter((x) => x.status === 'done').length
+  const [tutorial, setTutorial] = useState<{ exerciseId: string; planned?: PlannedExercise; cardio?: CardioBlock } | null>(null)
+  // Einheiten dieser Woche nach Datum; vor dem Programmstart die beiden Vorlagen
+  const sessions = thisWeek.length
+    ? thisWeek.map((planned) => ({ planned, session: SESSION_MAP[planned.sessionId], status: sessionStatus(planned, data.workouts, today) }))
+    : SESSIONS.map((session) => ({ planned: undefined, session, status: undefined }))
+  const required = sessions.filter((x) => !x.planned?.optional)
+  const done = required.filter((x) => x.status === 'done').length
+
+  const cardioRow = (c: CardioBlock, label: string) => (
+    <button type="button" className="exercise-row cardio" onClick={() => setTutorial({ exerciseId: c.exerciseId, cardio: c })}>
+      <span className="grow">
+        <span className="row-label">{label}</span>
+        {EXERCISE_MAP[c.exerciseId].name}
+        {c.optional && <span className="opt-tag">optional</span>}
+      </span>
+      <span className="num muted">
+        {c.min}–{c.max} min
+      </span>
+    </button>
+  )
 
   return (
     <div className="page">
       <PageHead
-        eyebrow={week >= 1 ? `Woche ${w} von ${p.weeks} · ${done}/${sessions.length} erledigt` : `Start am ${formatDate(p.startDate)}`}
+        eyebrow={week >= 1 ? `Woche ${w} von ${p.weeks} · ${done}/${required.length} erledigt` : `Start am ${formatDate(p.startDate)}`}
         title="Training"
       />
 
@@ -80,11 +95,15 @@ export default function Plan() {
       )}
 
       <div className="grid grid-2">
-        {sessions.map(({ s, offset, planned, status }, i) => (
-          <Card key={s.id} index={i} className={`session-card ${status ?? ''}`}>
+        {sessions.map(({ planned, session, status }, i) => (
+          <Card key={planned?.key ?? session.id} index={i} className={`session-card ${status ?? ''} ${planned?.optional ? 'optional' : ''}`}>
             <CardHead
-              eyebrow={planned ? `${relativeDay(planned.date, today)}${status === 'done' ? ' · erledigt' : status === 'missed' ? ' · verpasst' : ''}` : WEEKDAY_LONG[offset]}
-              title={s.title}
+              eyebrow={
+                planned
+                  ? `${relativeDay(planned.date, today)}${planned.optional ? ' · optional' : ''}${status === 'done' ? ' · erledigt' : status === 'missed' ? ' · verpasst' : ''}`
+                  : session.focus
+              }
+              title={session.title}
               action={
                 planned &&
                 (status === 'done' ? (
@@ -99,24 +118,31 @@ export default function Plan() {
               }
             />
             <div className="exercise-list">
-              {s.exercises.map((pe) => {
+              {session.warmup && cardioRow(session.warmup, 'Einstieg')}
+              {session.exercises.map((pe) => {
                 const exId = effectiveExerciseId(pe, settings)
-                const now = setsForWeek(pe, w)
                 return (
-                  <a key={pe.exerciseId} className="exercise-row" href={href(`/uebungen/${exId}`)}>
-                    <span className="grow">{EXERCISE_MAP[exId].name}</span>
-                    <span className="num muted">
-                      {now} × {pe.min}–{pe.max}
-                      {pe.unit === 'sec' ? ' s' : ''}
-                      {pe.perSide || pe.repsPerSide ? ' je Seite' : ''}
+                  <button key={pe.exerciseId} type="button" className={`exercise-row ${pe.optional ? 'is-optional' : ''}`} onClick={() => setTutorial({ exerciseId: exId, planned: pe })}>
+                    <span className="grow">
+                      {EXERCISE_MAP[exId].name}
+                      {pe.optional && <span className="opt-tag">optional</span>}
+                      {EXERCISE_MAP[exId].unilateral && pe.perSide && <span className="opt-tag side">links zuerst</span>}
                     </span>
-                  </a>
+                    <span className="num muted">{formatDosage(pe, w)}</span>
+                  </button>
                 )
               })}
+              {session.finisher && cardioRow(session.finisher, 'Abschluss')}
             </div>
           </Card>
         ))}
       </div>
+
+      <div className="muted tiny" style={{ marginTop: 14 }}>
+        Tipp auf eine Übung zeigt das Mini-Tutorial mit Bewegungsablauf und Kurzvideos. Keine Beinübungen, keine Klimmzugstange. Ruhetage: gern Farmer’s Walk auf dem Walking-Pad.
+      </div>
+
+      {tutorial && <ExerciseTutorial exerciseId={tutorial.exerciseId} planned={tutorial.planned} cardio={tutorial.cardio} onClose={() => setTutorial(null)} />}
     </div>
   )
 }

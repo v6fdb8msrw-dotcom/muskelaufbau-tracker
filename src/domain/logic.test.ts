@@ -6,7 +6,11 @@ import { generateLunchPlan } from './mealplan'
 import { analyzeRange, dayTotals } from './nutrition'
 import { analyzeProduct, groupByMeal, perPortionToPer100, weekBudget } from './purchases'
 import { planNeeds } from './shopping'
+import { EXERCISE_MAP } from '../data/exercises'
+import { PICTOGRAMS } from '../data/pictograms'
+import { SESSION_MAP, SESSIONS } from '../data/plan'
 import {
+  formatDosage,
   makeupDay,
   plannedSessionsForWeek,
   programWeek,
@@ -14,6 +18,7 @@ import {
   sessionStatus,
   setSlots,
   setsForWeek,
+  videoSearchUrl,
 } from './training'
 import { buildWeeklyReport } from './weekly'
 import { calorieSuggestion, withMovingAverage } from './weight'
@@ -97,12 +102,53 @@ describe('Tagesprotokoll und Nährwerte', () => {
 })
 
 describe('Training', () => {
-  it('Standardwoche Mo, Mi, Fr, So und wählbare Tage', () => {
+  it('Pull und Push im Wechsel: Mo, Di, Do, Fr plus optionale 5. Einheit', () => {
     const s = settingsWith()
-    const days = plannedSessionsForWeek(s, [], 1).map((p) => p.date)
-    expect(days).toEqual(['2026-10-12', '2026-10-14', '2026-10-16', '2026-10-18'])
-    const s2 = settingsWith((x) => ({ ...x, program: { ...x.program, secondDay: 'di', weekendDay: 'sa' } }))
-    expect(plannedSessionsForWeek(s2, [], 1).map((p) => p.date)).toEqual(['2026-10-12', '2026-10-13', '2026-10-16', '2026-10-17'])
+    const week1 = plannedSessionsForWeek(s, [], 1)
+    expect(week1.map((p) => p.date)).toEqual(['2026-10-12', '2026-10-13', '2026-10-15', '2026-10-16', '2026-10-17'])
+    expect(week1.map((p) => p.sessionId)).toEqual(['pull-a', 'push-b', 'pull-a', 'push-b', 'pull-a'])
+    expect(week1.map((p) => p.optional)).toEqual([false, false, false, false, true])
+    // Die optionale Einheit wechselt jede Woche
+    expect(plannedSessionsForWeek(s, [], 2).at(-1)?.sessionId).toBe('push-b')
+    const sunday = settingsWith((x) => ({ ...x, program: { ...x.program, extraDay: 'so' } }))
+    expect(plannedSessionsForWeek(sunday, [], 1).at(-1)?.date).toBe('2026-10-18')
+    const four = settingsWith((x) => ({ ...x, program: { ...x.program, extraDay: 'aus' } }))
+    expect(plannedSessionsForWeek(four, [], 1)).toHaveLength(4)
+    // Optional verpasst ist kein „verpasst“
+    expect(sessionStatus(week1[4], [], '2026-10-19')).toBe('skipped')
+  })
+
+  it('Plan nach Vorgabe: nur Oberkörper, 5 Übungen à 2 × 15, keine Klimmzugstange', () => {
+    for (const session of SESSIONS) {
+      const main = session.exercises.filter((e) => !e.optional)
+      expect(main.length + (session.warmup ? 1 : 0), session.id).toBe(5)
+      for (const e of main) {
+        expect(e.sets, e.exerciseId).toBe(2)
+        if (!e.toFailure) expect(e.max, e.exerciseId).toBe(15)
+      }
+      for (const e of session.exercises) expect(/klimmzug|chin|pull-?up/i.test(EXERCISE_MAP[e.exerciseId].name), e.exerciseId).toBe(false)
+    }
+    expect(SESSION_MAP['pull-a'].warmup?.exerciseId).toBe('rudergeraet')
+    expect(SESSION_MAP['push-b'].exercises.find((e) => e.exerciseId === 'plank')?.toFailure).toBe(true)
+  })
+
+  it('Tutorials: jede Planübung hat Kurzanleitung, Video und animierte Figur', () => {
+    const ids = SESSIONS.flatMap((x) => [x.warmup?.exerciseId, ...x.exercises.map((e) => e.exerciseId), x.finisher?.exerciseId]).filter(Boolean) as string[]
+    for (const id of ids) {
+      const ex = EXERCISE_MAP[id]
+      expect(ex?.cues?.length, id).toBe(3)
+      expect(ex.video, id).toBeTruthy()
+      const pic = PICTOGRAMS[id]
+      expect(pic, id).toBeDefined()
+      const names = new Set([...pic.segments.flat(), ...(pic.far ?? []).flat(), ...(pic.thin ?? []).flat(), pic.head, ...(pic.db ?? [])])
+      for (const f of pic.frames) for (const n of names) expect(f[n], `${id}: ${n}`).toBeDefined()
+    }
+    expect(videoSearchUrl('Seitheben')).toMatch(/^https:\/\/www\.youtube\.com\/results\?search_query=/)
+  })
+
+  it('Dosierung für die Anzeige', () => {
+    expect(formatDosage({ exerciseId: 'bizepscurl', sets: 2, perSide: true, min: 15, max: 15, unit: 'reps' })).toBe('2 × 15 je Seite')
+    expect(formatDosage({ exerciseId: 'plank', sets: 2, min: 20, max: 120, unit: 'sec', toFailure: true })).toBe('2 × bis Versagen')
   })
 
   it('Programmwochen 1 bis 16', () => {
@@ -140,22 +186,30 @@ describe('Training', () => {
       ...meta('w' + reps.join('')),
       date: '2026-10-26',
       title: 'Test',
-      exercises: [{ exerciseId: 'floor-press', sets: reps.map((r) => ({ reps: r, weightKg: 10, clean })) }],
+      exercises: [{ exerciseId: 'schulterdruecken', sets: reps.map((r) => ({ reps: r, weightKg: 10, clean })) }],
     })
-    expect(progressionHints([w([12, 12, 11])], s, []).filter((h) => h.exerciseId === 'floor-press')).toHaveLength(0)
-    expect(progressionHints([w([12, 12, 12], false)], s, []).filter((h) => h.exerciseId === 'floor-press')).toHaveLength(0)
-    const hint = progressionHints([w([12, 12, 12])], s, []).find((h) => h.exerciseId === 'floor-press')
+    expect(progressionHints([w([15, 14])], s, []).filter((h) => h.exerciseId === 'schulterdruecken')).toHaveLength(0)
+    expect(progressionHints([w([15, 15], false)], s, []).filter((h) => h.exerciseId === 'schulterdruecken')).toHaveLength(0)
+    const hint = progressionHints([w([15, 15])], s, []).find((h) => h.exerciseId === 'schulterdruecken')
     expect(hint?.suggestedKg).toBe(11)
   })
 
   it('verpasste Einheit: Nachholtag ohne Doppelbelastung', () => {
-    const s = settingsWith()
+    const s = settingsWith((x) => ({ ...x, program: { ...x.program, extraDay: 'aus' } }))
     const week = plannedSessionsForWeek(s, [], 1)
     const monday = week[0]
     expect(sessionStatus(monday, [], '2026-10-13')).toBe('missed')
+    // Mi liegt neben Do (auch Pull), deshalb Samstag
     const day = makeupDay(monday, week, '2026-10-13')
-    expect(day).toBe('2026-10-13')
+    expect(day).toBe('2026-10-17')
     expect(week.some((x) => x.date === day)).toBe(false)
+  })
+
+  it('Trainings aus dem früheren Plan zählen weiter', () => {
+    const s = settingsWith()
+    const monday = plannedSessionsForWeek(s, [], 1)[0]
+    const old: WorkoutLog = { ...meta('alt'), date: '2026-10-12', plannedKey: 'w1-mo-a', sessionId: 'mo-a', title: 'Alt', exercises: [] }
+    expect(sessionStatus(monday, [old], '2026-10-13')).toBe('done')
   })
 })
 

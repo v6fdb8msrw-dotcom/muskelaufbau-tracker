@@ -1,6 +1,6 @@
 import type { Exercise } from '../types'
 
-/** Übungsanleitungen. Alle Übungen gehen mit Kurzhanteln, Matte und eigenem Körpergewicht, ohne Klimmzugstange. */
+/** Übungsanleitungen. Alles geht mit Kurzhanteln, Matte, Rudergerät, Walking-Pad und eigenem Körpergewicht, ohne Klimmzugstange. */
 export const EXERCISES: Exercise[] = [
   {
     id: 'floor-press',
@@ -40,6 +40,8 @@ export const EXERCISES: Exercise[] = [
   {
     id: 'rudern',
     name: 'Einarmiges Kurzhantelrudern',
+    cues: ["Hand und Knie auf Bank oder Sofa, Rücken gerade.", "Ellbogen nah am Körper zur Hüfte ziehen, Schulterblatt nach hinten.", "Kontrolliert absenken. Links beginnen, rechts gleich viele."],
+    video: "Einarmiges Kurzhantelrudern abgestützt richtig",
     group: 'ruecken',
     unilateral: true,
     measure: 'reps',
@@ -68,6 +70,8 @@ export const EXERCISES: Exercise[] = [
   {
     id: 'liegestuetze',
     name: 'Liegestütze',
+    cues: ["Hände etwas breiter als schulterbreit, Körper bildet eine gerade Linie.", "Brust kontrolliert bis knapp über den Boden senken, Ellbogen etwa 45° vom Körper.", "Kraftvoll hochdrücken, Bauch und Po bleiben fest. Leichter: auf den Knien."],
+    video: "Liegestütze richtige Ausführung",
     group: 'brust',
     unilateral: false,
     measure: 'reps',
@@ -94,6 +98,8 @@ export const EXERCISES: Exercise[] = [
   {
     id: 'schulterdruecken',
     name: 'Kurzhantel-Schulterdrücken',
+    cues: ["Hanteln auf Schulterhöhe, Handflächen nach vorn, Bauch fest.", "Senkrecht nach oben drücken, bis die Arme fast gestreckt sind.", "Langsam zurück auf Schulterhöhe, kein Hohlkreuz."],
+    video: "Kurzhantel Schulterdrücken richtig",
     group: 'schulter',
     unilateral: false,
     measure: 'reps',
@@ -137,6 +143,8 @@ export const EXERCISES: Exercise[] = [
   {
     id: 'plank',
     name: 'Plank (Unterarmstütz)',
+    cues: ["Unterarme unter den Schultern, Körper gerade wie ein Brett.", "Bauch und Po anspannen, Hüfte weder hängen lassen noch hochschieben.", "Halten bis zum Muskelversagen, ruhig weiteratmen."],
+    video: "Plank Unterarmstütz richtig",
     group: 'bauch',
     core: true,
     unilateral: false,
@@ -158,6 +166,8 @@ export const EXERCISES: Exercise[] = [
   {
     id: 'bizepscurl',
     name: 'Einarmige Bizepscurls',
+    cues: ["Ellbogen eng am Körper, Handfläche zeigt nach vorn.", "Hantel ohne Schwung zur Schulter beugen, oben kurz anspannen.", "Langsam absenken. Links beginnen, rechts gleich viele Wiederholungen."],
+    video: "Kurzhantel Bizepscurl einarmig richtig",
     group: 'bizeps',
     unilateral: true,
     measure: 'reps',
@@ -220,6 +230,8 @@ export const EXERCISES: Exercise[] = [
   {
     id: 'seitheben',
     name: 'Seitheben',
+    cues: ["Arme leicht gebeugt, Hanteln neben dem Körper.", "Seitlich bis Schulterhöhe heben, die Ellbogen führen.", "Langsam absenken, ohne Schwung aus dem Rücken."],
+    video: "Kurzhantel Seitheben richtig",
     group: 'schulter',
     unilateral: false,
     measure: 'reps',
@@ -325,6 +337,8 @@ export const EXERCISES: Exercise[] = [
   {
     id: 'crunch',
     name: 'Crunches',
+    cues: ["Rückenlage, Knie gebeugt, Arme vor der Brust gekreuzt.", "Oberkörper einrollen, bis die Schulterblätter abheben.", "Langsam abrollen. Schwerer: Kurzhantel auf der Brust. Alternative: Beinheben."],
+    video: "Crunches richtig ausführen",
     group: 'bauch',
     core: true,
     unilateral: false,
@@ -346,6 +360,8 @@ export const EXERCISES: Exercise[] = [
   {
     id: 'rudergeraet',
     name: 'Rudergerät (Aufwärmen/Ausdauer)',
+    cues: ["Zug: erst Beine drücken, dann Oberkörper leicht zurück, zuletzt Arme zum Bauch.", "Zurück in umgekehrter Reihenfolge: Arme, Oberkörper, Beine.", "10–15 Minuten in ruhigem, gleichmäßigem Tempo."],
+    video: "Rudergerät richtige Technik Anfänger",
     group: 'ausdauer',
     unilateral: false,
     measure: 'time',
@@ -355,7 +371,7 @@ export const EXERCISES: Exercise[] = [
     execution: [
       'Reihenfolge beim Zug: Beine drücken, Oberkörper leicht nach hinten, Arme zum Bauch ziehen.',
       'Zurück in umgekehrter Reihenfolge: Arme, Oberkörper, Beine.',
-      'Zum Aufwärmen 5 Minuten locker in ruhigem Tempo.',
+      'Am Pull-Tag 10–15 Minuten in ruhigem Tempo als Einstieg.',
     ],
     breathing: 'Beim Zug ausatmen, beim Zurückgleiten einatmen.',
     mistakes: ['Nur mit den Armen ziehen.', 'Rundrücken.'],
@@ -364,27 +380,160 @@ export const EXERCISES: Exercise[] = [
   },
   {
     id: 'laufband',
-    name: 'Laufband (zügiges Gehen)',
+    name: 'Walking-Pad (Gehen)',
     group: 'ausdauer',
     unilateral: false,
     measure: 'time',
-    equipment: ['Laufband'],
+    equipment: ['Walking-Pad (2–4 km/h)'],
     muscles: ['Beine', 'Herz-Kreislauf'],
     start: ['Langsam starten, aufrecht gehen.'],
-    execution: ['5–10 Minuten zügig gehen zum Aufwärmen oder an freien Tagen für Alltagsbewegung.'],
+    execution: ['10–15 Minuten bei 2–4 km/h gehen, am liebsten als Farmer’s Walk mit leichten Kurzhanteln.'],
     breathing: 'Ruhig und gleichmäßig.',
     mistakes: ['Am Geländer festhalten.'],
     safety: ['Notstopp-Clip anbringen.'],
     variants: ['Leichte Steigung statt Laufen.'],
+  },
+  {
+    id: 'kh-rudern-vorgebeugt',
+    name: 'Vorgebeugtes Kurzhantel-Rudern',
+    group: 'ruecken',
+    unilateral: true,
+    measure: 'reps',
+    cues: ['Leicht in die Knie, Oberkörper gerade nach vorn neigen (etwa 45°).', 'Hantel zur Hüfte ziehen, Ellbogen nah am Körper, oben kurz halten.', 'Langsam absenken, der Rücken bleibt gerade.'],
+    video: 'Vorgebeugtes Kurzhantelrudern richtig',
+    equipment: ['2 Kurzhanteln'],
+    muscles: ['Breiter Rückenmuskel', 'Rautenmuskeln', 'Hintere Schulter', 'Bizeps'],
+    start: [
+      'Füße hüftbreit, Knie leicht gebeugt.',
+      'Aus der Hüfte nach vorn beugen, bis der Oberkörper etwa 45° geneigt ist. Rücken gerade, Blick schräg nach unten.',
+      'Die Hanteln hängen mit gestreckten Armen unter den Schultern.',
+    ],
+    execution: [
+      'Erst die linke Hantel zur Hüfte ziehen, Ellbogen nah am Körper, oben kurz halten.',
+      'Kontrolliert absenken, dann rechts genauso. Links und rechts gleich viele Wiederholungen mit gleichem Gewicht.',
+      'Wenn die Technik sitzt, gehen auch beide Arme gleichzeitig.',
+    ],
+    breathing: 'Beim Ziehen ausatmen, beim Absenken einatmen.',
+    mistakes: ['Rundrücken.', 'Mit dem Oberkörper Schwung holen.', 'Schultern zu den Ohren ziehen.'],
+    safety: ['Bauch fest anspannen, damit der untere Rücken stabil bleibt.', 'Bei Rückenbeschwerden lieber die abgestützte Variante.'],
+    variants: ['Leichter: Brust auf einer schrägen Fläche abstützen.', 'Schwerer: beidarmig mit einer Sekunde Pause oben.'],
+  },
+  {
+    id: 'boden-flys',
+    name: 'Kurzhantel-Flys am Boden',
+    group: 'brust',
+    unilateral: false,
+    measure: 'reps',
+    cues: ['Rückenlage, Hanteln über der Brust, Ellbogen leicht gebeugt.', 'Arme im weiten Bogen öffnen, bis die Oberarme den Boden berühren.', 'Im gleichen Bogen zurück, als würdest du einen Baum umarmen.'],
+    video: 'Kurzhantel Flys am Boden richtig',
+    equipment: ['2 Kurzhanteln', 'Matte'],
+    muscles: ['Großer Brustmuskel', 'Vordere Schulter'],
+    start: ['Rückenlage auf der Matte, Knie angewinkelt, Füße am Boden.', 'Hanteln senkrecht über der Brust, Handflächen zueinander, Ellbogen leicht gebeugt.'],
+    execution: [
+      'Die Arme in einem weiten Bogen seitlich öffnen, bis die Oberarme sanft den Boden berühren.',
+      'Der Winkel im Ellbogen bleibt die ganze Zeit gleich.',
+      'Mit der Brust die Hanteln im gleichen Bogen wieder über der Brust zusammenführen.',
+    ],
+    breathing: 'Beim Öffnen einatmen, beim Zusammenführen ausatmen.',
+    mistakes: ['Arme ganz durchstrecken.', 'Zu schweres Gewicht, sodass ein Drücken daraus wird.', 'Oberarme auf den Boden fallen lassen.'],
+    safety: ['Deutlich leichtere Hanteln als beim Drücken nehmen.', 'Der Boden begrenzt die Dehnung, das schont die Schulter.'],
+    variants: ['Leichter: weniger Gewicht, kleinerer Bogen.', 'Schwerer: 2 Sekunden Pause unten.'],
+  },
+  {
+    id: 'russian-twist',
+    name: 'Russian Twist mit Kurzhantel',
+    group: 'bauch',
+    core: true,
+    unilateral: false,
+    measure: 'reps',
+    cues: ['Sitzen, leicht zurücklehnen, Rücken gerade, Hantel vor der Brust.', 'Oberkörper nach links drehen, Hantel neben die Hüfte, dann nach rechts.', 'Langsam bleiben, die Drehung kommt aus dem Bauch.'],
+    video: 'Russian Twist Kurzhantel richtig',
+    equipment: ['1 Kurzhantel', 'Matte'],
+    muscles: ['Schräge Bauchmuskeln', 'Gerader Bauchmuskel'],
+    start: ['Sitzen, Knie gebeugt, Fersen am Boden.', 'Oberkörper mit geradem Rücken etwa 45° nach hinten lehnen, Hantel mit beiden Händen vor der Brust.'],
+    execution: [
+      'Den Oberkörper nach links drehen und die Hantel neben die Hüfte führen.',
+      'Über die Mitte nach rechts drehen. Links und rechts zählen je als eine Wiederholung.',
+      'Langsam und kontrolliert, der Rücken bleibt gerade.',
+    ],
+    breathing: 'Beim Drehen ausatmen, in der Mitte einatmen.',
+    mistakes: ['Rundrücken.', 'Nur die Arme bewegen statt den Oberkörper zu drehen.', 'Zu schnell und mit Schwung.'],
+    safety: ['Erst ohne Gewicht üben.', 'Bei Rückenschmerzen die Füße am Boden lassen und weniger weit zurücklehnen.'],
+    variants: ['Leichter: ohne Hantel, Hände gefaltet.', 'Schwerer: Füße vom Boden abheben.'],
+  },
+  {
+    id: 'kh-swing',
+    name: 'Kurzhantel-Swing',
+    group: 'ruecken',
+    unilateral: false,
+    measure: 'reps',
+    later: 'Ersatz für den Kettlebell-Swing. Sobald die 12-kg-Kettlebell da ist, nimmst du sie.',
+    cues: ['Hantel an einem Ende mit beiden Händen greifen, Füße etwas breiter als hüftbreit.', 'Hüfte nach hinten schieben, die Hantel schwingt zwischen die Beine.', 'Hüfte kräftig nach vorn strecken, Hantel schwingt bis Brusthöhe. Die Arme führen nur.'],
+    video: 'Kurzhantel Swing richtig',
+    equipment: ['1 Kurzhantel'],
+    muscles: ['Rückenstrecker', 'Gesäß', 'Hintere Oberschenkel', 'Schultern (haltend)', 'Griff'],
+    start: ['Füße etwas breiter als hüftbreit.', 'Die Kurzhantel senkrecht an einem Ende mit beiden Händen greifen, Arme locker gestreckt.'],
+    execution: [
+      'Die Hüfte nach hinten schieben (Hüftbeuge, keine Kniebeuge), die Hantel schwingt zwischen den Beinen nach hinten.',
+      'Die Hüfte kräftig nach vorn strecken, die Hantel schwingt bis auf Brusthöhe. Die Arme ziehen nicht, sie führen nur.',
+      'Die Hantel zurückschwingen lassen und direkt in die nächste Wiederholung gehen.',
+    ],
+    breathing: 'Beim Strecken nach vorn kurz und kräftig ausatmen.',
+    mistakes: ['Kniebeuge statt Hüftbeuge.', 'Die Hantel mit den Armen hochheben.', 'Rundrücken beim Zurückschwingen.'],
+    safety: ['Hantel fest greifen (Handschuhe helfen) und nur mit genug Platz um dich herum.', 'Mit leichtem Gewicht die Bewegung lernen.'],
+    variants: ['Leichter: weniger Gewicht, kleinere Schwünge.', 'Später: mit der Kettlebell (12 kg).'],
+  },
+  {
+    id: 'kh-halo',
+    name: 'Kurzhantel-Halo',
+    group: 'schulter',
+    unilateral: false,
+    measure: 'reps',
+    later: 'Kettlebell-Übung, geht mit einer leichten Kurzhantel genauso. Später auch mit der Kettlebell.',
+    cues: ['Leichte Hantel an beiden Enden vor der Brust halten, Bauch fest.', 'Eng um den Kopf kreisen: am Ohr vorbei, hinter den Kopf, am anderen Ohr zurück.', 'Richtung wechseln, der Oberkörper bleibt ruhig.'],
+    video: 'Halo Übung Kurzhantel Schulter',
+    equipment: ['1 leichte Kurzhantel'],
+    muscles: ['Schultern', 'Oberer Rücken', 'Trizeps', 'Rumpf'],
+    start: ['Aufrecht stehen oder knien, Bauch und Po fest.', 'Die Kurzhantel an beiden Enden vor der Brust halten.'],
+    execution: [
+      'Die Hantel eng um den Kopf führen: am einen Ohr vorbei, hinter den Kopf, am anderen Ohr zurück vor die Brust.',
+      'Die Hälfte der Wiederholungen in die eine Richtung, dann in die andere.',
+      'Der Rumpf bleibt ruhig, nur die Arme bewegen sich.',
+    ],
+    breathing: 'Ruhig weiteratmen.',
+    mistakes: ['Zu schweres Gewicht.', 'Hohlkreuz.', 'Den Kopf mitbewegen.'],
+    safety: ['Leicht beginnen und die Hantel nah am Kopf führen, ohne ihn zu berühren.'],
+    variants: ['Leichter: im Knien.', 'Später: mit der Kettlebell, am Griff gehalten.'],
+  },
+  {
+    id: 'farmers-walk',
+    name: 'Farmer’s Walk auf dem Walking-Pad',
+    group: 'ausdauer',
+    unilateral: false,
+    measure: 'time',
+    cues: ['Walking-Pad auf 2–4 km/h, in jeder Hand eine leichte Kurzhantel.', 'Aufrecht gehen: Brust raus, Schultern nach hinten unten.', '10–15 Minuten, Hanteln fest greifen. Am Ende der Einheit oder an Ruhetagen.'],
+    video: 'Farmers Walk Kurzhantel Technik',
+    equipment: ['Walking-Pad (2–4 km/h)', '2 leichte Kurzhanteln'],
+    muscles: ['Unterarme und Griff', 'Oberer Rücken', 'Rumpf', 'Haltung'],
+    start: ['Walking-Pad auf 2–4 km/h stellen.', 'In jeder Hand eine leichte Kurzhantel, die Arme hängen locker neben dem Körper.'],
+    execution: [
+      '10–15 Minuten aufrecht gehen: Brust raus, Schultern nach hinten unten.',
+      'Die Hanteln fest greifen, sie berühren die Beine nicht.',
+      'Lässt der Griff nach: kurz absetzen, dann weiter.',
+    ],
+    breathing: 'Ruhig und gleichmäßig.',
+    mistakes: ['Schultern hochziehen.', 'Vorgebeugt gehen.', 'Zu schwere Hanteln (es soll locker bleiben).'],
+    safety: ['Erst losgehen, dann die Hanteln greifen.', 'Notstopp-Clip anbringen, falls vorhanden.'],
+    variants: ['Leichter: kürzer oder ohne Hanteln.', 'Schwerer: etwas mehr Gewicht, nicht schneller gehen.'],
   },
 ]
 
 export const EXERCISE_MAP: Record<string, Exercise> = Object.fromEntries(EXERCISES.map((e) => [e.id, e]))
 
 /** Einarmige Armübungen, die in die Links-rechts-Auswertung eingehen. */
-export const ARM_BALANCE_EXERCISES = ['bizepscurl', 'hammer-curl', 'trizeps-ueberkopf', 'rudern']
+export const ARM_BALANCE_EXERCISES = ['bizepscurl', 'hammer-curl', 'trizeps-ueberkopf', 'rudern', 'kh-rudern-vorgebeugt']
 
-export const CORE_EXERCISES = ['reverse-crunch', 'dead-bug', 'plank', 'side-plank', 'crunch']
+export const CORE_EXERCISES = ['reverse-crunch', 'dead-bug', 'plank', 'side-plank', 'crunch', 'russian-twist']
 
 export const MUSCLE_GROUP_LABEL: Record<Exercise['group'], string> = {
   brust: 'Brust',

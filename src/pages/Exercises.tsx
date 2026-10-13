@@ -1,10 +1,12 @@
-import { ArrowLeft, ArrowRight, Wind } from 'lucide-react'
+import { ArrowLeft, ArrowRight, PlayCircle, Wind } from 'lucide-react'
 import { useMemo } from 'react'
 import { LineChart, type LineSeries } from '../components/charts'
-import { Card, CardHead, Empty, Notice, PageHead } from '../components/ui'
+import { ExerciseFigure } from '../components/ExerciseFigure'
+import { Card, CardHead, Disclosure, Empty, Notice, PageHead } from '../components/ui'
 import { EXERCISE_MAP, EXERCISES, MUSCLE_GROUP_LABEL } from '../data/exercises'
+import { PICTOGRAMS } from '../data/pictograms'
 import { SESSIONS } from '../data/plan'
-import { estimated1RM } from '../domain/training'
+import { estimated1RM, videoSearchUrl } from '../domain/training'
 import { num } from '../lib/format'
 import { href, type Route } from '../state/router'
 import { useStore } from '../state/store'
@@ -13,42 +15,44 @@ import type { Exercise, WorkoutLog } from '../types'
 export default function Exercises({ route }: { route: Route }) {
   const id = route.segments[1]
   if (id && EXERCISE_MAP[id]) return <ExerciseDetail exercise={EXERCISE_MAP[id]} />
-  const groups = Object.keys(MUSCLE_GROUP_LABEL) as Exercise['group'][]
+  const planIds = [...new Set(SESSIONS.flatMap((x) => [x.warmup?.exerciseId, ...x.exercises.map((e) => e.exerciseId), x.finisher?.exerciseId]).filter(Boolean) as string[])]
+  const others = EXERCISES.filter((e) => !planIds.includes(e.id))
   return (
     <div className="page">
-      <PageHead eyebrow={`${EXERCISES.length} Anleitungen`} title="Übungen" lead="Jede Übung mit Ausgangsposition, Ausführung, Atmung, typischen Fehlern, Sicherheit und Varianten. Alles ohne Klimmzugstange machbar." />
-      <div className="stack-lg">
-        {groups.map((g) => {
-          const list = EXERCISES.filter((e) => e.group === g)
-          if (!list.length) return null
+      <PageHead eyebrow={`${planIds.length} Übungen im Plan`} title="Übungen" />
+      <div className="grid grid-auto">
+        {planIds.map((pid, i) => {
+          const e = EXERCISE_MAP[pid]
           return (
-            <section key={g}>
-              <div className="eyebrow" style={{ marginBottom: 10 }}>
-                {MUSCLE_GROUP_LABEL[g]}
+            <a key={pid} href={href(`/uebungen/${pid}`)} className="card hoverable exercise-card" style={{ textDecoration: 'none', ['--i' as string]: i }}>
+              <ExerciseFigure id={pid} className="thumb" />
+              <div className="row-between" style={{ alignItems: 'flex-start' }}>
+                <div className="card-title">{e.name}</div>
+                <ArrowRight size={16} color="var(--ink-3)" />
               </div>
-              <div className="grid grid-auto">
-                {list.map((e, i) => (
-                  <a key={e.id} href={href(`/uebungen/${e.id}`)} className="card hoverable" style={{ textDecoration: 'none', ['--i' as string]: i }}>
-                    <div className="row-between" style={{ alignItems: 'flex-start' }}>
-                      <div className="card-title">{e.name}</div>
-                      <ArrowRight size={16} color="var(--ink-3)" />
-                    </div>
-                    <div className="muted small" style={{ marginTop: 6 }}>
-                      {e.muscles.slice(0, 3).join(' · ')}
-                    </div>
-                    <div className="row-wrap" style={{ marginTop: 12 }}>
-                      {e.unilateral && <span className="badge badge-neon">einarmig / je Seite</span>}
-                      {e.measure === 'time' && <span className="badge">Zeit</span>}
-                      {e.bodyweight && <span className="badge">Körpergewicht</span>}
-                      {e.core && <span className="badge">Core</span>}
-                    </div>
-                  </a>
-                ))}
-              </div>
-            </section>
+              <div className="muted small">{e.muscles.slice(0, 3).join(' · ')}</div>
+              {e.later && <span className="badge" style={{ alignSelf: 'flex-start' }}>Kettlebell-Ersatz</span>}
+            </a>
           )
         })}
       </div>
+      {others.length > 0 && (
+        <div style={{ marginTop: 18 }}>
+          <Disclosure title={`Weitere Übungen (${others.length})`}>
+            <div className="list">
+              {others.map((e) => (
+                <a key={e.id} href={href(`/uebungen/${e.id}`)} className="list-item" style={{ textDecoration: 'none' }}>
+                  <div className="grow">
+                    <div className="title">{e.name}</div>
+                    <div className="meta">{MUSCLE_GROUP_LABEL[e.group]}</div>
+                  </div>
+                  <ArrowRight size={16} color="var(--ink-3)" />
+                </a>
+              ))}
+            </div>
+          </Disclosure>
+        </div>
+      )}
     </div>
   )
 }
@@ -96,6 +100,27 @@ function ExerciseDetail({ exercise: ex }: { exercise: Exercise }) {
         title={ex.name}
         lead={`Trainiert: ${ex.muscles.join(', ')}. Ausrüstung: ${ex.equipment.join(', ')}.`}
       />
+      <Card index={0} className="tut-card" style={{ marginBottom: 18 }}>
+        <div className="tut-card-grid">
+          {PICTOGRAMS[ex.id] && (
+            <div className="tut-figure">
+              <ExerciseFigure id={ex.id} />
+            </div>
+          )}
+          <div className="stack">
+            <div className="eyebrow">Kurz erklärt</div>
+            <ol className="tut-cues">
+              {(ex.cues ?? ex.execution.slice(0, 3)).map((c) => (
+                <li key={c}>{c}</li>
+              ))}
+            </ol>
+            {ex.later && <div className="muted small">{ex.later}</div>}
+            <a className="btn btn-primary" style={{ alignSelf: 'flex-start' }} href={videoSearchUrl(ex.video ?? ex.name)} target="_blank" rel="noopener noreferrer">
+              <PlayCircle size={16} /> Kurzvideos ansehen
+            </a>
+          </div>
+        </div>
+      </Card>
       <div className="exercise-hero" style={{ marginBottom: 18 }}>
         <Card index={0}>
           <CardHead eyebrow="Schritt 1" title="Ausgangsposition" />

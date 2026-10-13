@@ -1,7 +1,46 @@
 import type { SessionId, TrainingSession } from '../types'
 
-/** Der Trainingsplan: vier Einheiten pro Woche, Schwerpunkt Brust, Rücken, Arme, Bauch. */
+/**
+ * Der Trainingsplan: 100 % Oberkörper, Pull und Push im Wechsel, 4–5 Einheiten pro Woche.
+ * Je Einheit 5 Übungen mit 2 Sätzen à 15 Wiederholungen. Einarmig immer links zuerst,
+ * rechts mit gleichem Gewicht und gleicher Wiederholungszahl. Keine Beinübungen, keine Klimmzugstange.
+ */
 export const SESSIONS: TrainingSession[] = [
+  {
+    id: 'pull-a',
+    title: 'Tag A · Pull',
+    short: 'Pull',
+    focus: 'Rücken, Bizeps und Bauch. Einstieg auf dem Rudergerät.',
+    warmup: { exerciseId: 'rudergeraet', min: 10, max: 15, note: 'Cardio- und Rücken-Einstieg' },
+    exercises: [
+      { exerciseId: 'kh-rudern-vorgebeugt', sets: 2, perSide: true, min: 15, max: 15, unit: 'reps' },
+      { exerciseId: 'rudern', sets: 2, perSide: true, min: 15, max: 15, unit: 'reps', note: 'Abgestützt' },
+      { exerciseId: 'bizepscurl', sets: 2, perSide: true, min: 15, max: 15, unit: 'reps', note: 'Kontrolliert, ohne Schwung' },
+      { exerciseId: 'crunch', sets: 2, min: 15, max: 15, unit: 'reps', note: 'Oder Beinheben' },
+      { exerciseId: 'kh-swing', sets: 2, min: 15, max: 15, unit: 'reps', optional: true, note: 'Kettlebell-Ersatz' },
+    ],
+    finisher: { exerciseId: 'farmers-walk', min: 10, max: 15, optional: true, note: 'Walking-Pad 2–4 km/h, leichte Hanteln' },
+  },
+  {
+    id: 'push-b',
+    title: 'Tag B · Push',
+    short: 'Push',
+    focus: 'Brust, Schultern, Trizeps und Bauch.',
+    exercises: [
+      { exerciseId: 'liegestuetze', sets: 2, min: 15, max: 15, unit: 'reps', note: 'Klassisch oder angepasst' },
+      { exerciseId: 'schulterdruecken', sets: 2, min: 15, max: 15, unit: 'reps' },
+      { exerciseId: 'boden-flys', sets: 2, min: 15, max: 15, unit: 'reps' },
+      { exerciseId: 'seitheben', sets: 2, min: 15, max: 15, unit: 'reps' },
+      { exerciseId: 'plank', sets: 2, min: 20, max: 120, unit: 'sec', toFailure: true, note: 'Bis zum Muskelversagen' },
+      { exerciseId: 'russian-twist', sets: 2, min: 15, max: 15, unit: 'reps', repsPerSide: true, optional: true, note: 'Mit Kurzhantel' },
+      { exerciseId: 'kh-halo', sets: 2, min: 10, max: 10, unit: 'reps', optional: true, note: 'Kettlebell-Ersatz, je Richtung' },
+    ],
+    finisher: { exerciseId: 'farmers-walk', min: 10, max: 15, optional: true, note: 'Walking-Pad 2–4 km/h, leichte Hanteln' },
+  },
+]
+
+/** Frühere Einheiten (bis Oktober 2026). Nur noch für bereits gespeicherte Trainings. */
+export const LEGACY_SESSIONS: TrainingSession[] = [
   {
     id: 'mo-a',
     title: 'Brust, Rücken und Bauch A',
@@ -61,7 +100,7 @@ export const SESSIONS: TrainingSession[] = [
   },
 ]
 
-export const SESSION_MAP: Record<SessionId, TrainingSession> = Object.fromEntries(SESSIONS.map((s) => [s.id, s])) as Record<
+export const SESSION_MAP: Record<SessionId, TrainingSession> = Object.fromEntries([...SESSIONS, ...LEGACY_SESSIONS].map((s) => [s.id, s])) as Record<
   SessionId,
   TrainingSession
 >
@@ -69,6 +108,6 @@ export const SESSION_MAP: Record<SessionId, TrainingSession> = Object.fromEntrie
 export const PLAN_RULES = {
   beginnerWeeks: 2,
   beginnerMaxSets: 2,
-  reserveText: 'Bei den meisten Übungen 1–3 saubere Wiederholungen in Reserve lassen (also nicht bis zum völligen Versagen).',
+  reserveText: 'Saubere, kontrollierte Wiederholungen ohne Schwung. Einarmig immer links beginnen, rechts gleiches Gewicht und gleiche Wiederholungen.',
   extraWeakSetFromWeek: 7,
 }

@@ -1,20 +1,13 @@
-import { ArrowLeft, Check, Info, Timer, TriangleAlert } from 'lucide-react'
+import { ArrowLeft, Check, Info, PlayCircle, Timer, TriangleAlert } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { ConfirmButton } from '../components/ConfirmButton'
+import { ExerciseTutorial } from '../components/ExerciseTutorial'
 import { useToday } from '../components/hooks'
 import { SIDE_LABEL } from '../components/labels'
 import { Card, Field, NumberInput, PageHead, Seg, Switch } from '../components/ui'
 import { CORE_EXERCISES, EXERCISE_MAP, EXERCISES } from '../data/exercises'
 import { PLAN_RULES, SESSION_MAP, SESSIONS } from '../data/plan'
-import {
-  effectiveExerciseId,
-  lastExerciseLog,
-  plannedSessionsForWeek,
-  programWeek,
-  setSlots,
-  setsForWeek,
-  targetKey,
-} from '../domain/training'
+import { effectiveExerciseId, formatDosage, lastExerciseLog, plannedSessionsForWeek, programWeek, setSlots, targetKey } from '../domain/training'
 import { formatDateLong } from '../lib/date'
 import { stamp } from '../lib/id'
 import { num } from '../lib/format'
@@ -65,12 +58,13 @@ export default function WorkoutLogger({ route }: { route: Route }) {
   const key = route.segments[1] ?? 'frei'
 
   const context = useMemo(() => {
-    const m = key.match(/^w(\d+)-(mo-a|arme-a|fr-b|ok-b)$/)
+    const m = key.match(/^w(\d+)-([a-z-]+)$/)
     if (m) {
       const week = Number(m[1])
       const planned = plannedSessionsForWeek(settings, data.schedule, week).find((p) => p.key === key)
       const existing = data.workouts.find((w) => w.plannedKey === key)
-      return { kind: 'planned' as const, week, sessionId: m[2] as SessionId, planned, existing }
+      const sessionId = planned?.sessionId ?? existing?.sessionId
+      if (planned || existing) return { kind: 'planned' as const, week, sessionId, planned, existing }
     }
     if (key.startsWith('log-')) {
       const existing = data.workouts.find((w) => w.id === key.slice(4))
@@ -110,6 +104,7 @@ export default function WorkoutLogger({ route }: { route: Route }) {
     return readLocal<Draft>(draftKey, fallback)
   })
   const [restEnd, setRestEnd] = useState<number>()
+  const [tutorial, setTutorial] = useState<{ exerciseId: string; planned?: PlannedExercise } | null>(null)
   const [now, setNow] = useState(() => Date.now())
 
   // Entwurf lokal sichern, damit beim Schließen nichts verloren geht
@@ -199,11 +194,11 @@ export default function WorkoutLogger({ route }: { route: Route }) {
 
   return (
     <div className="page">
-      <a href={href(context.kind === 'planned' ? '/kalender' : '/plan')} className="btn btn-ghost btn-sm" style={{ marginBottom: 10 }}>
+      <a href={href('/plan')} className="btn btn-ghost btn-sm" style={{ marginBottom: 10 }}>
         <ArrowLeft size={15} /> Zurück
       </a>
       <PageHead
-        eyebrow={`${context.kind === 'planned' ? `Kalender · Woche ${week}` : 'Training protokollieren'}${context.existing ? ' · bereits erfasst' : ''}`}
+        eyebrow={`${context.kind === 'planned' ? `Woche ${week}` : 'Training protokollieren'}${context.existing ? ' · bereits erfasst' : ''}`}
         title={title}
         lead={`${formatDateLong(draft.date)}. ${PLAN_RULES.reserveText}`}
         actions={
@@ -302,14 +297,14 @@ export default function WorkoutLogger({ route }: { route: Route }) {
             <Card key={exId + i} index={i}>
               <div className="row-between" style={{ marginBottom: 10, alignItems: 'flex-start' }}>
                 <div>
-                  <a href={href(`/uebungen/${exId}`)} className="card-title" style={{ textDecoration: 'none' }}>
+                  <button type="button" className="card-title tut-link" onClick={() => setTutorial({ exerciseId: exId, planned: pe })}>
                     {ex.name}
-                  </a>
+                    <PlayCircle size={16} />
+                  </button>
                   <div className="muted small">
-                    {setsForWeek(pe, week)}
-                    {draft.reduced ? ' (reduziert)' : ''} × {pe.min}–{pe.max} {pe.unit === 'sec' ? 'Sekunden' : 'Wiederholungen'}
-                    {pe.perSide ? ' je Seite' : ''}
-                    {pe.repsPerSide ? ' (je Seite)' : ''}
+                    {formatDosage(pe, week)}
+                    {draft.reduced ? ' (reduziert)' : ''}
+                    {pe.optional ? ' · optional' : ''}
                     {exId !== pe.exerciseId ? ' · Alternative zu Überzügen' : ''}
                   </div>
                   {pe.note && <div className="muted tiny">{pe.note}</div>}
@@ -387,12 +382,12 @@ export default function WorkoutLogger({ route }: { route: Route }) {
           </div>
           <div className="form-grid">
             {settings.program.equipment.rower && (
-              <Field label="Rudergerät">
+              <Field label={SESSION_MAP[draft.template as SessionId]?.warmup ? 'Rudergerät (Einstieg, 10–15 min)' : 'Rudergerät'}>
                 <NumberInput value={draft.rower} onChange={(v) => update({ rower: v })} suffix="min" />
               </Field>
             )}
             {settings.program.equipment.treadmill && (
-              <Field label="Laufband">
+              <Field label="Walking-Pad (Farmer’s Walk)">
                 <NumberInput value={draft.treadmill} onChange={(v) => update({ treadmill: v })} suffix="min" />
               </Field>
             )}
@@ -425,6 +420,7 @@ export default function WorkoutLogger({ route }: { route: Route }) {
           </button>
         </div>
       </div>
+      {tutorial && <ExerciseTutorial exerciseId={tutorial.exerciseId} planned={tutorial.planned} onClose={() => setTutorial(null)} />}
     </div>
   )
 }

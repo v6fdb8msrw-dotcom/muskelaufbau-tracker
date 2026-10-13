@@ -11,6 +11,8 @@ export interface PlannedSession {
   date: string
   moved: boolean
   skipped: boolean
+  /** Optionale 5. Einheit: verpasst zählt nicht als verpasst */
+  optional: boolean
 }
 
 export type SessionStatus = 'done' | 'missed' | 'today' | 'upcoming' | 'skipped'
@@ -30,40 +32,55 @@ export function weekStart(settings: Settings, week: number): string {
   return addDays(programMonday(settings), (week - 1) * 7)
 }
 
-export function sessionOffset(sessionId: SessionId, settings: Settings): number {
-  switch (sessionId) {
-    case 'mo-a':
-      return 0
-    case 'arme-a':
-      return settings.program.secondDay === 'di' ? 1 : 2
-    case 'fr-b':
-      return 4
-    case 'ok-b':
-      return settings.program.weekendDay === 'sa' ? 5 : 6
-  }
+export interface WeekSlot {
+  /** Kurzname des Tages, Teil des Schlüssels (w3-mo) */
+  slot: 'mo' | 'di' | 'do' | 'fr' | 'sa' | 'so'
+  offset: number
+  sessionId: SessionId
+  optional: boolean
 }
 
-export function plannedKey(week: number, sessionId: SessionId): string {
-  return `w${week}-${sessionId}`
+/**
+ * Wochenraster: Pull und Push im Wechsel an Mo, Di, Do, Fr. Die optionale 5. Einheit
+ * (Sa oder So) wechselt jede Woche, damit beide Tage gleich oft vorkommen.
+ */
+export function weekSlots(settings: Settings, week: number): WeekSlot[] {
+  const slots: WeekSlot[] = [
+    { slot: 'mo', offset: 0, sessionId: 'pull-a', optional: false },
+    { slot: 'di', offset: 1, sessionId: 'push-b', optional: false },
+    { slot: 'do', offset: 3, sessionId: 'pull-a', optional: false },
+    { slot: 'fr', offset: 4, sessionId: 'push-b', optional: false },
+  ]
+  const extra = settings.program.extraDay
+  if (extra === 'sa' || extra === 'so') {
+    slots.push({ slot: extra, offset: extra === 'sa' ? 5 : 6, sessionId: week % 2 === 1 ? 'pull-a' : 'push-b', optional: true })
+  }
+  return slots
+}
+
+export function plannedKey(week: number, slot: string): string {
+  return `w${week}-${slot}`
 }
 
 export function plannedSessionsForWeek(settings: Settings, schedule: ScheduleChange[], week: number): PlannedSession[] {
   const monday = weekStart(settings, week)
   const changes = new Map(schedule.map((s) => [s.id, s]))
-  return SESSIONS.map((s) => {
-    const key = plannedKey(week, s.id)
-    const defaultDate = addDays(monday, sessionOffset(s.id, settings))
-    const change = changes.get(key)
-    return {
-      key,
-      week,
-      sessionId: s.id,
-      defaultDate,
-      date: change?.movedTo ?? defaultDate,
-      moved: !!change?.movedTo && change.movedTo !== defaultDate,
-      skipped: !!change?.skipped,
-    }
-  })
+  return weekSlots(settings, week)
+    .map((s) => {
+      const key = plannedKey(week, s.slot)
+      const defaultDate = addDays(monday, s.offset)
+      const change = changes.get(key)
+      return {
+        key,
+        week,
+        sessionId: s.sessionId,
+        defaultDate,
+        date: change?.movedTo ?? defaultDate,
+        moved: !!change?.movedTo && change.movedTo !== defaultDate,
+        skipped: !!change?.skipped,
+        optional: s.optional,
+      }
+    })
     .filter((p) => p.defaultDate >= settings.program.startDate || p.moved)
     .sort((a, b) => a.date.localeCompare(b.date))
 }
@@ -74,15 +91,22 @@ export function allPlannedSessions(settings: Settings, schedule: ScheduleChange[
   return out
 }
 
+/** Schlüssel aus dem früheren Plan (z. B. „w1-mo-a“). */
+const LEGACY_KEY = /^w\d+-(mo-a|arme-a|fr-b|ok-b)$/
+
 export function workoutForPlanned(planned: PlannedSession, workouts: WorkoutLog[]): WorkoutLog | undefined {
-  return workouts.find((w) => w.plannedKey === planned.key)
+  return (
+    workouts.find((w) => w.plannedKey === planned.key) ??
+    // Trainings aus dem früheren Plan zählen für die Einheit am selben Tag
+    workouts.find((w) => !!w.plannedKey && LEGACY_KEY.test(w.plannedKey) && w.date === planned.date)
+  )
 }
 
 export function sessionStatus(planned: PlannedSession, workouts: WorkoutLog[], today = todayISO()): SessionStatus {
   if (workoutForPlanned(planned, workouts)) return 'done'
   if (planned.skipped) return 'skipped'
   if (planned.date === today) return 'today'
-  if (planned.date < today) return 'missed'
+  if (planned.date < today) return planned.optional ? 'skipped' : 'missed'
   return 'upcoming'
 }
 
@@ -215,10 +239,9 @@ export function makeupDay(missed: PlannedSession, weekSessions: PlannedSession[]
   const taken = new Set(weekSessions.filter((s) => s.key !== missed.key && !s.skipped).map((s) => s.date))
   for (let d = today; d <= sunday; d = addDays(d, 1)) {
     if (taken.has(d)) continue
-    // Gleiche Einheit nicht direkt neben eine ähnliche legen (Brust/Rücken A und B, bzw. Arme A und Oberkörper B)
-    const similar = missed.sessionId === 'mo-a' || missed.sessionId === 'fr-b' ? ['mo-a', 'fr-b'] : ['arme-a', 'ok-b']
-    const neighbours = weekSessions.filter((s) => s.key !== missed.key && Math.abs(diffDays(s.date, d)) === 1)
-    if (neighbours.some((n) => similar.includes(n.sessionId))) continue
+    // Nicht direkt neben dieselbe Einheit legen (Pull nicht neben Pull, Push nicht neben Push)
+    const neighbours = weekSessions.filter((s) => s.key !== missed.key && !s.skipped && Math.abs(diffDays(s.date, d)) === 1)
+    if (neighbours.some((n) => n.sessionId === missed.sessionId)) continue
     return d
   }
   return undefined
@@ -230,7 +253,7 @@ export function sessionTitle(id: SessionId): string {
 
 export function isTrainingDay(settings: Settings, date: string): boolean {
   const i = weekdayIndex(date)
-  return SESSIONS.some((s) => sessionOffset(s.id, settings) === i)
+  return weekSlots(settings, Math.max(1, programWeek(settings, date))).some((s) => s.offset === i)
 }
 
 export function volumeOf(sets: SetLog[]): number {
@@ -241,4 +264,17 @@ export function volumeOf(sets: SetLog[]): number {
 export function estimated1RM(weightKg: number, reps: number): number {
   if (!weightKg || !reps) return 0
   return weightKg * (1 + reps / 30)
+}
+
+/** Dosierung für die Anzeige, z. B. „2 × 15 je Seite“ oder „2 × bis Versagen“. */
+export function formatDosage(pe: PlannedExercise, week = 3): string {
+  const sets = setsForWeek(pe, week)
+  const unit = pe.unit === 'sec' ? ' s' : ''
+  const amount = pe.toFailure ? 'bis Versagen' : pe.min === pe.max ? `${pe.max}${unit}` : `${pe.min}–${pe.max}${unit}`
+  return `${sets} × ${amount}${pe.perSide || pe.repsPerSide ? ' je Seite' : ''}`
+}
+
+/** Link zu Kurzvideos auf YouTube (Suche, damit der Link nie ins Leere führt). */
+export function videoSearchUrl(query: string): string {
+  return `https://www.youtube.com/results?search_query=${encodeURIComponent(`${query} shorts`)}`
 }

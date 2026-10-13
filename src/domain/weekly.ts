@@ -238,13 +238,13 @@ export function buildWeeklyReport(data: DataSet, settings: Settings, weekStart: 
   }
   const lastRecoveries = [...data.workouts].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 2)
   if (lastRecoveries.length && lastRecoveries.every((w) => w.recovery === 1)) {
-    const sunday = sessions.find((s) => s.sessionId === 'ok-b' && s.date >= today)
-    if (sunday) {
+    const extra = sessions.find((s) => s.optional && s.date >= today)
+    if (extra) {
       suggestions.push({
-        id: sid('reduce-okb'),
+        id: sid('reduce-extra'),
         area: 'training',
-        title: 'Oberkörper B leichter gestalten',
-        detail: 'Deine letzten Einheiten hast du mit schlechter Erholung bewertet. Vorschlag: am Wochenende nur 1–2 Sätze pro Übung oder die Bauchübung weglassen. Im Trainings-Logger kannst du „reduziertes Volumen“ wählen.',
+        title: 'Optionale Einheit auslassen',
+        detail: 'Deine letzten Einheiten hast du mit schlechter Erholung bewertet. Vorschlag: die optionale Einheit am Wochenende weglassen oder nur einen Farmer’s Walk auf dem Walking-Pad machen.',
         action: { type: 'note' },
         acceptLabel: 'Merken',
       })

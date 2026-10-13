@@ -169,6 +169,12 @@ export interface Exercise {
   variants: string[]
   /** Bei Körpergewichtsübungen: kein Hantelgewicht. */
   bodyweight?: boolean
+  /** Kurzanleitung in drei Punkten für das Mini-Tutorial */
+  cues?: string[]
+  /** Suchbegriff für Kurzvideos (YouTube) */
+  video?: string
+  /** Hinweis, dass die Übung später mit anderem Gerät gemacht wird (z. B. Kettlebell) */
+  later?: string
 }
 
 export interface PlannedExercise {
@@ -181,10 +187,24 @@ export interface PlannedExercise {
   unit: 'reps' | 'sec'
   /** Wiederholungen je Seite innerhalb eines Satzes (Dead Bug). */
   repsPerSide?: boolean
+  /** Bis zum Muskelversagen (z. B. Plank) */
+  toFailure?: boolean
+  /** Zusatzübung, darf wegfallen */
+  optional?: boolean
   note?: string
 }
 
-export type SessionId = 'mo-a' | 'arme-a' | 'fr-b' | 'ok-b'
+/** Aktuelle Einheiten: Pull und Push im Wechsel. Die alten IDs bleiben für frühere Einträge gültig. */
+export type SessionId = 'pull-a' | 'push-b' | 'mo-a' | 'arme-a' | 'fr-b' | 'ok-b'
+
+/** Ausdauer-Teil einer Einheit in Minuten (Rudergerät zum Einstieg, Walking-Pad am Ende). */
+export interface CardioBlock {
+  exerciseId: string
+  min: number
+  max: number
+  optional?: boolean
+  note?: string
+}
 
 export interface TrainingSession {
   id: SessionId
@@ -192,6 +212,8 @@ export interface TrainingSession {
   short: string
   focus: string
   exercises: PlannedExercise[]
+  warmup?: CardioBlock
+  finisher?: CardioBlock
   flexible?: boolean
 }
 
@@ -450,8 +472,8 @@ export interface Settings {
   program: {
     startDate: string
     weeks: number
-    secondDay: 'di' | 'mi'
-    weekendDay: 'sa' | 'so'
+    /** Optionale 5. Einheit: Samstag, Sonntag oder keine */
+    extraDay: 'sa' | 'so' | 'aus'
     pulloverSuitable: boolean
     extraWeakSet: boolean
     dumbbellStepKg: number

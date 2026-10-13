@@ -32,7 +32,7 @@ export const DEFAULT_EXCLUDED_TAGS: FoodTag[] = [
 
 export const DEFAULT_AVOID_TAGS: FoodTag[] = ['tomato', 'potato']
 
-export const SETTINGS_VERSION = 3
+export const SETTINGS_VERSION = 4
 
 /** Deine Startwerte aus dem Auftrag. In den Einstellungen jederzeit änderbar. */
 export function createDefaultSettings(): Settings {
@@ -51,8 +51,7 @@ export function createDefaultSettings(): Settings {
     program: {
       startDate: todayISO(),
       weeks: 16,
-      secondDay: 'mi',
-      weekendDay: 'so',
+      extraDay: 'sa',
       pulloverSuitable: true,
       extraWeakSet: false,
       dumbbellStepKg: 1,
@@ -71,7 +70,8 @@ export function createDefaultSettings(): Settings {
       maintenanceMin: 1900,
       maintenanceMax: 2100,
     },
-    arms: { weakerSide: null },
+    // Links ist schwächer: links beginnen, rechts gleiches Gewicht und gleiche Wiederholungen
+    arms: { weakerSide: 'left' },
     supplements: {
       creatineEnabled: true,
       creatineDoseG: 3,
@@ -151,6 +151,14 @@ export function migrateSettings(stored: (Partial<Settings> & { funDrinks?: unkno
       budget: s.budget.max === 25 ? d.budget : s.budget,
       spotify: { ...s.spotify, artists: s.spotify.artists.length ? s.spotify.artists : d.spotify.artists },
     }
+  }
+  if (version < 4) {
+    // Version 4: Pull/Push-Split mit optionaler 5. Einheit, linker Arm als schwächerer
+    const old = s.program as Settings['program'] & { secondDay?: string; weekendDay?: string }
+    const program = { ...old, extraDay: old.extraDay ?? 'sa' } as Settings['program'] & { secondDay?: string; weekendDay?: string }
+    delete program.secondDay
+    delete program.weekendDay
+    s = { ...s, program, arms: { ...s.arms, weakerSide: s.arms.weakerSide ?? 'left' } }
   }
   return { changed: true, settings: s }
 }

@@ -52,6 +52,14 @@ describe('Startwerte aus dem Auftrag', () => {
     expect(settings.targets.kcal).toBe(2150)
   })
 
+  it('Version 3 → 4: Pull/Push mit optionaler 5. Einheit, links als schwächerer Arm', () => {
+    const v3 = { ...createDefaultSettings(), version: 3, program: { ...createDefaultSettings().program, secondDay: 'mi', weekendDay: 'so' }, arms: { weakerSide: null } } as unknown as Settings
+    const { settings } = migrateSettings(v3)
+    expect(settings.program.extraDay).toBe('sa')
+    expect('secondDay' in settings.program).toBe(false)
+    expect(settings.arms.weakerSide).toBe('left')
+  })
+
   it('ESN-Produkte haben Etikettwerte und keine nussigen Sorten', () => {
     expect(ESN_PRODUCTS.length).toBeGreaterThan(0)
     for (const p of ESN_PRODUCTS) {

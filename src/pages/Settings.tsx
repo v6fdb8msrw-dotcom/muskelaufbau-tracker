@@ -209,27 +209,29 @@ function TrainingSection() {
           </Field>
         </div>
         <div className="stack" style={{ marginTop: 14 }}>
+          <div className="muted small">Pull und Push im Wechsel: Montag Pull, Dienstag Push, Donnerstag Pull, Freitag Push.</div>
           <div className="row-wrap">
             <span className="field-label" style={{ minWidth: 170 }}>
-              Zusätzlicher Wochentag
+              Optionale 5. Einheit
             </span>
-            <Seg value={pr.secondDay} onChange={(v) => set('program', { secondDay: v })} options={[{ value: 'di', label: 'Dienstag' }, { value: 'mi', label: 'Mittwoch' }]} />
+            <Seg
+              value={pr.extraDay}
+              onChange={(v) => set('program', { extraDay: v })}
+              options={[
+                { value: 'sa', label: 'Samstag' },
+                { value: 'so', label: 'Sonntag' },
+                { value: 'aus', label: 'Keine' },
+              ]}
+            />
           </div>
-          <div className="row-wrap">
-            <span className="field-label" style={{ minWidth: 170 }}>
-              Wochenendtag
-            </span>
-            <Seg value={pr.weekendDay} onChange={(v) => set('program', { weekendDay: v })} options={[{ value: 'sa', label: 'Samstag' }, { value: 'so', label: 'Sonntag' }]} />
-          </div>
-          <Switch checked={pr.pulloverSuitable} onChange={(v) => set('program', { pulloverSuitable: v })} label="Kurzhantel-Überzüge sind für mich geeignet (sonst Reverse Fly)" />
         </div>
       </Section>
       <Section title="Vorhandene Geräte" eyebrow="Ausrüstung">
         <div className="stack">
           <Switch checked={pr.equipment.dumbbells} onChange={(v) => set('program', { equipment: { ...pr.equipment, dumbbells: v } })} label="Verstellbare Kurzhanteln" />
           <Switch checked={pr.equipment.rower} onChange={(v) => set('program', { equipment: { ...pr.equipment, rower: v } })} label="Rudergerät" />
-          <Switch checked={pr.equipment.treadmill} onChange={(v) => set('program', { equipment: { ...pr.equipment, treadmill: v } })} label="Laufband" />
-          <Switch checked={pr.equipment.pullupBar} onChange={(v) => set('program', { equipment: { ...pr.equipment, pullupBar: v } })} label="Klimmzugstange (optional, der Plan braucht keine)" />
+          <Switch checked={pr.equipment.treadmill} onChange={(v) => set('program', { equipment: { ...pr.equipment, treadmill: v } })} label="Walking-Pad" />
+          <Switch checked={pr.equipment.pullupBar} onChange={(v) => set('program', { equipment: { ...pr.equipment, pullupBar: v } })} label="Klimmzugstange (der Plan braucht keine)" />
         </div>
       </Section>
       <Section title="Arm-Balance" eyebrow="Links & rechts">
