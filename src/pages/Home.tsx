@@ -1,4 +1,4 @@
-import { ArrowLeftRight, ArrowUpRight, ChefHat, Dumbbell, GlassWater, Music, NotebookPen, Pill, Scale, Settings2, ShoppingBasket, TrendingUp, UtensilsCrossed } from 'lucide-react'
+import { ArrowLeftRight, ArrowUpRight, Check, ChefHat, Dumbbell, GlassWater, Music, NotebookPen, Pill, RefreshCw, Scale, Settings2, ShoppingBasket, TrendingUp, UtensilsCrossed } from 'lucide-react'
 import { useEffect, useMemo, useState, type CSSProperties, type ReactNode } from 'react'
 import type { Icon } from '../components/areas'
 import { BrandMark } from '../components/BrandMark'
@@ -8,12 +8,13 @@ import { SESSION_MAP } from '../data/plan'
 import { RECIPES } from '../data/recipes'
 import { ESN_CREATINE } from '../data/supplements'
 import { recipeIdeas } from '../domain/ideas'
+import { snackTips } from '../domain/snacks'
 import { plannedSessionsForWeek, sessionStatus } from '../domain/training'
 import { planForWeek } from '../domain/shopping'
 import { withMovingAverage } from '../domain/weight'
 import { diffDays, formatDateLong, relativeDay } from '../lib/date'
 import { clamp, num } from '../lib/format'
-import { buildCreatineLog, buildDrinkLog } from '../state/actions'
+import { buildCreatineLog, buildDrinkLog, buildSnackLog } from '../state/actions'
 import { href } from '../state/router'
 import { useStore } from '../state/store'
 import { useToast } from '../state/toast'
@@ -62,12 +63,26 @@ export function Home() {
     const dense = proteinDone || kcalBucket >= 7 ? ideas.filter((i) => i.recipe.category === category).sort((a, b) => b.kcal - a.kcal)[0] : undefined
     return dense ?? (proteinDone ? undefined : ideas[0])
   }, [settings, kcalBucket, proteinDone])
+  const [tipOffset, setTipOffset] = useState(0)
+  // Snack-Tipps nur neu berechnen, wenn sich die offenen Werte spürbar ändern
+  const kcalStep = Math.round(remaining / 50) * 50
+  const proteinStep = Math.round(proteinOpen / 5) * 5
+  const hour = clock.getHours()
+  const tips = useMemo(() => snackTips({ kcalOpen: kcalStep, proteinOpen: proteinStep, hour, seed: Number(today.slice(8, 10)) }), [kcalStep, proteinStep, hour, today])
+  const tip = tips.length ? tips[tipOffset % tips.length] : undefined
   const hh = String(clock.getHours()).padStart(2, '0')
   const mm = String(clock.getMinutes()).padStart(2, '0')
 
   async function addWater(ml: number) {
     await store.save('drinkLogs', buildDrinkLog({ drinkId: 'wasser', ml, date: today }))
     toast(`Wasser: ${ml} ml eingetragen`)
+  }
+
+  async function eatSnack() {
+    if (!tip) return
+    await store.save('foodLogs', buildSnackLog(tip.snack, { date: today }))
+    toast(`${tip.snack.name} eingetragen: ${num(tip.kcal)} kcal, ${num(tip.protein)} g Eiweiß`)
+    setTipOffset(0)
   }
 
   async function addCreatine() {
@@ -187,7 +202,29 @@ export function Home() {
           <div className="hud-right">
             <HudStat label="Protein" value={protein} target={t.protein} unit="g" strong />
             <HudStat label="Trinken" value={totals.fluidMl / 1000} target={t.fluidMl / 1000} unit="l" decimals={1} />
-            {recipeIdea && (
+            {tip && (
+              <div className="hud-snack">
+                <div className="hud-snack-text">
+                  <span className="hud-label">Snack-Tipp · {proteinOpen > 20 ? 'Eiweiß' : 'Kalorien'}</span>
+                  <strong>{tip.snack.name}</strong>
+                  <span className="hud-snack-meta num">
+                    {num(tip.kcal)} kcal · {num(tip.protein)} g Eiweiß ·{' '}
+                    <a href={href('/rezepte?tab=snacks')} className="hud-snack-all">
+                      Alle Snacks
+                    </a>
+                  </span>
+                </div>
+                <div className="hud-snack-actions">
+                  <button type="button" className="btn btn-sm btn-primary" onClick={eatSnack}>
+                    <Check size={14} /> Gegessen
+                  </button>
+                  <button type="button" className="btn btn-icon btn-sm hud-ghost" onClick={() => setTipOffset((o) => o + 1)} aria-label="Anderer Tipp">
+                    <RefreshCw size={14} />
+                  </button>
+                </div>
+              </div>
+            )}
+            {recipeIdea && kcalBucket >= 7 && (
               <a className="hud-idea" href={href(`/rezepte/${recipeIdea.recipe.id}`)}>
                 <span>
                   {proteinDone ? `Eiweiß geschafft, noch ${num(Math.max(0, remaining))} kcal offen: ` : `Noch ${num(Math.max(0, remaining))} kcal und ${num(proteinOpen)} g Protein offen: `}

@@ -9,9 +9,10 @@ import { useStore } from '../state/store'
 import type { RecipeCategory } from '../types'
 import { FoodDatabase } from './recipes/FoodDatabase'
 import { MealPlanView } from './recipes/MealPlanView'
+import { SnackList } from './recipes/SnackList'
 import { RecipeDetail } from './recipes/RecipeDetail'
 
-type Tab = 'rezepte' | 'einkauf' | 'lebensmittel'
+type Tab = 'rezepte' | 'einkauf' | 'snacks' | 'lebensmittel'
 type Sort = 'protein' | 'kcal' | 'dichte' | 'kosten' | 'zeit' | 'name'
 
 /** Ab dieser Menge gilt ein Rezept als proteinreich. */
@@ -26,7 +27,7 @@ export default function Recipes({ route }: { route: Route }) {
   if (id && RECIPE_MAP[id]) return <RecipeDetail recipe={RECIPE_MAP[id]} />
   const raw = route.query.get('tab')
   // „plan“ war der frühere Name des Einkauf-Tabs
-  const tab: Tab = raw === 'plan' || raw === 'einkauf' ? 'einkauf' : raw === 'lebensmittel' ? 'lebensmittel' : 'rezepte'
+  const tab: Tab = raw === 'plan' || raw === 'einkauf' ? 'einkauf' : raw === 'snacks' ? 'snacks' : raw === 'lebensmittel' ? 'lebensmittel' : 'rezepte'
   const allowed = summaries.filter((s) => s.allowed)
   const stats: HeadStat[] = [
     { label: 'Rezepte', value: allowed.length },
@@ -36,6 +37,7 @@ export default function Recipes({ route }: { route: Route }) {
   const head: Record<Tab, { eyebrow: string; title: string }> = {
     rezepte: { eyebrow: `${RECIPES.length} Rezepte`, title: 'Rezepte' },
     einkauf: { eyebrow: 'Mittagessen der Woche', title: 'Einkauf' },
+    snacks: { eyebrow: 'In 5 Minuten', title: 'Snacks' },
     lebensmittel: { eyebrow: 'Datenbank & Vorlieben', title: 'Lebensmittel' },
   }
   return (
@@ -43,6 +45,7 @@ export default function Recipes({ route }: { route: Route }) {
       <PageHead eyebrow={head[tab].eyebrow} title={head[tab].title} stats={tab === 'rezepte' ? stats : undefined} />
       {tab === 'rezepte' && <RecipeList summaries={summaries} />}
       {tab === 'einkauf' && <MealPlanView route={route} />}
+      {tab === 'snacks' && <SnackList />}
       {tab === 'lebensmittel' && <FoodDatabase />}
     </div>
   )

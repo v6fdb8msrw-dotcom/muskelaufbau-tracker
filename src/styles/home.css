@@ -546,6 +546,52 @@
 
 /* ---------- Kacheln ---------- */
 
+/* Snack-Tipp im HUD */
+.hud-snack {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: linear-gradient(160deg, rgba(60, 240, 124, 0.1), rgba(255, 255, 255, 0.02));
+  border: 1px solid rgba(60, 240, 124, 0.25);
+}
+
+.hud-snack-text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.hud-snack-text strong {
+  color: #fff;
+  font-size: 14.5px;
+}
+
+.hud-snack-meta {
+  font-size: 12.5px;
+  color: rgba(238, 240, 241, 0.6);
+}
+
+.hud-snack-all {
+  color: var(--neon);
+  text-decoration: none;
+}
+
+.hud-snack-actions {
+  display: flex;
+  gap: 6px;
+  flex: none;
+}
+
+@media (max-width: 1180px) {
+  .hud-snack {
+    grid-column: 1 / -1;
+  }
+}
+
 /* Protein-Tipp im HUD */
 .hud-idea {
   display: flex;

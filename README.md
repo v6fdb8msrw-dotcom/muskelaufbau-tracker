@@ -24,7 +24,7 @@ Weitere Befehle:
 |---|---|
 | `npm run build` | Typprüfung und Produktions-Build nach `dist/` |
 | `npm run preview` | Build lokal ansehen unter http://127.0.0.1:4173, inklusive Service Worker und Offline-Modus |
-| `npm test` | 71 automatische Tests (Rezepte, Ausschlüsse, Nährwerte, Einkauf, Budget, Produktanalyse, Training, Gewicht, Speicher, Backup) |
+| `npm test` | 75 automatische Tests (Rezepte, Ausschlüsse, Nährwerte, Einkauf, Budget, Produktanalyse, Training, Gewicht, Speicher, Backup) |
 | `npm run lint` | Code-Prüfung mit oxlint |
 | `npm run icons` | App-Icons aus `public/logo.svg` neu erzeugen |
 
@@ -60,6 +60,8 @@ Die App ist auf dich zugeschnitten: Startgewicht 60,3 kg, 171 cm, 22 Jahre. Ziel
 **Kalorien & Protein:** 20 Rezepte mit 720–1.050 kcal und mindestens 40 g Eiweiß auf kleiner Portion, für Tage, an denen du nicht genug Kalorien schaffst: fünf Shakes (Flüssiges macht kaum satt) und Gerichte wie Carbonara, Käsespätzle mit Hähnchen, Gyros-Reispfanne, Burrito oder Lachs mit Butterreis. Dafür neu in der Datenbank: Vollmilch 3,5 % und Sahnequark 40 %. In der Rezeptliste sortiert „Kalorien“ danach, und die Rezeptidee auf der Startseite schlägt bei über 700 offenen kcal ein solches Rezept vor.
 
 **Kalorien-Booster:** 12 Rezepte mit 580–850 kcal und bewusst normalem Eiweiß (Arme Ritter, Milchreis, Pfannkuchen mit Banane, Kaiserschmarrn, Mac and Cheese, Pizzatoast ohne Tomate …). Für Tage, an denen das Eiweiß schon geschafft ist, aber Kalorien fehlen: Kohlenhydrate und Fett machen weniger satt als Eiweiß. Die Startseite schlägt sie dann automatisch vor.
+
+**Snack-Tipps:** Auf der Startseite steht ein Snack-Tipp, der zu deinem Tag passt: Fehlt noch Eiweiß, ein Snack mit Eiweiß (z. B. Skyr mit Honig und Cornflakes), sonst etwas Kalorienreiches, das wenig satt macht (z. B. Glas Vollmilch, Toast mit Butter und Honig). „Gegessen“ trägt ihn mit einem Tipp ein, der Pfeil zeigt einen anderen Tipp. Alle 15 Snacks (höchstens 5 Minuten, ohne Kochen) stehen unter *Rezepte → Snacks*. Push-Meldungen zu festen Uhrzeiten bräuchten einen Server, deshalb erscheinen die Tipps beim Öffnen der App.
 
 **Updates:** Nach jedem Push lädt die installierte App die neue Version von selbst, sobald kein Dialog offen ist und du nichts tippst. Sie schaut beim Öffnen und alle 30 Minuten nach.
 

@@ -1,4 +1,4 @@
-import { BookOpen, ChefHat, Dumbbell, NotebookPen, Settings2, ShoppingBasket, TrendingUp } from 'lucide-react'
+import { BookOpen, ChefHat, Cookie, Dumbbell, NotebookPen, Settings2, ShoppingBasket, TrendingUp } from 'lucide-react'
 import type { ComponentType } from 'react'
 import type { Route } from '../state/router'
 
@@ -42,6 +42,7 @@ export const AREAS: Area[] = [
         icon: ShoppingBasket,
         match: (r) => r.segments[0] === 'rezepte' && (r.query.get('tab') === 'einkauf' || r.query.get('tab') === 'plan'),
       },
+      { path: '/rezepte?tab=snacks', label: 'Snacks', icon: Cookie, match: (r) => r.segments[0] === 'rezepte' && r.query.get('tab') === 'snacks' },
     ],
   },
   { id: 'protokoll', title: 'Protokoll', icon: NotebookPen, items: [{ path: '/protokoll', label: 'Protokoll', icon: NotebookPen }] },

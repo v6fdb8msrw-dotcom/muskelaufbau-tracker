@@ -1,8 +1,10 @@
 import { FOOD_MAP } from '../data/foods'
 import { RECIPE_MAP } from '../data/recipes'
+import type { Snack } from '../data/snacks'
 import { foodProfile, productProfile, recipeProfile, scaleProfile } from '../domain/nutrition'
 import { includedIngredients } from '../domain/preferences'
 import { isAlwaysAvailable } from '../domain/recipes'
+import { snackProfile } from '../domain/snacks'
 import type { SuggestionAction } from '../domain/weekly'
 import { diffDays, nowTime, startOfWeek, timeToSlot } from '../lib/date'
 import { stamp } from '../lib/id'
@@ -80,6 +82,19 @@ export function buildProductLog(product: Product, amount: number, w: When): Food
     source: { kind: 'product', productId: product.id, amount },
     nutrients: p.values,
     partial: p.partial,
+  })
+}
+
+/** Snack aus mehreren Lebensmitteln als ein Eintrag (Nährwerte aus der Datenbank). */
+export function buildSnackLog(snack: Snack, w: When): FoodLogEntry {
+  const p = snackProfile(snack)
+  return stamp<FoodLogEntry>({
+    ...when(w),
+    name: snack.name,
+    source: { kind: 'free' },
+    nutrients: p.values,
+    partial: p.partial,
+    note: 'Snack',
   })
 }
 

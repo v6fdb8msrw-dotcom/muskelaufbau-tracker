@@ -543,6 +543,14 @@ export const FOODS: Food[] = [
 
   // ---------- Hülsenfrüchte ----------
   {
+    id: 'cornflakes',
+    name: 'Cornflakes',
+    category: 'getreide',
+    unit: 'g',
+    pack: { amount: 375, label: '375-g-Packung', price: 1.49 },
+    per100: { kcal: 378, protein: 7, carbs: 84, sugar: 8, fat: 0.9, satFat: 0.2, fiber: 3, b1: 1.1, b2: 1.4, b3: 15, b6: 1.4, folate: 200, b12: 2.5, iron: 8, magnesium: 20, potassium: 100, sodium: 600 },
+  },
+  {
     id: 'haferflocken',
     name: 'Haferflocken (zart)',
     category: 'getreide',
