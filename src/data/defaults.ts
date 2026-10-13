@@ -32,7 +32,7 @@ export const DEFAULT_EXCLUDED_TAGS: FoodTag[] = [
 
 export const DEFAULT_AVOID_TAGS: FoodTag[] = ['tomato', 'potato']
 
-export const SETTINGS_VERSION = 6
+export const SETTINGS_VERSION = 7
 
 /** Deine Startwerte aus dem Auftrag. In den Einstellungen jederzeit änderbar. */
 export function createDefaultSettings(): Settings {
@@ -58,12 +58,13 @@ export function createDefaultSettings(): Settings {
       equipment: { dumbbells: true, rower: true, treadmill: true, pullupBar: false },
     },
     // Ziele seit 13.10.2026 (Tims Wunsch): schlank bleiben und sichtbar Muskeln aufbauen.
-    // Etwa Erhaltungsbedarf mit viel Eiweiß; mehr Kalorien nur, wenn das Gewicht sinkt.
+    // Etwa Erhaltungsbedarf. Eiweiß 110 g (≈ 1,8 g/kg) statt mehr, weil Eiweiß stark sättigt
+    // und sonst kein Platz für Kalorien bleibt. Mehr Kalorien nur, wenn das Gewicht sinkt.
     targets: {
-      kcal: 1500,
-      protein: 130,
-      fat: 55,
-      carbs: 120,
+      kcal: 1900,
+      protein: 110,
+      fat: 65,
+      carbs: 220,
       fiber: 25,
       fluidMl: 1500,
       gainMinG: 0,
@@ -162,8 +163,8 @@ export function migrateSettings(stored: (Partial<Settings> & { funDrinks?: unkno
     delete program.weekendDay
     s = { ...s, program, arms: { ...s.arms, weakerSide: s.arms.weakerSide ?? 'left' } }
   }
-  if (version < 6) {
-    // Version 6: realistische Ziele (1.500 kcal, 130 g Eiweiß, 1,5 l), mehr Kalorien nur bei Gewichtsverlust
+  if (version < 7) {
+    // Version 6/7: realistische Ziele (1.900 kcal, 110 g Eiweiß, 1,5 l), mehr Kalorien nur bei Gewichtsverlust
     const d = createDefaultSettings()
     s = { ...s, targets: { ...s.targets, kcal: d.targets.kcal, protein: d.targets.protein, fat: d.targets.fat, carbs: d.targets.carbs, fiber: d.targets.fiber, fluidMl: d.targets.fluidMl, gainMinG: d.targets.gainMinG, gainMaxG: d.targets.gainMaxG } }
   }

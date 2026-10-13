@@ -9,10 +9,10 @@ describe('Startwerte', () => {
     const s = createDefaultSettings()
     expect(s.profile).toMatchObject({ age: 22, sex: 'm', heightCm: 171, startWeightKg: 60.3 })
     expect(s.targets).toEqual({
-      kcal: 1500,
-      protein: 130,
-      fat: 55,
-      carbs: 120,
+      kcal: 1900,
+      protein: 110,
+      fat: 65,
+      carbs: 220,
       fiber: 25,
       fluidMl: 1500,
       gainMinG: 0,
@@ -31,8 +31,8 @@ describe('Startwerte', () => {
     expect(changed).toBe(true)
     expect(settings.version).toBe(SETTINGS_VERSION)
     expect(settings.profile.startWeightKg).toBe(60.3)
-    expect(settings.targets.kcal).toBe(1500)
-    expect(settings.targets.protein).toBe(130)
+    expect(settings.targets.kcal).toBe(1900)
+    expect(settings.targets.protein).toBe(110)
   })
 
   it('aktuelle Einstellungen bleiben unverändert', () => {
@@ -49,7 +49,7 @@ describe('Startwerte', () => {
     expect(settings.version).toBe(SETTINGS_VERSION)
     expect('funDrinks' in settings).toBe(false)
     expect(settings.budget.max).toBe(18)
-    expect(settings.targets.kcal).toBe(1500)
+    expect(settings.targets.kcal).toBe(1900)
   })
 
   it('Version 3 → 4: Pull/Push mit optionaler 5. Einheit, links als schwächerer Arm', () => {
@@ -61,10 +61,12 @@ describe('Startwerte', () => {
     expect(settings.program.extraWeakSet).toBe(true)
   })
 
-  it('Version 5 → 6: Ziele 1.500 kcal, 130 g Eiweiß, 1,5 l, Profil bleibt', () => {
+  it('Version 5/6 → 7: Ziele 1.900 kcal, 110 g Eiweiß, 1,5 l, Profil bleibt', () => {
     const v5 = { ...createDefaultSettings(), version: 5, profile: { ...createDefaultSettings().profile, name: 'Tim' }, targets: { ...createDefaultSettings().targets, kcal: 2150, protein: 120, fluidMl: 2300, gainMinG: 100 } }
     const { settings } = migrateSettings(v5)
-    expect(settings.targets).toMatchObject({ kcal: 1500, protein: 130, fluidMl: 1500, gainMinG: 0 })
+    expect(settings.targets).toMatchObject({ kcal: 1900, protein: 110, fluidMl: 1500, gainMinG: 0 })
+    const v6 = { ...v5, version: 6, targets: { ...v5.targets, kcal: 1500, protein: 130 } }
+    expect(migrateSettings(v6).settings.targets).toMatchObject({ kcal: 1900, protein: 110 })
     expect(settings.profile.name).toBe('Tim')
   })
 
