@@ -15,7 +15,7 @@ import type { Exercise, WorkoutLog } from '../types'
 export default function Exercises({ route }: { route: Route }) {
   const id = route.segments[1]
   if (id && EXERCISE_MAP[id]) return <ExerciseDetail exercise={EXERCISE_MAP[id]} />
-  const planIds = [...new Set(SESSIONS.flatMap((x) => [...x.exercises.map((e) => e.exerciseId), x.finisher?.exerciseId]).filter(Boolean) as string[]), WEEKLY_ROWING.exerciseId]
+  const planIds = [...new Set(SESSIONS.flatMap((x) => [x.warmup?.exerciseId, ...x.exercises.map((e) => e.exerciseId), x.finisher?.exerciseId]).filter(Boolean) as string[]), WEEKLY_ROWING.exerciseId]
   const others = EXERCISES.filter((e) => !planIds.includes(e.id))
   return (
     <div className="page">

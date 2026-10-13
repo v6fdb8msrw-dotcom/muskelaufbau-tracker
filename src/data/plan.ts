@@ -1,6 +1,9 @@
 import type { CardioBlock, SessionId, TrainingSession } from '../types'
 
-/** Aufwärmen: gezielt mit der ersten Übung statt allgemein auf dem Rudergerät. */
+/** Einstieg jeder Einheit: Farmer’s Walk mit leichten Hanteln (Griff soll für Rudern und Curls frisch bleiben). */
+const FARMERS_WALK: CardioBlock = { exerciseId: 'farmers-walk', min: 15, max: 15, note: 'Walking-Pad 2–4 km/h, leichte Hanteln' }
+
+/** Danach gezielt aufwärmen mit der ersten Übung. */
 const WARMUP = '1–2 leichte Sätze der ersten Übung mit etwa halbem Gewicht'
 
 /** Rudern einmal pro Woche, am Ende der letzten Einheit (nach dem Krafttraining, damit die Sätze frisch bleiben). */
@@ -19,6 +22,7 @@ export const SESSIONS: TrainingSession[] = [
     title: 'Tag A · Pull',
     short: 'Pull',
     focus: 'Rücken und Bizeps, dazu unterer Bauch.',
+    warmup: FARMERS_WALK,
     warmupText: WARMUP,
     exercises: [
       { exerciseId: 'rudern', sets: 3, perSide: true, min: 10, max: 15, unit: 'reps', priority: true, note: 'Hauptübung Rücken' },
@@ -30,13 +34,13 @@ export const SESSIONS: TrainingSession[] = [
       { exerciseId: 'tischrudern', sets: 2, min: 6, max: 15, unit: 'reps', optional: true, note: 'Nur an einem sehr stabilen Tisch' },
       { exerciseId: 'kh-swing', sets: 2, min: 15, max: 15, unit: 'reps', optional: true, note: 'Kettlebell-Ersatz' },
     ],
-    finisher: { exerciseId: 'farmers-walk', min: 10, max: 15, optional: true, note: 'Walking-Pad 2–4 km/h, leichte Hanteln' },
   },
   {
     id: 'push-b',
     title: 'Tag B · Push',
     short: 'Push',
     focus: 'Brust, Schultern und Trizeps, dazu Rumpf.',
+    warmup: FARMERS_WALK,
     warmupText: WARMUP,
     exercises: [
       { exerciseId: 'liegestuetze', sets: 3, min: 8, max: 20, unit: 'reps', priority: true, note: 'Deine Stufe, siehe Anleitung' },
@@ -47,13 +51,13 @@ export const SESSIONS: TrainingSession[] = [
       { exerciseId: 'plank', sets: 3, min: 20, max: 120, unit: 'sec', toFailure: true, note: 'Bis zum Muskelversagen' },
       { exerciseId: 'boden-flys', sets: 2, min: 12, max: 15, unit: 'reps', optional: true },
     ],
-    finisher: { exerciseId: 'farmers-walk', min: 10, max: 15, optional: true, note: 'Walking-Pad 2–4 km/h, leichte Hanteln' },
   },
   {
     id: 'arme-c',
     title: 'Tag C · Arme & Calisthenics',
     short: 'Arme',
     focus: 'Fünfte Einheit für Bizeps und Trizeps mit Calisthenics-Übungen.',
+    warmup: FARMERS_WALK,
     warmupText: WARMUP,
     exercises: [
       { exerciseId: 'diamant-liegestuetze', sets: 3, min: 6, max: 15, unit: 'reps', priority: true },
@@ -64,7 +68,6 @@ export const SESSIONS: TrainingSession[] = [
       { exerciseId: 'russian-twist', sets: 2, min: 15, max: 15, unit: 'reps', repsPerSide: true, note: 'Mit Kurzhantel' },
       { exerciseId: 'kh-halo', sets: 2, min: 10, max: 10, unit: 'reps', optional: true, note: 'Kettlebell-Ersatz, je Richtung' },
     ],
-    finisher: { exerciseId: 'farmers-walk', min: 10, max: 15, optional: true, note: 'Walking-Pad 2–4 km/h, leichte Hanteln' },
   },
 ]
 

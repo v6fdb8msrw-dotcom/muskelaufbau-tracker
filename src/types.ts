@@ -217,6 +217,8 @@ export interface TrainingSession {
   short: string
   focus: string
   exercises: PlannedExercise[]
+  /** Einstieg vor den Übungen (Farmer’s Walk auf dem Walking-Pad) */
+  warmup?: CardioBlock
   /** Aufwärmen in Worten (z. B. leichte Sätze der ersten Übung) */
   warmupText?: string
   finisher?: CardioBlock

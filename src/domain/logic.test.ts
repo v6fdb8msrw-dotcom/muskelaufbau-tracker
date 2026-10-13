@@ -114,6 +114,8 @@ describe('Training', () => {
     expect(plannedSessionsForWeek(four, [], 1)).toHaveLength(4)
     // Tag C zählt bei 5 Einheiten wie jede andere Einheit
     expect(sessionStatus(week1[4], [], '2026-10-19')).toBe('missed')
+    // Farmer’s Walk 15 min zu Beginn jeder Einheit
+    for (const x of SESSIONS) expect(x.warmup, x.id).toMatchObject({ exerciseId: 'farmers-walk', min: 15, max: 15 })
     // Rudern nur einmal pro Woche, am Ende der letzten Einheit
     expect(week1.filter((p) => p.rowing).map((p) => p.date)).toEqual(['2026-10-17'])
     expect(plannedSessionsForWeek(settingsWith((x) => ({ ...x, program: { ...x.program, extraDay: 'aus' } })), [], 1).filter((p) => p.rowing).map((p) => p.date)).toEqual(['2026-10-16'])
@@ -161,7 +163,7 @@ describe('Training', () => {
   })
 
   it('Tutorials: jede Planübung hat Kurzanleitung, Video und animierte Figur', () => {
-    const ids = [...SESSIONS.flatMap((x) => [...x.exercises.map((e) => e.exerciseId), x.finisher?.exerciseId]).filter(Boolean), WEEKLY_ROWING.exerciseId] as string[]
+    const ids = [...SESSIONS.flatMap((x) => [x.warmup?.exerciseId, ...x.exercises.map((e) => e.exerciseId), x.finisher?.exerciseId]).filter(Boolean), WEEKLY_ROWING.exerciseId] as string[]
     for (const id of ids) {
       const ex = EXERCISE_MAP[id]
       expect(ex?.cues?.length, id).toBe(3)

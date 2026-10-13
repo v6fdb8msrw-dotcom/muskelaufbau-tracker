@@ -144,6 +144,7 @@ export default function Plan() {
               }
             />
             <div className="exercise-list">
+              {session.warmup && cardioRow(session.warmup, 'Einstieg')}
               {session.warmupText && (
                 <div className="exercise-row warmup">
                   <span className="grow">
@@ -166,7 +167,7 @@ export default function Plan() {
                 )
               })}
               {planned?.rowing && cardioRow(WEEKLY_ROWING, 'Abschluss')}
-              {session.finisher && cardioRow(session.finisher, planned?.rowing ? 'Danach' : 'Abschluss')}
+              {session.finisher && cardioRow(session.finisher, 'Abschluss')}
             </div>
           </Card>
         ))}
