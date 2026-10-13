@@ -91,7 +91,7 @@ export function calorieSuggestion(weights: WeightEntry[], settings: Settings, to
       reason:
         gainMinG > 0
           ? `Dein 7-Tage-Durchschnitt ist in zwei Wochen nicht gestiegen (${formatKg(change)}). Für Muskelaufbau sind etwa +${gainMinG}–${gainMaxG} g pro Woche geplant.`
-          : `Du nimmst etwa ${formatKg(-Math.abs(perWeek))} pro Woche ab. Damit die Muskeln wachsen können, etwas mehr essen: +${delta} kcal, zum Beispiel ein Glas Vollmilch oder Öl im Salat.`,
+          : `Du nimmst etwa ${formatKg(-Math.abs(perWeek))} pro Woche ab. Damit die Muskeln wachsen können, etwas mehr essen: +${delta} kcal, zum Beispiel Öl im Salat oder eine Scheibe Brot mit Butter mehr.`,
     }
   }
   if (perWeek > gainMaxG / 1000 + 0.05) {

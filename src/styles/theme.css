@@ -930,3 +930,21 @@
   cursor: default;
   color: var(--ink-2);
 }
+
+/* Snack-Auswahl im Essen-Fenster */
+.snack-pick {
+  width: 100%;
+  padding: 11px 12px;
+  border: 0;
+  border-top: 1px solid var(--line);
+  background: none;
+  color: var(--ink);
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+
+.snack-pick.selected {
+  background: rgba(60, 240, 124, 0.08);
+  box-shadow: inset 3px 0 0 var(--neon);
+}

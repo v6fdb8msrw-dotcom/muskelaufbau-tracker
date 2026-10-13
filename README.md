@@ -24,7 +24,7 @@ Weitere Befehle:
 |---|---|
 | `npm run build` | Typprüfung und Produktions-Build nach `dist/` |
 | `npm run preview` | Build lokal ansehen unter http://127.0.0.1:4173, inklusive Service Worker und Offline-Modus |
-| `npm test` | 76 automatische Tests (Rezepte, Ausschlüsse, Nährwerte, Einkauf, Budget, Produktanalyse, Training, Gewicht, Speicher, Backup) |
+| `npm test` | 75 automatische Tests (Rezepte, Ausschlüsse, Nährwerte, Einkauf, Budget, Produktanalyse, Training, Gewicht, Speicher, Backup) |
 | `npm run lint` | Code-Prüfung mit oxlint |
 | `npm run icons` | App-Icons aus `public/logo.svg` neu erzeugen |
 
@@ -61,7 +61,7 @@ Die App ist auf dich zugeschnitten: Startgewicht 60,3 kg, 171 cm, 22 Jahre. Ziel
 
 **Kalorien-Booster:** 12 Rezepte mit 580–850 kcal und bewusst normalem Eiweiß (Arme Ritter, Milchreis, Pfannkuchen mit Banane, Kaiserschmarrn, Mac and Cheese, Pizzatoast ohne Tomate …). Für Tage, an denen das Eiweiß schon geschafft ist, aber Kalorien fehlen: Kohlenhydrate und Fett machen weniger satt als Eiweiß. Die Startseite schlägt sie dann automatisch vor.
 
-**Snack-Tipps:** Auf der Startseite steht ein Snack-Tipp, der zu deinem Tag passt: Fehlt noch Eiweiß, ein Snack mit Eiweiß (z. B. Skyr mit Honig und Cornflakes), sonst etwas Kalorienreiches, das wenig satt macht (z. B. Glas Vollmilch, Toast mit Butter und Honig). „Gegessen“ trägt ihn mit einem Tipp ein, der Pfeil zeigt einen anderen Tipp. Alle 27 Snacks (höchstens 5 Minuten, ohne Kochen) stehen unter *Rezepte → Snacks*. Push-Meldungen zu festen Uhrzeiten bräuchten einen Server, deshalb erscheinen die Tipps beim Öffnen der App.
+**Snacks:** Im Fenster *Essen eintragen* gibt es den Tab *Snacks* mit 26 schnellen Snacks (höchstens 5 Minuten, ohne Kochen), filterbar nach „Viele Kalorien“ und „Viel Eiweiß“, mit 1 oder 2 Portionen. Kreative Kalorien-Snacks wie Schoko-Bananen-Toast, Feta-Honig-Toast, Käse-Quesadilla, Schoko-Cornflakes-Crossies oder Wrap-Pizza ohne Tomate. Kein Snack mit einem Glas Milch, Milch gibt es nur im Proteinshake.
 
 **Updates:** Nach jedem Push lädt die installierte App die neue Version von selbst, sobald kein Dialog offen ist und du nichts tippst. Sie schaut beim Öffnen und alle 30 Minuten nach.
 

@@ -13,7 +13,7 @@ interface FoodOpts {
   date?: string
   recipeId?: string
   planId?: string
-  tab?: 'rezept' | 'lebensmittel' | 'produkt' | 'frei' | 'rest'
+  tab?: 'rezept' | 'snack' | 'lebensmittel' | 'produkt' | 'frei' | 'rest'
   meal?: MealSlot
 }
 

@@ -2,8 +2,10 @@ import { AlertTriangle, Plus, Search, Star } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { FOOD_MAP, FOODS } from '../data/foods'
 import { RECIPE_MAP, RECIPES } from '../data/recipes'
+import { SNACKS, type SnackKind } from '../data/snacks'
 import { foodProfile, productProfile, recipeProfile } from '../domain/nutrition'
 import { checkRecipe, defaultOptionalIncluded, foodStatus } from '../domain/preferences'
+import { snackProfile } from '../domain/snacks'
 import { nowTime, timeToSlot, todayISO } from '../lib/date'
 import { num } from '../lib/format'
 import {
@@ -13,6 +15,7 @@ import {
   buildLeftoverLog,
   buildProductLog,
   buildRecipeLog,
+  buildSnackLog,
   findDuplicate,
   pantryAfterCooking,
 } from '../state/actions'
@@ -23,7 +26,7 @@ import { MEAL_LABEL, MEAL_ORDER } from './labels'
 import { ProductDialog } from './ProductDialog'
 import { Field, Modal, NumberInput, Seg, Switch, Tabs } from './ui'
 
-type Tab = 'rezept' | 'lebensmittel' | 'produkt' | 'frei' | 'rest'
+type Tab = 'rezept' | 'snack' | 'lebensmittel' | 'produkt' | 'frei' | 'rest'
 
 function MacroPreview({ n }: { n: Nutrients }) {
   return (
@@ -81,6 +84,18 @@ export function AddFoodDialog({
   const [deduct, setDeduct] = useState(true)
   const [saveRest, setSaveRest] = useState(false)
 
+  // Snack
+  const [snackId, setSnackId] = useState<string>()
+  const [snackPortions, setSnackPortions] = useState<'1' | '2'>('1')
+  const [snackKind, setSnackKind] = useState<'alle' | SnackKind>('alle')
+  const snackList = useMemo(
+    () =>
+      SNACKS.map((snack) => ({ snack, v: snackProfile(snack).values }))
+        .filter((x) => snackKind === 'alle' || x.snack.kind === snackKind || (snackKind !== 'beides' && x.snack.kind === 'beides'))
+        .sort((a, b) => (b.v.kcal ?? 0) - (a.v.kcal ?? 0)),
+    [snackKind],
+  )
+
   // Lebensmittel / Produkt
   const [foodId, setFoodId] = useState<string>()
   const [productId, setProductId] = useState<string>()
@@ -118,6 +133,7 @@ export function AddFoodDialog({
   function candidate(): FoodLogEntry | undefined {
     const w = { date, time, meal }
     if (tab === 'rezept' && recipeId) return buildRecipeLog(recipeId, settings, { ...w, portions: Number(portions), optionalIncluded, planId })
+    if (tab === 'snack' && snackId) return buildSnackLog(SNACKS.find((x) => x.id === snackId)!, w, Number(snackPortions))
     if (tab === 'lebensmittel' && foodId && amount) return buildFoodLog(foodId, amount, w)
     if (tab === 'produkt' && productId && amount) {
       const p = data.products.find((x) => x.id === productId)
@@ -216,6 +232,7 @@ export function AddFoodDialog({
         }}
         options={[
           { value: 'rezept', label: 'Rezept' },
+          { value: 'snack', label: 'Snacks' },
           { value: 'lebensmittel', label: 'Lebensmittel' },
           { value: 'produkt', label: `Produkte${products.length ? ` (${products.length})` : ''}` },
           { value: 'frei', label: 'Freier Eintrag' },
@@ -247,6 +264,52 @@ export function AddFoodDialog({
           <span className="input-suffix">
             <Search size={16} />
           </span>
+        </div>
+      )}
+
+      {tab === 'snack' && (
+        <div className="stack">
+          <Seg
+            value={snackKind}
+            onChange={setSnackKind}
+            options={[
+              { value: 'alle', label: 'Alle' },
+              { value: 'kalorien', label: 'Viele Kalorien' },
+              { value: 'eiweiss', label: 'Viel Eiweiß' },
+            ]}
+          />
+          <div className="list" style={{ maxHeight: 340, overflowY: 'auto' }}>
+            {snackList.map(({ snack, v }) => (
+              <button
+                key={snack.id}
+                type="button"
+                className={`list-item snack-pick ${snackId === snack.id ? 'selected' : ''}`}
+                onClick={() => setSnackId(snack.id)}
+                aria-pressed={snackId === snack.id}
+              >
+                <span className="grow">
+                  <span className="title" style={{ display: 'block' }}>
+                    {snack.name}
+                  </span>
+                  <span className="meta num">
+                    {num(v.kcal ?? 0)} kcal · {num(v.protein ?? 0)} g Eiweiß{snack.hint ? ` · ${snack.hint}` : ''}
+                  </span>
+                </span>
+              </button>
+            ))}
+          </div>
+          {snackId && (
+            <Field label="Menge">
+              <Seg
+                value={snackPortions}
+                onChange={setSnackPortions}
+                options={[
+                  { value: '1', label: '1 Portion' },
+                  { value: '2', label: '2 Portionen' },
+                ]}
+              />
+            </Field>
+          )}
         </div>
       )}
 

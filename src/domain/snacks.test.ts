@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import { FOOD_MAP } from '../data/foods'
 import { SNACKS } from '../data/snacks'
-import { snackProfile, snackTips } from './snacks'
+import { snackProfile } from './snacks'
 
-describe('Snack-Tipps', () => {
+describe('Snacks', () => {
   it('alle Snacks nutzen bekannte Lebensmittel und haben Nährwerte', () => {
     for (const s of SNACKS) {
       for (const [id] of s.items) expect(FOOD_MAP[id], `${s.id}: ${id}`).toBeDefined()
@@ -17,21 +17,13 @@ describe('Snack-Tipps', () => {
     expect(skyr.protein).toBeGreaterThan(28)
   })
 
-  it('fehlt Eiweiß, kommen Eiweiß-Snacks zuerst, sonst kalorienreiche', () => {
-    const protein = snackTips({ kcalOpen: 800, proteinOpen: 50, hour: 15, seed: 1 })
-    expect(['eiweiss', 'beides']).toContain(protein[0].snack.kind)
-    const kcal = snackTips({ kcalOpen: 800, proteinOpen: 0, hour: 21, seed: 1 })
-    expect(kcal[0].snack.kind).toBe('kalorien')
-  })
-
-  it('nur Snacks, die in die offenen Kalorien passen, und keine bei erreichtem Ziel', () => {
-    for (const t of snackTips({ kcalOpen: 250, proteinOpen: 0, hour: 12, seed: 3 })) expect(t.kcal).toBeLessThanOrEqual(350)
-    expect(snackTips({ kcalOpen: 100, proteinOpen: 0, hour: 12, seed: 3 })).toHaveLength(0)
-  })
-
   it('genug Auswahl: mindestens 15 Kalorien-Snacks', () => {
     expect(SNACKS.filter((s) => s.kind === 'kalorien').length).toBeGreaterThanOrEqual(15)
     expect(new Set(SNACKS.map((s) => s.id)).size).toBe(SNACKS.length)
+  })
+
+  it('kein Glas Milch als Snack (Milch nur im Proteinshake)', () => {
+    for (const s of SNACKS) if (s.items.some(([id]) => id === 'vollmilch' || id === 'milch')) expect(s.id).toBe('s02')
   })
 
   it('keine Datteln und keine Nüsse in Snacks', () => {

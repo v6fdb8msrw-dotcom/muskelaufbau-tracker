@@ -86,11 +86,11 @@ export function buildProductLog(product: Product, amount: number, w: When): Food
 }
 
 /** Snack aus mehreren Lebensmitteln als ein Eintrag (Nährwerte aus der Datenbank). */
-export function buildSnackLog(snack: Snack, w: When): FoodLogEntry {
-  const p = snackProfile(snack)
+export function buildSnackLog(snack: Snack, w: When, portions = 1): FoodLogEntry {
+  const p = scaleProfile(snackProfile(snack), portions)
   return stamp<FoodLogEntry>({
     ...when(w),
-    name: snack.name,
+    name: portions === 1 ? snack.name : `${portions}× ${snack.name}`,
     source: { kind: 'free' },
     nutrients: p.values,
     partial: p.partial,
