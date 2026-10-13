@@ -5,7 +5,7 @@ import { ExerciseFigure } from '../components/ExerciseFigure'
 import { Card, CardHead, Disclosure, Empty, Notice, PageHead } from '../components/ui'
 import { EXERCISE_MAP, EXERCISES, MUSCLE_GROUP_LABEL } from '../data/exercises'
 import { PICTOGRAMS } from '../data/pictograms'
-import { SESSIONS } from '../data/plan'
+import { SESSIONS, WEEKLY_ROWING } from '../data/plan'
 import { estimated1RM, videoSearchUrl } from '../domain/training'
 import { num } from '../lib/format'
 import { href, type Route } from '../state/router'
@@ -15,7 +15,7 @@ import type { Exercise, WorkoutLog } from '../types'
 export default function Exercises({ route }: { route: Route }) {
   const id = route.segments[1]
   if (id && EXERCISE_MAP[id]) return <ExerciseDetail exercise={EXERCISE_MAP[id]} />
-  const planIds = [...new Set(SESSIONS.flatMap((x) => [x.warmup?.exerciseId, ...x.exercises.map((e) => e.exerciseId), x.finisher?.exerciseId]).filter(Boolean) as string[])]
+  const planIds = [...new Set(SESSIONS.flatMap((x) => [...x.exercises.map((e) => e.exerciseId), x.finisher?.exerciseId]).filter(Boolean) as string[]), WEEKLY_ROWING.exerciseId]
   const others = EXERCISES.filter((e) => !planIds.includes(e.id))
   return (
     <div className="page">

@@ -925,3 +925,8 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+.exercise-row.warmup {
+  cursor: default;
+  color: var(--ink-2);
+}

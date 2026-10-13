@@ -8,7 +8,7 @@ import { analyzeProduct, groupByMeal, perPortionToPer100, weekBudget } from './p
 import { planNeeds } from './shopping'
 import { EXERCISE_MAP } from '../data/exercises'
 import { PICTOGRAMS } from '../data/pictograms'
-import { PHASES, SESSION_MAP, SESSIONS } from '../data/plan'
+import { PHASES, SESSION_MAP, SESSIONS, WEEKLY_ROWING } from '../data/plan'
 import {
   formatDosage,
   makeupDay,
@@ -114,6 +114,9 @@ describe('Training', () => {
     expect(plannedSessionsForWeek(four, [], 1)).toHaveLength(4)
     // Tag C zählt bei 5 Einheiten wie jede andere Einheit
     expect(sessionStatus(week1[4], [], '2026-10-19')).toBe('missed')
+    // Rudern nur einmal pro Woche, am Ende der letzten Einheit
+    expect(week1.filter((p) => p.rowing).map((p) => p.date)).toEqual(['2026-10-17'])
+    expect(plannedSessionsForWeek(settingsWith((x) => ({ ...x, program: { ...x.program, extraDay: 'aus' } })), [], 1).filter((p) => p.rowing).map((p) => p.date)).toEqual(['2026-10-16'])
   })
 
   it('Plan: nur Oberkörper, jeder Muskel 2× pro Woche, keine Klimmzugstange', () => {
@@ -158,7 +161,7 @@ describe('Training', () => {
   })
 
   it('Tutorials: jede Planübung hat Kurzanleitung, Video und animierte Figur', () => {
-    const ids = SESSIONS.flatMap((x) => [x.warmup?.exerciseId, ...x.exercises.map((e) => e.exerciseId), x.finisher?.exerciseId]).filter(Boolean) as string[]
+    const ids = [...SESSIONS.flatMap((x) => [...x.exercises.map((e) => e.exerciseId), x.finisher?.exerciseId]).filter(Boolean), WEEKLY_ROWING.exerciseId] as string[]
     for (const id of ids) {
       const ex = EXERCISE_MAP[id]
       expect(ex?.cues?.length, id).toBe(3)

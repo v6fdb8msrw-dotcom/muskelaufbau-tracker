@@ -383,7 +383,7 @@ export default function WorkoutLogger({ route }: { route: Route }) {
           </div>
           <div className="form-grid">
             {settings.program.equipment.rower && (
-              <Field label={SESSION_MAP[draft.template as SessionId]?.warmup ? 'Rudergerät (Einstieg, 10–15 min)' : 'Rudergerät'}>
+              <Field label={context.planned?.rowing ? 'Rudergerät (diese Woche 15 min)' : 'Rudergerät'}>
                 <NumberInput value={draft.rower} onChange={(v) => update({ rower: v })} suffix="min" />
               </Field>
             )}

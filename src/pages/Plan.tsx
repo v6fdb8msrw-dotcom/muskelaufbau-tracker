@@ -4,7 +4,7 @@ import { ExerciseTutorial } from '../components/ExerciseTutorial'
 import { useProgram } from '../components/hooks'
 import { Card, CardHead, PageHead } from '../components/ui'
 import { EXERCISE_MAP } from '../data/exercises'
-import { PHASES, phaseFor, SESSION_MAP, SESSIONS } from '../data/plan'
+import { PHASES, phaseFor, SESSION_MAP, SESSIONS, WEEKLY_ROWING } from '../data/plan'
 import { effectiveExerciseId, formatDosage, plannedSessionsForWeek, progressionHints, sessionStatus, targetKey } from '../domain/training'
 import { formatDate, relativeDay } from '../lib/date'
 import { stamp } from '../lib/id'
@@ -144,7 +144,14 @@ export default function Plan() {
               }
             />
             <div className="exercise-list">
-              {session.warmup && cardioRow(session.warmup, 'Einstieg')}
+              {session.warmupText && (
+                <div className="exercise-row warmup">
+                  <span className="grow">
+                    <span className="row-label">Aufwärmen</span>
+                    {session.warmupText}
+                  </span>
+                </div>
+              )}
               {session.exercises.map((pe) => {
                 const exId = effectiveExerciseId(pe, settings)
                 return (
@@ -158,7 +165,8 @@ export default function Plan() {
                   </button>
                 )
               })}
-              {session.finisher && cardioRow(session.finisher, 'Abschluss')}
+              {planned?.rowing && cardioRow(WEEKLY_ROWING, 'Abschluss')}
+              {session.finisher && cardioRow(session.finisher, planned?.rowing ? 'Danach' : 'Abschluss')}
             </div>
           </Card>
         ))}

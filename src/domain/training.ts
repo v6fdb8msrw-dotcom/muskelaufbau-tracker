@@ -13,6 +13,8 @@ export interface PlannedSession {
   skipped: boolean
   /** Optionale 5. Einheit: verpasst zählt nicht als verpasst */
   optional: boolean
+  /** Letzte Einheit der Woche: danach 15 Minuten rudern */
+  rowing: boolean
 }
 
 export type SessionStatus = 'done' | 'missed' | 'today' | 'upcoming' | 'skipped'
@@ -65,7 +67,8 @@ export function plannedKey(week: number, slot: string): string {
 export function plannedSessionsForWeek(settings: Settings, schedule: ScheduleChange[], week: number): PlannedSession[] {
   const monday = weekStart(settings, week)
   const changes = new Map(schedule.map((s) => [s.id, s]))
-  return weekSlots(settings, week)
+  const slots = weekSlots(settings, week)
+  return slots
     .map((s) => {
       const key = plannedKey(week, s.slot)
       const defaultDate = addDays(monday, s.offset)
@@ -79,6 +82,7 @@ export function plannedSessionsForWeek(settings: Settings, schedule: ScheduleCha
         moved: !!change?.movedTo && change.movedTo !== defaultDate,
         skipped: !!change?.skipped,
         optional: s.optional,
+        rowing: s === slots[slots.length - 1],
       }
     })
     .filter((p) => p.defaultDate >= settings.program.startDate || p.moved)

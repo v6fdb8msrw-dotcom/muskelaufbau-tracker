@@ -398,11 +398,11 @@ export const EXERCISES: Exercise[] = [
       'Reihenfolge beim Zug: Beine drücken, Oberkörper leicht nach hinten, Arme zum Bauch ziehen.',
       'Zurück in umgekehrter Reihenfolge: Arme, Oberkörper, Beine. Das Zurückgleiten dauert etwa doppelt so lange wie der Zug.',
       'Beim Wasser-Rudergerät gibt es keine Widerstandsstufe: Die Intensität steuerst du allein über Kraft und Schlagzahl.',
-      'Am Pull-Tag 10–15 Minuten als Einstieg, an Push- und Arm-Tagen 5 Minuten zum Aufwärmen. Du solltest dich dabei noch unterhalten können.',
+      'Einmal pro Woche 15 Minuten am Ende der letzten Einheit, locker: Du solltest dich dabei noch unterhalten können.',
     ],
     breathing: 'Beim Zug ausatmen, beim Zurückgleiten einatmen.',
     mistakes: ['Nur mit den Armen ziehen.', 'Rundrücken.', 'Zu schnelle, hektische Züge.'],
-    safety: ['Locker bleiben: Das Rudern wärmt auf und soll dich nicht für die Hanteln ermüden.'],
+    safety: ['Erst nach den Hantelübungen rudern, damit die Kraftsätze frisch bleiben.'],
     variants: ['Für mehr Ausdauer: kurze Intervalle, aber nicht vor dem Krafttraining.'],
   },
   {

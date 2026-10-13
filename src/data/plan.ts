@@ -1,4 +1,10 @@
-import type { SessionId, TrainingSession } from '../types'
+import type { CardioBlock, SessionId, TrainingSession } from '../types'
+
+/** Aufwärmen: gezielt mit der ersten Übung statt allgemein auf dem Rudergerät. */
+const WARMUP = '1–2 leichte Sätze der ersten Übung mit etwa halbem Gewicht'
+
+/** Rudern einmal pro Woche, am Ende der letzten Einheit (nach dem Krafttraining, damit die Sätze frisch bleiben). */
+export const WEEKLY_ROWING: CardioBlock = { exerciseId: 'rudergeraet', min: 15, max: 15, note: 'Einmal pro Woche, locker' }
 
 /**
  * Der Trainingsplan: 100 % Oberkörper für einen Einsteiger mit großem Seitenunterschied.
@@ -13,7 +19,7 @@ export const SESSIONS: TrainingSession[] = [
     title: 'Tag A · Pull',
     short: 'Pull',
     focus: 'Rücken und Bizeps, dazu unterer Bauch.',
-    warmup: { exerciseId: 'rudergeraet', min: 10, max: 15, note: 'Locker, 20–24 Züge pro Minute' },
+    warmupText: WARMUP,
     exercises: [
       { exerciseId: 'rudern', sets: 3, perSide: true, min: 10, max: 15, unit: 'reps', priority: true, note: 'Hauptübung Rücken' },
       { exerciseId: 'kh-rudern-vorgebeugt', sets: 3, min: 10, max: 15, unit: 'reps', priority: true },
@@ -31,7 +37,7 @@ export const SESSIONS: TrainingSession[] = [
     title: 'Tag B · Push',
     short: 'Push',
     focus: 'Brust, Schultern und Trizeps, dazu Rumpf.',
-    warmup: { exerciseId: 'rudergeraet', min: 5, max: 5, note: 'Schultern und Kreislauf warm machen' },
+    warmupText: WARMUP,
     exercises: [
       { exerciseId: 'liegestuetze', sets: 3, min: 8, max: 20, unit: 'reps', priority: true, note: 'Deine Stufe, siehe Anleitung' },
       { exerciseId: 'floor-press', sets: 3, min: 10, max: 15, unit: 'reps', priority: true },
@@ -48,7 +54,7 @@ export const SESSIONS: TrainingSession[] = [
     title: 'Tag C · Arme & Calisthenics',
     short: 'Arme',
     focus: 'Fünfte Einheit für Bizeps und Trizeps mit Calisthenics-Übungen.',
-    warmup: { exerciseId: 'rudergeraet', min: 5, max: 5, note: 'Schultern und Ellbogen warm machen' },
+    warmupText: WARMUP,
     exercises: [
       { exerciseId: 'diamant-liegestuetze', sets: 3, min: 6, max: 15, unit: 'reps', priority: true },
       { exerciseId: 'stuhl-dips', sets: 3, min: 8, max: 15, unit: 'reps', priority: true },
