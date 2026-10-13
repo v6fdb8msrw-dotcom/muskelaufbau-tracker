@@ -32,7 +32,7 @@ export const DEFAULT_EXCLUDED_TAGS: FoodTag[] = [
 
 export const DEFAULT_AVOID_TAGS: FoodTag[] = ['tomato', 'potato']
 
-export const SETTINGS_VERSION = 4
+export const SETTINGS_VERSION = 5
 
 /** Deine Startwerte aus dem Auftrag. In den Einstellungen jederzeit änderbar. */
 export function createDefaultSettings(): Settings {
@@ -53,7 +53,7 @@ export function createDefaultSettings(): Settings {
       weeks: 16,
       extraDay: 'sa',
       pulloverSuitable: true,
-      extraWeakSet: false,
+      extraWeakSet: true,
       dumbbellStepKg: 1,
       equipment: { dumbbells: true, rower: true, treadmill: true, pullupBar: false },
     },
@@ -159,6 +159,10 @@ export function migrateSettings(stored: (Partial<Settings> & { funDrinks?: unkno
     delete program.secondDay
     delete program.weekendDay
     s = { ...s, program, arms: { ...s.arms, weakerSide: s.arms.weakerSide ?? 'left' } }
+  }
+  if (version < 5) {
+    // Version 5: Zusatzsatz für die schwächere Seite ab Woche 4 standardmäßig an
+    s = { ...s, program: { ...s.program, extraWeakSet: true } }
   }
   return { changed: true, settings: s }
 }

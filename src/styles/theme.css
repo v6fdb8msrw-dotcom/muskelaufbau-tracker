@@ -823,3 +823,105 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* ---------- 16-Wochen-Phasen ---------- */
+.phase-track {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.phase-step {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  flex-basis: 0;
+}
+
+.phase-bar {
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.phase-step.past .phase-bar {
+  background: rgba(60, 240, 124, 0.45);
+}
+
+.phase-step.now .phase-bar {
+  background: var(--neon);
+  box-shadow: 0 0 12px rgba(60, 240, 124, 0.6);
+}
+
+.phase-name {
+  font-size: 12px;
+  font-weight: 650;
+  color: var(--ink-2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.phase-step.now .phase-name {
+  color: var(--neon-ink);
+}
+
+.phase-weeks {
+  font-size: 11px;
+  color: var(--ink-4);
+}
+
+.phase-now {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr);
+  gap: 16px 24px;
+  align-items: start;
+}
+
+.phase-effort {
+  margin-top: 6px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.phase-rules {
+  margin: 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13.5px;
+  color: var(--ink-2);
+}
+
+.phase-rules li::marker {
+  color: var(--neon);
+}
+
+.tut-gym {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13.5px;
+  color: var(--ink-2);
+}
+
+@media (max-width: 760px) {
+  .phase-track {
+    gap: 4px;
+  }
+  .phase-name,
+  .phase-weeks {
+    display: none;
+  }
+  .phase-step.now .phase-name,
+  .phase-step.now .phase-weeks {
+    display: block;
+    white-space: nowrap;
+  }
+  .phase-now {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

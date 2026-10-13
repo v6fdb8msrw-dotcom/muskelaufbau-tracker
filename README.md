@@ -24,7 +24,7 @@ Weitere Befehle:
 |---|---|
 | `npm run build` | Typprüfung und Produktions-Build nach `dist/` |
 | `npm run preview` | Build lokal ansehen unter http://127.0.0.1:4173, inklusive Service Worker und Offline-Modus |
-| `npm test` | 65 automatische Tests (Rezepte, Ausschlüsse, Nährwerte, Einkauf, Budget, Produktanalyse, Training, Gewicht, Speicher, Backup) |
+| `npm test` | 67 automatische Tests (Rezepte, Ausschlüsse, Nährwerte, Einkauf, Budget, Produktanalyse, Training, Gewicht, Speicher, Backup) |
 | `npm run lint` | Code-Prüfung mit oxlint |
 | `npm run icons` | App-Icons aus `public/logo.svg` neu erzeugen |
 
@@ -47,11 +47,13 @@ Die App ist auf dich zugeschnitten: Startgewicht 60,3 kg, 171 cm, 22 Jahre, 2.15
 
 **Günstig & proteinreich:** 20 weitere Rezepte mit mindestens 40 g Eiweiß für höchstens 2 € Zutaten pro Portion (Schätzpreise), z. B. Rote-Linsen-Dal, Quarkbrötchen, Soja-Gyros, Eiersalat mit Quark, Seelachs in Haferflocken-Kruste. Der Filter „Bis 2 €“ in der Rezeptliste zeigt alle günstigen Rezepte.
 
-**Trainingsplan (seit 13.10.2026):** 100 % Oberkörper, Pull und Push im Wechsel: Montag Tag A (Pull), Dienstag Tag B (Push), Donnerstag Pull, Freitag Push, optional eine 5. Einheit am Samstag (wechselt wöchentlich, in den Einstellungen auf Sonntag oder „keine“ stellbar). Je Einheit 5 Übungen à 2 × 15:
-- *Pull:* Rudergerät 10–15 min, vorgebeugtes Kurzhantel-Rudern, einarmiges Rudern abgestützt, Bizepscurls, Crunches (oder Beinheben). Optional Kurzhantel-Swing (Ersatz für die Kettlebell).
-- *Push:* Liegestütze, Schulterdrücken, Flys am Boden, Seitheben, Plank bis zum Muskelversagen. Optional Russian Twist mit Kurzhantel und Kurzhantel-Halo (Kettlebell-Ersatz).
-- *Abschluss oder Ruhetag:* Farmer’s Walk auf dem Walking-Pad (2–4 km/h, leichte Hanteln, 10–15 min).
-Einarmig immer links zuerst, rechts gleiches Gewicht und gleiche Wiederholungen. Keine Beinübungen, keine Klimmzugstange. Ein Tipp auf eine Übung öffnet ein Mini-Tutorial mit animierter Figur, drei Kernpunkten, typischen Fehlern und einem Link zu YouTube-Kurzvideos (Suche, damit der Link nicht veraltet).
+**Trainingsplan (16 Wochen, nur Oberkörper):** Pull und Push im Wechsel, damit jeder Muskel 2× pro Woche dran ist: Montag Tag A (Pull), Dienstag Tag B (Push), Donnerstag Pull, Freitag Push, dazu optional Tag C (Arme & Calisthenics) am Samstag (in den Einstellungen auf Sonntag oder „keine“ stellbar).
+- *Tag A · Pull:* Rudergerät 10–15 min, einarmiges Rudern, vorgebeugtes Rudern, Reverse Fly, Bizepscurls, Hammer Curls, Reverse Crunch. Optional Tischrudern und Kurzhantel-Swing.
+- *Tag B · Push:* Liegestütze (in Stufen), Floor Press, Schulterdrücken, Seitheben, Trizepsstrecken über Kopf, Plank bis zum Versagen. Optional Boden-Flys.
+- *Tag C · Arme & Calisthenics:* enge Liegestütze, Dips an Stuhl oder Sofa, Konzentrationscurls, Trizeps-Kickbacks, Hollow Body, Russian Twist. Optional Halo.
+- *Phasen:* Woche 1–3 Technik (2 Sätze, 2–3 Wiederholungen Reserve), 4–8 Aufbau (3 Sätze, 1–2 Reserve, Zusatzsatz für den linken Arm), 9–12 Intensiv (Schwerpunkt-Übungen 4 Sätze, letzter Satz knapp ans Versagen), 13–15 Peak (letzter Satz bis zum Versagen, langsame Negative), 16 Test & Entlastung.
+- Einarmig immer links zuerst, rechts gleiches Gewicht und gleiche Wiederholungen. Steigerung: Schaffst du in allen Sätzen die obere Zahl sauber, schlägt die App mehr Gewicht oder die nächste Stufe vor.
+- Ein Tipp auf eine Übung öffnet ein Mini-Tutorial: animierte Figur, drei Kernpunkte, typische Fehler, YouTube-Kurzvideos und die passende Übung für später im Gym. Keine Beinübungen, keine Klimmzugstange.
 
 **iPhone ↔ Mac per AirDrop:** Shortcut *Sync* auf der Startseite (oder *Einstellungen → Daten & Sync*). Auf dem einen Gerät „Per AirDrop senden“ (am Mac ohne Teilen-Menü: Datei erstellen und im Finder per AirDrop teilen), auf dem anderen „Datei auswählen“ und „Übernehmen“. Die Daten werden zusammengeführt: Neues kommt dazu, bei gleichen Einträgen gewinnt der neuere Stand, Gelöschtes bleibt gelöscht, Einstellungen kommen vom Gerät, auf dem sie zuletzt geändert wurden. Es gibt keinen Server, die Datei geht nur dorthin, wohin du sie schickst.
 

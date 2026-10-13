@@ -58,6 +58,7 @@ describe('Startwerte aus dem Auftrag', () => {
     expect(settings.program.extraDay).toBe('sa')
     expect('secondDay' in settings.program).toBe(false)
     expect(settings.arms.weakerSide).toBe('left')
+    expect(settings.program.extraWeakSet).toBe(true)
   })
 
   it('ESN-Produkte haben Etikettwerte und keine nussigen Sorten', () => {

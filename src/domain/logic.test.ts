@@ -8,7 +8,7 @@ import { analyzeProduct, groupByMeal, perPortionToPer100, weekBudget } from './p
 import { planNeeds } from './shopping'
 import { EXERCISE_MAP } from '../data/exercises'
 import { PICTOGRAMS } from '../data/pictograms'
-import { SESSION_MAP, SESSIONS } from '../data/plan'
+import { PHASES, SESSION_MAP, SESSIONS } from '../data/plan'
 import {
   formatDosage,
   makeupDay,
@@ -106,10 +106,8 @@ describe('Training', () => {
     const s = settingsWith()
     const week1 = plannedSessionsForWeek(s, [], 1)
     expect(week1.map((p) => p.date)).toEqual(['2026-10-12', '2026-10-13', '2026-10-15', '2026-10-16', '2026-10-17'])
-    expect(week1.map((p) => p.sessionId)).toEqual(['pull-a', 'push-b', 'pull-a', 'push-b', 'pull-a'])
+    expect(week1.map((p) => p.sessionId)).toEqual(['pull-a', 'push-b', 'pull-a', 'push-b', 'arme-c'])
     expect(week1.map((p) => p.optional)).toEqual([false, false, false, false, true])
-    // Die optionale Einheit wechselt jede Woche
-    expect(plannedSessionsForWeek(s, [], 2).at(-1)?.sessionId).toBe('push-b')
     const sunday = settingsWith((x) => ({ ...x, program: { ...x.program, extraDay: 'so' } }))
     expect(plannedSessionsForWeek(sunday, [], 1).at(-1)?.date).toBe('2026-10-18')
     const four = settingsWith((x) => ({ ...x, program: { ...x.program, extraDay: 'aus' } }))
@@ -118,18 +116,45 @@ describe('Training', () => {
     expect(sessionStatus(week1[4], [], '2026-10-19')).toBe('skipped')
   })
 
-  it('Plan nach Vorgabe: nur Oberkörper, 5 Übungen à 2 × 15, keine Klimmzugstange', () => {
+  it('Plan: nur Oberkörper, jeder Muskel 2× pro Woche, keine Klimmzugstange', () => {
+    const groups = (id: string) => SESSION_MAP[id as 'pull-a'].exercises.filter((e) => !e.optional).map((e) => EXERCISE_MAP[e.exerciseId].group)
+    expect(groups('pull-a')).toEqual(expect.arrayContaining(['ruecken', 'bizeps', 'bauch']))
+    expect(groups('push-b')).toEqual(expect.arrayContaining(['brust', 'schulter', 'trizeps', 'bauch']))
+    expect(groups('arme-c')).toEqual(expect.arrayContaining(['bizeps', 'trizeps']))
     for (const session of SESSIONS) {
-      const main = session.exercises.filter((e) => !e.optional)
-      expect(main.length + (session.warmup ? 1 : 0), session.id).toBe(5)
-      for (const e of main) {
-        expect(e.sets, e.exerciseId).toBe(2)
-        if (!e.toFailure) expect(e.max, e.exerciseId).toBe(15)
+      for (const e of session.exercises) {
+        const ex = EXERCISE_MAP[e.exerciseId]
+        expect(/klimmzug|chin|pull-?up|kniebeuge|squat|ausfallschritt/i.test(ex.name + ex.equipment.join(' ')), e.exerciseId).toBe(false)
       }
-      for (const e of session.exercises) expect(/klimmzug|chin|pull-?up/i.test(EXERCISE_MAP[e.exerciseId].name), e.exerciseId).toBe(false)
     }
-    expect(SESSION_MAP['pull-a'].warmup?.exerciseId).toBe('rudergeraet')
-    expect(SESSION_MAP['push-b'].exercises.find((e) => e.exerciseId === 'plank')?.toFailure).toBe(true)
+  })
+
+  it('Wöchentliche Sätze in der Aufbauphase: mindestens 10 je Schwerpunkt-Muskel', () => {
+    const week = 6
+    const sets: Record<string, number> = {}
+    for (const id of ['pull-a', 'push-b', 'pull-a', 'push-b'] as const) {
+      for (const pe of SESSION_MAP[id].exercises.filter((e) => !e.optional)) {
+        const g = EXERCISE_MAP[pe.exerciseId].group
+        sets[g] = (sets[g] ?? 0) + setsForWeek(pe, week)
+      }
+    }
+    for (const g of ['ruecken', 'bizeps', 'brust', 'trizeps', 'schulter']) expect(sets[g] ?? 0, g).toBeGreaterThanOrEqual(6)
+    expect(sets.ruecken).toBeGreaterThanOrEqual(10)
+    expect(sets.bizeps).toBeGreaterThanOrEqual(10)
+  })
+
+  it('Phasen: Technik 2 Sätze, Aufbau 3, Intensiv 4 für Schwerpunkte, Testwoche 2', () => {
+    expect(PHASES.map((p) => [p.from, p.to])).toEqual([
+      [1, 3],
+      [4, 8],
+      [9, 12],
+      [13, 15],
+      [16, 16],
+    ])
+    const curl = SESSION_MAP['pull-a'].exercises.find((e) => e.exerciseId === 'bizepscurl')!
+    const fly = SESSION_MAP['pull-a'].exercises.find((e) => e.exerciseId === 'reverse-fly')!
+    expect([1, 4, 10, 14, 16].map((w) => setsForWeek(curl, w))).toEqual([2, 3, 4, 4, 2])
+    expect([1, 4, 10, 14, 16].map((w) => setsForWeek(fly, w))).toEqual([2, 3, 3, 3, 2])
   })
 
   it('Tutorials: jede Planübung hat Kurzanleitung, Video und animierte Figur', () => {
@@ -158,26 +183,26 @@ describe('Training', () => {
     expect(programWeek(s, '2026-10-26')).toBe(3)
   })
 
-  it('in den ersten zwei Wochen höchstens zwei Arbeitssätze', () => {
+  it('in den ersten drei Wochen höchstens zwei Arbeitssätze', () => {
     const pe = { exerciseId: 'floor-press', sets: 3, min: 8, max: 12, unit: 'reps' as const }
     expect(setsForWeek(pe, 1)).toBe(2)
-    expect(setsForWeek(pe, 2)).toBe(2)
-    expect(setsForWeek(pe, 3)).toBe(3)
+    expect(setsForWeek(pe, 3)).toBe(2)
+    expect(setsForWeek(pe, 4)).toBe(3)
   })
 
-  it('einarmige Übungen beginnen mit der schwächeren Seite', () => {
-    const s = settingsWith((x) => ({ ...x, arms: { weakerSide: 'right' } }))
-    const slots = setSlots({ exerciseId: 'bizepscurl', sets: 3, perSide: true, min: 10, max: 15, unit: 'reps' }, s, 3)
+  it('einarmige Übungen beginnen mit der schwächeren Seite, ab Woche 4 mit Zusatzsatz', () => {
+    const s = settingsWith((x) => ({ ...x, arms: { weakerSide: 'right' }, program: { ...x.program, extraWeakSet: false } }))
+    const curl = { exerciseId: 'bizepscurl', sets: 3, perSide: true, min: 10, max: 15, unit: 'reps' as const }
+    const slots = setSlots(curl, s, 5)
     expect(slots[0].side).toBe('right')
     expect(slots[1].side).toBe('left')
     expect(slots).toHaveLength(6)
-    const extra = setSlots(
-      { exerciseId: 'bizepscurl', sets: 3, perSide: true, min: 10, max: 15, unit: 'reps' },
-      { ...s, program: { ...s.program, extraWeakSet: true } },
-      8,
-    )
+    const on = { ...s, program: { ...s.program, extraWeakSet: true } }
+    expect(setSlots(curl, on, 3)).toHaveLength(4)
+    const extra = setSlots(curl, on, 5)
     expect(extra).toHaveLength(7)
     expect(extra[6]).toMatchObject({ side: 'right', extra: true })
+    expect(setSlots(curl, on, 16)).toHaveLength(4)
   })
 
   it('Progression erst, wenn alle Sätze sauber die Obergrenze erreichen', () => {

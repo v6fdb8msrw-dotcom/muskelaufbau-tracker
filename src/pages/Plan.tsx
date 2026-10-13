@@ -4,7 +4,7 @@ import { ExerciseTutorial } from '../components/ExerciseTutorial'
 import { useProgram } from '../components/hooks'
 import { Card, CardHead, PageHead } from '../components/ui'
 import { EXERCISE_MAP } from '../data/exercises'
-import { SESSION_MAP, SESSIONS } from '../data/plan'
+import { PHASES, phaseFor, SESSION_MAP, SESSIONS } from '../data/plan'
 import { effectiveExerciseId, formatDosage, plannedSessionsForWeek, progressionHints, sessionStatus, targetKey } from '../domain/training'
 import { formatDate, relativeDay } from '../lib/date'
 import { stamp } from '../lib/id'
@@ -41,6 +41,7 @@ export default function Plan() {
   const sessions = thisWeek.length
     ? thisWeek.map((planned) => ({ planned, session: SESSION_MAP[planned.sessionId], status: sessionStatus(planned, data.workouts, today) }))
     : SESSIONS.map((session) => ({ planned: undefined, session, status: undefined }))
+  const phase = phaseFor(Math.max(week, 1))
   const required = sessions.filter((x) => !x.planned?.optional)
   const done = required.filter((x) => x.status === 'done').length
 
@@ -63,6 +64,33 @@ export default function Plan() {
         eyebrow={week >= 1 ? `Woche ${w} von ${p.weeks} · ${done}/${required.length} erledigt` : `Start am ${formatDate(p.startDate)}`}
         title="Training"
       />
+
+      <Card index={0} className="phase-card" style={{ marginBottom: 18 }}>
+        <div className="phase-track" aria-label="16 Wochen in Phasen">
+          {PHASES.map((ph, i) => (
+            <div key={ph.id} className={`phase-step ${ph.id === phase.id ? 'now' : ph.to < Math.max(week, 1) ? 'past' : ''}`} style={{ flexGrow: ph.to - ph.from + 1 }}>
+              <span className="phase-bar" />
+              <span className="phase-name">
+                {i + 1} · {ph.name}
+              </span>
+              <span className="phase-weeks">{ph.from === ph.to ? `Woche ${ph.from}` : `Woche ${ph.from}–${ph.to}`}</span>
+            </div>
+          ))}
+        </div>
+        <div className="phase-now">
+          <div>
+            <div className="eyebrow">Jetzt: Phase {PHASES.indexOf(phase) + 1} · {phase.name}</div>
+            <div className="phase-effort">
+              {phase.sets === phase.prioritySets ? `${phase.sets} Sätze` : `${phase.sets} Sätze, Schwerpunkt ${phase.prioritySets}`} · {phase.effort}
+            </div>
+          </div>
+          <ul className="phase-rules">
+            {phase.rules.map((r) => (
+              <li key={r}>{r}</li>
+            ))}
+          </ul>
+        </div>
+      </Card>
 
       {hints.length > 0 && (
         <Card index={0} style={{ marginBottom: 18 }}>
@@ -139,7 +167,7 @@ export default function Plan() {
       </div>
 
       <div className="muted tiny" style={{ marginTop: 14 }}>
-        Tipp auf eine Übung zeigt das Mini-Tutorial mit Bewegungsablauf und Kurzvideos. Keine Beinübungen, keine Klimmzugstange. Ruhetage: gern Farmer’s Walk auf dem Walking-Pad.
+        Tipp auf eine Übung zeigt das Mini-Tutorial mit Bewegungsablauf, Kurzvideos und der passenden Gym-Übung. Tag C ist optional: nur bei guter Erholung. Ruhetage: gern Farmer’s Walk auf dem Walking-Pad.
       </div>
 
       {tutorial && <ExerciseTutorial exerciseId={tutorial.exerciseId} planned={tutorial.planned} cardio={tutorial.cardio} onClose={() => setTutorial(null)} />}

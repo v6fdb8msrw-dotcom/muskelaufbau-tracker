@@ -175,6 +175,8 @@ export interface Exercise {
   video?: string
   /** Hinweis, dass die Übung später mit anderem Gerät gemacht wird (z. B. Kettlebell) */
   later?: string
+  /** Entsprechende Übung im Fitnessstudio */
+  gym?: string
 }
 
 export interface PlannedExercise {
@@ -191,11 +193,13 @@ export interface PlannedExercise {
   toFailure?: boolean
   /** Zusatzübung, darf wegfallen */
   optional?: boolean
+  /** Schwerpunkt (Arme, Rücken, Brust): in der Intensivphase ein Satz mehr */
+  priority?: boolean
   note?: string
 }
 
 /** Aktuelle Einheiten: Pull und Push im Wechsel. Die alten IDs bleiben für frühere Einträge gültig. */
-export type SessionId = 'pull-a' | 'push-b' | 'mo-a' | 'arme-a' | 'fr-b' | 'ok-b'
+export type SessionId = 'pull-a' | 'push-b' | 'arme-c' | 'mo-a' | 'arme-a' | 'fr-b' | 'ok-b'
 
 /** Ausdauer-Teil einer Einheit in Minuten (Rudergerät zum Einstieg, Walking-Pad am Ende). */
 export interface CardioBlock {

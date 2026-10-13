@@ -1,5 +1,5 @@
 import { ARM_BALANCE_EXERCISES, EXERCISE_MAP } from '../data/exercises'
-import { PLAN_RULES, SESSION_MAP, SESSIONS } from '../data/plan'
+import { phaseFor, PLAN_RULES, SESSION_MAP, SESSIONS } from '../data/plan'
 import { addDays, diffDays, startOfWeek, todayISO, weekdayIndex } from '../lib/date'
 import type { PlannedExercise, ScheduleChange, SessionId, Settings, SetLog, TargetWeight, WorkoutLog } from '../types'
 
@@ -42,9 +42,9 @@ export interface WeekSlot {
 
 /**
  * Wochenraster: Pull und Push im Wechsel an Mo, Di, Do, Fr. Die optionale 5. Einheit
- * (Sa oder So) wechselt jede Woche, damit beide Tage gleich oft vorkommen.
+ * (Sa oder So) ist Tag C für Arme und Calisthenics.
  */
-export function weekSlots(settings: Settings, week: number): WeekSlot[] {
+export function weekSlots(settings: Settings, _week?: number): WeekSlot[] {
   const slots: WeekSlot[] = [
     { slot: 'mo', offset: 0, sessionId: 'pull-a', optional: false },
     { slot: 'di', offset: 1, sessionId: 'push-b', optional: false },
@@ -53,7 +53,7 @@ export function weekSlots(settings: Settings, week: number): WeekSlot[] {
   ]
   const extra = settings.program.extraDay
   if (extra === 'sa' || extra === 'so') {
-    slots.push({ slot: extra, offset: extra === 'sa' ? 5 : 6, sessionId: week % 2 === 1 ? 'pull-a' : 'push-b', optional: true })
+    slots.push({ slot: extra, offset: extra === 'sa' ? 5 : 6, sessionId: 'arme-c', optional: true })
   }
   return slots
 }
@@ -124,10 +124,15 @@ export function effectiveExerciseId(planned: PlannedExercise, settings: Settings
   return planned.exerciseId
 }
 
-/** Satzzahl für die Woche: In den ersten zwei Wochen höchstens zwei Arbeitssätze. */
+/**
+ * Satzzahl für die Woche nach Phase: Technik 2, Aufbau 3, Intensiv/Peak 3 (Schwerpunkt 4),
+ * Testwoche 2. Zusatzübungen bleiben bei ihrer Satzzahl.
+ */
 export function setsForWeek(planned: PlannedExercise, week: number): number {
-  if (week <= PLAN_RULES.beginnerWeeks) return Math.min(planned.sets, PLAN_RULES.beginnerMaxSets)
-  return planned.sets
+  const phase = phaseFor(week)
+  if (planned.optional) return Math.min(planned.sets, phase.sets)
+  if (planned.priority && phase.prioritySets > phase.sets) return Math.max(phase.prioritySets, Math.min(planned.sets, phase.sets))
+  return Math.min(planned.sets, phase.sets) || phase.sets
 }
 
 export interface SetSlot {
@@ -153,7 +158,8 @@ export function setSlots(planned: PlannedExercise, settings: Settings, week: num
     slots.push({ index: i, side: weaker })
     slots.push({ index: i, side: stronger })
   }
-  if (settings.program.extraWeakSet && ARM_BALANCE_EXERCISES.includes(exId) && !reduced) {
+  // Zusatzsatz für die schwächere Seite ab der Aufbauphase (mehr Umfang links gleicht am schnellsten aus)
+  if (settings.program.extraWeakSet && week >= PLAN_RULES.extraWeakSetFromWeek && phaseFor(week).id !== 'test' && ARM_BALANCE_EXERCISES.includes(exId) && !reduced) {
     slots.push({ index: sets, side: weaker, extra: true })
   }
   return slots

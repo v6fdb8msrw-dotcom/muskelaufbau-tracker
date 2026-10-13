@@ -6,7 +6,7 @@ import { useToday } from '../components/hooks'
 import { SIDE_LABEL } from '../components/labels'
 import { Card, Field, NumberInput, PageHead, Seg, Switch } from '../components/ui'
 import { CORE_EXERCISES, EXERCISE_MAP, EXERCISES } from '../data/exercises'
-import { PLAN_RULES, SESSION_MAP, SESSIONS } from '../data/plan'
+import { PHASES, phaseFor, PLAN_RULES, SESSION_MAP, SESSIONS } from '../data/plan'
 import { effectiveExerciseId, formatDosage, lastExerciseLog, plannedSessionsForWeek, programWeek, setSlots, targetKey } from '../domain/training'
 import { formatDateLong } from '../lib/date'
 import { stamp } from '../lib/id'
@@ -270,8 +270,9 @@ export default function WorkoutLogger({ route }: { route: Route }) {
                 <TriangleAlert size={15} /> Bei schlechter Erholung lieber reduzieren{SESSION_MAP[draft.template as SessionId]?.flexible ? ', diese Einheit ist dafür gedacht.' : '.'}
               </div>
             )}
-            {week <= PLAN_RULES.beginnerWeeks && <div className="muted tiny">Woche {week}: Einstiegsphase, höchstens zwei Arbeitssätze pro Übung.</div>}
-            {week > PLAN_RULES.beginnerWeeks && week <= 4 && <div className="muted tiny">Ab Woche 3 die volle Satzzahl, aber nur bei guter Erholung. Sonst bei 2 Sätzen bleiben.</div>}
+            <div className="muted tiny">
+              Phase {PHASES.indexOf(phaseFor(week)) + 1} · {phaseFor(week).name}: {phaseFor(week).effort}.
+            </div>
           </div>
         </Card>
       </div>

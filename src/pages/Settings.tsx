@@ -209,10 +209,10 @@ function TrainingSection() {
           </Field>
         </div>
         <div className="stack" style={{ marginTop: 14 }}>
-          <div className="muted small">Pull und Push im Wechsel: Montag Pull, Dienstag Push, Donnerstag Pull, Freitag Push.</div>
+          <div className="muted small">Pull und Push im Wechsel: Montag Pull, Dienstag Push, Donnerstag Pull, Freitag Push. Optional Tag C für Arme und Calisthenics.</div>
           <div className="row-wrap">
             <span className="field-label" style={{ minWidth: 170 }}>
-              Optionale 5. Einheit
+              Tag C (optional)
             </span>
             <Seg
               value={pr.extraDay}
@@ -250,7 +250,7 @@ function TrainingSection() {
               ]}
             />
           </div>
-          <Switch checked={pr.extraWeakSet} onChange={(v) => set('program', { extraWeakSet: v })} label="Zusatzsatz für die schwächere Seite (empfohlen frühestens nach 6–8 Wochen)" />
+          <Switch checked={pr.extraWeakSet} onChange={(v) => set('program', { extraWeakSet: v })} label="Zusatzsatz für die schwächere Seite bei einarmigen Armübungen (ab Woche 4)" />
           <a className="btn btn-sm" href={href('/fortschritt?tab=arme')} style={{ alignSelf: 'flex-start' }}>
             Armumfänge messen & ansehen
           </a>

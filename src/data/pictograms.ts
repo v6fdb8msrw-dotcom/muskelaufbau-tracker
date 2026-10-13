@@ -9,7 +9,7 @@ export type Pt = [number, number]
 export type Frame = Record<string, Pt>
 
 export interface Prop {
-  kind: 'boden' | 'bank' | 'matte' | 'ruderer' | 'pad'
+  kind: 'boden' | 'bank' | 'matte' | 'ruderer' | 'pad' | 'stuhl' | 'tisch'
 }
 
 export interface Pictogram {
@@ -29,6 +29,8 @@ export interface Pictogram {
   captions?: string[]
   /** Sekunden je Frame */
   pace?: number
+  /** Drehung der Kurzhantel in Grad (90 = Hammergriff, senkrecht) */
+  dbAngle?: number
 }
 
 const SIDE: [string, string][] = [
@@ -72,6 +74,7 @@ const standFront: Frame = {
   knR: [108, 105],
   ftR: [109, 126],
 }
+const standHigh: Frame = { head: [100, 30], sh: [100, 46], hip: [100, 84], kn: [101, 105], ft: [100, 126], kn2: [96, 105], ft2: [94, 126] }
 const lyingTop: Frame = {
   head: [100, 26],
   nk: [100, 38],
@@ -278,5 +281,153 @@ export const PICTOGRAMS: Record<string, Pictogram> = {
     ],
     captions: ['Vor der Brust', 'Am Ohr vorbei', 'Hinter dem Kopf', 'Andere Seite zurück'],
     pace: 0.9,
+  },
+  'hammer-curl': {
+    view: 'seite',
+    segments: SIDE,
+    far: SIDE_FAR,
+    head: 'head',
+    db: ['ha'],
+    dbAngle: 90,
+    props: ['boden'],
+    frames: [
+      { ...standSide, el: [101, 59], ha: [103, 80], el2: [98, 59], ha2: [97, 80] },
+      { ...standSide, el: [101, 59], ha: [116, 44], el2: [98, 59], ha2: [97, 80] },
+    ],
+    captions: ['Daumen oben', 'Zur Schulter beugen'],
+  },
+  'floor-press': {
+    view: 'seite',
+    segments: SIDE,
+    head: 'head',
+    db: ['ha'],
+    props: ['matte'],
+    frames: [
+      { head: [46, 116], sh: [60, 118], hip: [100, 120], kn: [122, 100], ft: [140, 124], el: [70, 124], ha: [70, 104] },
+      { head: [46, 116], sh: [60, 118], hip: [100, 120], kn: [122, 100], ft: [140, 124], el: [62, 98], ha: [63, 78] },
+    ],
+    captions: ['Oberarm am Boden', 'Nach oben drücken'],
+  },
+  'trizeps-ueberkopf': {
+    view: 'seite',
+    segments: SIDE,
+    far: [
+      ['hip', 'kn2'],
+      ['kn2', 'ft2'],
+    ],
+    head: 'head',
+    db: ['ha'],
+    props: ['boden'],
+    frames: [
+      { ...standHigh, el: [103, 24], ha: [90, 37] },
+      { ...standHigh, el: [103, 24], ha: [106, 4] },
+    ],
+    captions: ['Hinter den Kopf senken', 'Arm strecken'],
+  },
+  'reverse-fly': {
+    view: 'seite',
+    segments: SIDE,
+    far: SIDE_FAR,
+    head: 'head',
+    db: ['ha', 'ha2'],
+    props: ['boden'],
+    frames: [
+      { head: [139, 52], sh: [128, 60], hip: [92, 80], kn: [106, 104], ft: [102, 126], kn2: [101, 104], ft2: [97, 126], el: [130, 80], ha: [130, 100], el2: [126, 80], ha2: [126, 100] },
+      { head: [139, 52], sh: [128, 60], hip: [92, 80], kn: [106, 104], ft: [102, 126], kn2: [101, 104], ft2: [97, 126], el: [124, 70], ha: [118, 66], el2: [122, 70], ha2: [116, 66] },
+    ],
+    captions: ['Arme hängen', 'Seitlich bis Rückenhöhe'],
+  },
+  'reverse-crunch': {
+    view: 'seite',
+    segments: SIDE,
+    head: 'head',
+    props: ['matte'],
+    frames: [
+      { head: [34, 118], sh: [48, 120], hip: [96, 121], kn: [112, 100], ft: [132, 104], el: [66, 124], ha: [84, 125] },
+      { head: [34, 118], sh: [48, 120], hip: [94, 112], kn: [88, 90], ft: [108, 84], el: [66, 124], ha: [84, 125] },
+    ],
+    captions: ['Knie über der Hüfte', 'Becken einrollen'],
+  },
+  'diamant-liegestuetze': {
+    view: 'seite',
+    segments: [
+      ['ft', 'kn'],
+      ['kn', 'hip'],
+      ['hip', 'sh'],
+      ['sh', 'el'],
+      ['el', 'ha'],
+    ],
+    head: 'head',
+    props: ['boden'],
+    frames: [
+      { ft: [40, 124], kn: [68, 113], hip: [95, 103], sh: [138, 85], el: [136, 105], ha: [134, 125], head: [151, 78] },
+      { ft: [40, 124], kn: [68, 119], hip: [95, 115], sh: [138, 108], el: [120, 112], ha: [134, 125], head: [152, 102] },
+    ],
+    captions: ['Hände eng', 'Ellbogen am Körper'],
+  },
+  'stuhl-dips': {
+    view: 'seite',
+    segments: SIDE,
+    head: 'head',
+    props: ['stuhl'],
+    frames: [
+      { head: [86, 48], sh: [82, 64], el: [80, 76], ha: [78, 88], hip: [90, 100], kn: [120, 104], ft: [148, 124] },
+      { head: [92, 66], sh: [88, 82], el: [66, 78], ha: [78, 88], hip: [92, 116], kn: [122, 112], ft: [148, 124] },
+    ],
+    captions: ['Arme gestreckt', 'Ellbogen nach hinten'],
+  },
+  konzentrationscurl: {
+    view: 'seite',
+    segments: SIDE,
+    head: 'head',
+    db: ['ha'],
+    props: ['bank'],
+    frames: [
+      { head: [120, 46], sh: [110, 56], hip: [86, 88], kn: [116, 94], ft: [118, 126], el: [113, 84], ha: [115, 106] },
+      { head: [120, 46], sh: [110, 56], hip: [86, 88], kn: [116, 94], ft: [118, 126], el: [113, 84], ha: [103, 66] },
+    ],
+    captions: ['Ellbogen am Oberschenkel', 'Langsam beugen'],
+  },
+  'trizeps-kickback': {
+    view: 'seite',
+    segments: SIDE,
+    far: SIDE_FAR,
+    head: 'head',
+    db: ['ha'],
+    props: ['bank'],
+    frames: [
+      { head: [142, 66], sh: [128, 72], hip: [80, 76], kn: [74, 102], ft: [70, 126], kn2: [78, 91], ft2: [54, 91], el2: [130, 82], ha2: [131, 91], el: [108, 74], ha: [110, 94] },
+      { head: [142, 66], sh: [128, 72], hip: [80, 76], kn: [74, 102], ft: [70, 126], kn2: [78, 91], ft2: [54, 91], el2: [130, 82], ha2: [131, 91], el: [108, 74], ha: [88, 77] },
+    ],
+    captions: ['Oberarm oben, Unterarm hängt', 'Nach hinten strecken'],
+  },
+  'hollow-body': {
+    view: 'seite',
+    segments: SIDE,
+    head: 'head',
+    props: ['matte'],
+    frames: [
+      { head: [52, 108], sh: [62, 114], hip: [100, 122], kn: [126, 115], ft: [152, 107], el: [42, 108], ha: [22, 104] },
+      { head: [52, 107.5], sh: [62, 113.5], hip: [100, 122], kn: [126, 114], ft: [152, 105], el: [42, 107], ha: [22, 102] },
+    ],
+    captions: ['Rücken am Boden', 'Halten'],
+    pace: 1.6,
+  },
+  tischrudern: {
+    view: 'seite',
+    segments: [
+      ['ft', 'kn'],
+      ['kn', 'hip'],
+      ['hip', 'sh'],
+      ['sh', 'el'],
+      ['el', 'ha'],
+    ],
+    head: 'head',
+    props: ['tisch'],
+    frames: [
+      { ft: [40, 124], kn: [60, 118], hip: [80, 113], sh: [120, 102], el: [120, 84], ha: [120, 66], head: [133, 100] },
+      { ft: [40, 124], kn: [59, 112], hip: [79, 100], sh: [118, 76], el: [100, 82], ha: [120, 66], head: [131, 72] },
+    ],
+    captions: ['Arme gestreckt', 'Brust zur Tischkante'],
   },
 }

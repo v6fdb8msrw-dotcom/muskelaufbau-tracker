@@ -1,5 +1,6 @@
 import { BookOpen, PlayCircle } from 'lucide-react'
-import { EXERCISE_MAP } from '../data/exercises'
+import { ARM_BALANCE_EXERCISES, EXERCISE_MAP } from '../data/exercises'
+import { PLAN_RULES } from '../data/plan'
 import { formatDosage, videoSearchUrl } from '../domain/training'
 import { href } from '../state/router'
 import { useStore } from '../state/store'
@@ -36,6 +37,7 @@ export function ExerciseTutorial({ exerciseId, planned, cardio, onClose }: { exe
         {ex.unilateral && planned?.perSide && (
           <div className="tut-side">
             Immer {weaker} beginnen. {stronger[0].toUpperCase() + stronger.slice(1)} danach mit gleichem Gewicht und gleicher Wiederholungszahl, nicht mehr.
+            {settings.program.extraWeakSet && ARM_BALANCE_EXERCISES.includes(ex.id) && ` Ab Woche ${PLAN_RULES.extraWeakSetFromWeek} kommt ein Zusatzsatz nur ${weaker} dazu.`}
           </div>
         )}
         <div className="tut-warn">
@@ -43,6 +45,12 @@ export function ExerciseTutorial({ exerciseId, planned, cardio, onClose }: { exe
           <span>{ex.mistakes.slice(0, 2).join(' ')}</span>
         </div>
         {ex.later && <Notice>{ex.later}</Notice>}
+        {ex.gym && (
+          <div className="tut-gym">
+            <span className="eyebrow">Später im Gym</span>
+            <span>{ex.gym}</span>
+          </div>
+        )}
         <div className="row-wrap">
           <a className="btn btn-primary" href={videoSearchUrl(ex.video ?? ex.name)} target="_blank" rel="noopener noreferrer">
             <PlayCircle size={16} /> Kurzvideos ansehen

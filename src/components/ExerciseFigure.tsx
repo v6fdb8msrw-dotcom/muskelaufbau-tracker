@@ -53,7 +53,7 @@ function Scene({ pic, frames }: { pic: Pictogram; frames: Frame[] }) {
       {pic.db
         ?.filter((p) => pic.far?.some(([a, b]) => a === p || b === p) && !pic.segments.some(([a, b]) => a === p || b === p))
         .map((p) => (
-          <Dumbbell key={`dbf${p}`} point={p} seq={seq} dur={dur} keyTimes={keyTimes} keySplines={keySplines} animated={animated} far />
+          <Dumbbell key={`dbf${p}`} point={p} seq={seq} dur={dur} keyTimes={keyTimes} keySplines={keySplines} animated={animated} angle={pic.dbAngle} far />
         ))}
       {pic.segments.map(([a, b], i) => line(a, b, 'fig-line', `s${i}`))}
       <circle className="fig-head" cx={first[pic.head][0]} cy={first[pic.head][1]} r={8.5}>
@@ -63,7 +63,7 @@ function Scene({ pic, frames }: { pic: Pictogram; frames: Frame[] }) {
       {pic.db
         ?.filter((p) => !(pic.far?.some(([a, b]) => a === p || b === p) && !pic.segments.some(([a, b]) => a === p || b === p)))
         .map((p) => (
-          <Dumbbell key={`db${p}`} point={p} seq={seq} dur={dur} keyTimes={keyTimes} keySplines={keySplines} animated={animated} />
+          <Dumbbell key={`db${p}`} point={p} seq={seq} dur={dur} keyTimes={keyTimes} keySplines={keySplines} animated={animated} angle={pic.dbAngle} />
         ))}
     </>
   )
@@ -76,6 +76,7 @@ function Dumbbell({
   keyTimes,
   keySplines,
   animated,
+  angle,
   far,
 }: {
   point: string
@@ -84,6 +85,7 @@ function Dumbbell({
   keyTimes: string
   keySplines: string
   animated: boolean
+  angle?: number
   far?: boolean
 }) {
   const [x, y] = seq[0][point]
@@ -101,9 +103,11 @@ function Dumbbell({
           repeatCount="indefinite"
         />
       )}
-      <rect x={-7} y={-1.5} width={14} height={3} rx={1.5} />
-      <rect x={-10} y={-5} width={4} height={10} rx={1.5} />
-      <rect x={6} y={-5} width={4} height={10} rx={1.5} />
+      <g transform={angle ? `rotate(${angle})` : undefined}>
+        <rect x={-7} y={-1.5} width={14} height={3} rx={1.5} />
+        <rect x={-10} y={-5} width={4} height={10} rx={1.5} />
+        <rect x={6} y={-5} width={4} height={10} rx={1.5} />
+      </g>
     </g>
   )
 }
@@ -138,6 +142,23 @@ function Props({ pic }: { pic: Pictogram }) {
               <rect x={40} y={114} width={56} height={4} rx={2} className="fill" />
               <circle cx={164} cy={98} r={13} />
               <line x1={124} y1={104} x2={134} y2={118} />
+              <line x1={16} y1={127} x2={184} y2={127} />
+            </>
+          )}
+          {p === 'stuhl' && (
+            <>
+              <rect x={56} y={86} width={30} height={6} rx={2} className="fill" />
+              <line x1={58} y1={92} x2={58} y2={127} />
+              <line x1={84} y1={92} x2={84} y2={127} />
+              <line x1={58} y1={86} x2={58} y2={50} />
+              <line x1={16} y1={127} x2={184} y2={127} />
+            </>
+          )}
+          {p === 'tisch' && (
+            <>
+              <rect x={66} y={60} width={108} height={6} rx={2} className="fill" />
+              <line x1={74} y1={66} x2={74} y2={127} />
+              <line x1={166} y1={66} x2={166} y2={127} />
               <line x1={16} y1={127} x2={184} y2={127} />
             </>
           )}
