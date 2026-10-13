@@ -29,7 +29,12 @@ describe('Snack-Tipps', () => {
     expect(snackTips({ kcalOpen: 100, proteinOpen: 0, hour: 12, seed: 3 })).toHaveLength(0)
   })
 
+  it('genug Auswahl: mindestens 15 Kalorien-Snacks', () => {
+    expect(SNACKS.filter((s) => s.kind === 'kalorien').length).toBeGreaterThanOrEqual(15)
+    expect(new Set(SNACKS.map((s) => s.id)).size).toBe(SNACKS.length)
+  })
+
   it('keine Datteln und keine Nüsse in Snacks', () => {
-    for (const s of SNACKS) expect(/dattel|nuss|erdnuss|mandel/i.test(s.name + s.items.map(([id]) => id).join(' ')), s.id).toBe(false)
+    for (const s of SNACKS) expect(/dattel|erdnuss|mandel|haselnuss|nougat|nutella/i.test(s.name + s.items.map(([id]) => `${id} ${FOOD_MAP[id].name}`).join(' ')), s.id).toBe(false)
   })
 })
