@@ -122,6 +122,7 @@ export type RecipeCategory =
   | 'convenience'
   | 'protein-kreationen'
   | 'protein-guenstig'
+  | 'kalorien-protein'
 
 export type MealSlot = 'fruehstueck' | 'mittag' | 'snack' | 'abend' | 'spaet'
 

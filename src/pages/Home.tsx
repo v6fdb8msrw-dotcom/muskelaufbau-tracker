@@ -51,7 +51,14 @@ export function Home() {
   const plannedMeals = planForWeek(data.mealPlan, weekStart).filter((m) => !m.leftoverOf).length
   const lastCopy = [meta.lastSyncAt, meta.lastBackupAt].filter(Boolean).sort().pop()
   const copyAge = lastCopy ? diffDays(today, lastCopy.slice(0, 10)) : undefined
-  const recipeIdea = proteinOpen > 25 && remaining > 300 ? recipeIdeas('protein', settings, { maxKcal: remaining + 150, limit: 1 })[0] : undefined
+  // Rezeptidee: Sind noch viele Kalorien offen, ein kalorienreiches Rezept mit viel Protein, sonst das eiweißreichste passende
+  const kcalBucket = Math.round(remaining / 100)
+  const recipeIdea = useMemo(() => {
+    if (proteinOpen <= 25 || kcalBucket < 3) return undefined
+    const ideas = recipeIdeas('protein', settings, { maxKcal: kcalBucket * 100 + 150, limit: 200 })
+    const dense = kcalBucket >= 7 ? ideas.filter((i) => i.recipe.category === 'kalorien-protein').sort((a, b) => b.kcal - a.kcal)[0] : undefined
+    return dense ?? ideas[0]
+  }, [settings, kcalBucket, proteinOpen])
   const hh = String(clock.getHours()).padStart(2, '0')
   const mm = String(clock.getMinutes()).padStart(2, '0')
 
@@ -180,7 +187,7 @@ export function Home() {
             {recipeIdea && (
               <a className="hud-idea" href={href(`/rezepte/${recipeIdea.recipe.id}`)}>
                 <span>
-                  Noch {num(proteinOpen)} g Protein: <strong>{recipeIdea.recipe.name}</strong> bringt {num(recipeIdea.value)} g
+                  Noch {num(Math.max(0, remaining))} kcal und {num(proteinOpen)} g Protein offen: <strong>{recipeIdea.recipe.name}</strong> bringt {num(recipeIdea.kcal)} kcal und {num(recipeIdea.value)} g
                 </span>
                 <ArrowUpRight size={15} />
               </a>

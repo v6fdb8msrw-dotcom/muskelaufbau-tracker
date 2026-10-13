@@ -1,6 +1,6 @@
 # Muscle Studio
 
-Persönliche Web-App für 16 Wochen Muskelaufbau: Trainingsplan und Kalender, Übungsanleitungen, Tagesprotokoll, Wochenkorrektur, Kalorien- und Nährstofftracking, 150 Rezepte (davon 50 mit mindestens 40 g Eiweiß), Wochenplan, freie Einkaufsliste mit Budget, Trinktracker, Supplements, Gewicht, Kraft und Links-rechts-Balance der Arme. Optional mit Spotify.
+Persönliche Web-App für 16 Wochen Muskelaufbau: Trainingsplan und Kalender, Übungsanleitungen, Tagesprotokoll, Wochenkorrektur, Kalorien- und Nährstofftracking, 170 Rezepte (davon 70 mit mindestens 40 g Eiweiß), Wochenplan, freie Einkaufsliste mit Budget, Trinktracker, Supplements, Gewicht, Kraft und Links-rechts-Balance der Arme. Optional mit Spotify.
 
 React · TypeScript · Vite · IndexedDB · installierbare PWA (Mac und iPhone). Alle persönlichen Daten bleiben lokal auf dem jeweiligen Gerät.
 
@@ -24,7 +24,7 @@ Weitere Befehle:
 |---|---|
 | `npm run build` | Typprüfung und Produktions-Build nach `dist/` |
 | `npm run preview` | Build lokal ansehen unter http://127.0.0.1:4173, inklusive Service Worker und Offline-Modus |
-| `npm test` | 67 automatische Tests (Rezepte, Ausschlüsse, Nährwerte, Einkauf, Budget, Produktanalyse, Training, Gewicht, Speicher, Backup) |
+| `npm test` | 68 automatische Tests (Rezepte, Ausschlüsse, Nährwerte, Einkauf, Budget, Produktanalyse, Training, Gewicht, Speicher, Backup) |
 | `npm run lint` | Code-Prüfung mit oxlint |
 | `npm run icons` | App-Icons aus `public/logo.svg` neu erzeugen |
 
@@ -56,6 +56,8 @@ Die App ist auf dich zugeschnitten: Startgewicht 60,3 kg, 171 cm, 22 Jahre, 2.15
 - Ein Tipp auf eine Übung öffnet ein Mini-Tutorial: animierte Figur, drei Kernpunkte, typische Fehler, YouTube-Kurzvideos und die passende Übung für später im Gym. Keine Beinübungen, keine Klimmzugstange.
 
 **iPhone ↔ Mac per AirDrop:** Shortcut *Sync* auf der Startseite (oder *Einstellungen → Daten & Sync*). Auf dem einen Gerät „Per AirDrop senden“ (am Mac ohne Teilen-Menü: Datei erstellen und im Finder per AirDrop teilen), auf dem anderen „Datei auswählen“ und „Übernehmen“. Die Daten werden zusammengeführt: Neues kommt dazu, bei gleichen Einträgen gewinnt der neuere Stand, Gelöschtes bleibt gelöscht, Einstellungen kommen vom Gerät, auf dem sie zuletzt geändert wurden. Es gibt keinen Server, die Datei geht nur dorthin, wohin du sie schickst.
+
+**Kalorien & Protein:** 20 Rezepte mit 720–1.050 kcal und mindestens 40 g Eiweiß auf kleiner Portion, für Tage, an denen du nicht genug Kalorien schaffst: fünf Shakes (Flüssiges macht kaum satt) und Gerichte wie Carbonara, Käsespätzle mit Hähnchen, Gyros-Reispfanne, Burrito oder Lachs mit Butterreis. Dafür neu in der Datenbank: Vollmilch 3,5 % und Sahnequark 40 %. In der Rezeptliste sortiert „Kalorien“ danach, und die Rezeptidee auf der Startseite schlägt bei über 700 offenen kcal ein solches Rezept vor.
 
 **Updates:** Nach jedem Push lädt die installierte App die neue Version von selbst, sobald kein Dialog offen ist und du nichts tippst. Sie schaut beim Öffnen und alle 30 Minuten nach.
 
@@ -117,7 +119,7 @@ Ohne Einrichtung kannst du Links zu deinen Playlists speichern und mit einem Tip
 
 ```
 src/
-  data/        Lebensmittel, 150 Rezepte, Übungen, Trainingsplan, DGE-Referenzwerte, Startwerte, ESN-Produkte
+  data/        Lebensmittel, 170 Rezepte, Übungen, Trainingsplan, DGE-Referenzwerte, Startwerte, ESN-Produkte
   domain/      Reine Logik: Nährwerte, Ausschlüsse, Training, Gewicht, Einkauf, Wochenplan, Wochenkorrektur
   storage/     DataRepository (Interface), IndexedDBRepository, Backup/Import, localStorage-Helfer
   state/       React-Store, Aktionen, Router, Toasts

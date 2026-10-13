@@ -217,12 +217,28 @@ export const FOODS: Food[] = [
     per100: { kcal: 47, protein: 3.4, carbs: 4.8, sugar: 4.8, fat: 1.5, satFat: 1, fiber: 0, vitA: 15, b1: 0.04, b2: 0.18, b3: 0.09, b5: 0.35, b6: 0.04, biotin: 3, folate: 5, b12: 0.4, vitC: 1, vitD: 0.02, vitE: 0.03, vitK: 0.2, calcium: 120, magnesium: 11, potassium: 150, iron: 0.03, zinc: 0.4, iodine: 11, selenium: 1.4, phosphorus: 92, copper: 0.01, sodium: 44, omega3: 0.01, epaDha: 0, ala: 0.01 },
   },
   {
+    id: 'vollmilch',
+    name: 'Vollmilch 3,5 %',
+    category: 'milch',
+    unit: 'ml',
+    pack: { amount: 1000, label: '1-l-Packung', price: 1.19 },
+    per100: { kcal: 64, protein: 3.3, carbs: 4.8, sugar: 4.8, fat: 3.5, satFat: 2.3, fiber: 0, vitA: 30, b1: 0.04, b2: 0.18, b3: 0.09, b5: 0.35, b6: 0.04, biotin: 3, folate: 5, b12: 0.4, vitC: 1, vitD: 0.08, vitE: 0.08, calcium: 120, magnesium: 11, potassium: 150, iron: 0.03, zinc: 0.4, iodine: 11, selenium: 1.4, phosphorus: 92, copper: 0.01, sodium: 44 },
+  },
+  {
     id: 'magerquark',
     name: 'Magerquark',
     category: 'milch',
     unit: 'g',
     pack: { amount: 500, label: '500-g-Becher', price: 1.29 },
     per100: { kcal: 67, protein: 12, carbs: 4, sugar: 4, fat: 0.3, satFat: 0.2, fiber: 0, vitA: 2, b1: 0.04, b2: 0.3, b3: 0.2, b12: 0.8, vitC: 0, calcium: 90, magnesium: 11, potassium: 130, iron: 0.1, zinc: 0.5, phosphorus: 160, copper: 0.02, sodium: 40 },
+  },
+  {
+    id: 'quark40',
+    name: 'Speisequark 40 % (Sahnequark)',
+    category: 'milch',
+    unit: 'g',
+    pack: { amount: 500, label: '500-g-Becher', price: 1.69 },
+    per100: { kcal: 160, protein: 11, carbs: 3.3, sugar: 3.3, fat: 11.4, satFat: 7, fiber: 0, vitA: 100, b2: 0.25, b12: 0.6, calcium: 85, magnesium: 10, potassium: 110, phosphorus: 150, zinc: 0.5, sodium: 35 },
   },
   {
     id: 'skyr',

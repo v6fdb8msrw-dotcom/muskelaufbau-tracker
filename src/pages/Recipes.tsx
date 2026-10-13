@@ -12,7 +12,7 @@ import { MealPlanView } from './recipes/MealPlanView'
 import { RecipeDetail } from './recipes/RecipeDetail'
 
 type Tab = 'rezepte' | 'einkauf' | 'lebensmittel'
-type Sort = 'protein' | 'dichte' | 'kosten' | 'zeit' | 'name'
+type Sort = 'protein' | 'kcal' | 'dichte' | 'kosten' | 'zeit' | 'name'
 
 /** Ab dieser Menge gilt ein Rezept als proteinreich. */
 const HIGH_PROTEIN = 40
@@ -70,6 +70,7 @@ function RecipeList({ summaries }: { summaries: ReturnType<typeof allRecipeSumma
       .filter((s) => !query || s.recipe.name.toLowerCase().includes(query) || s.calc.lines.some((l) => l.included && l.food.name.toLowerCase().includes(query)))
       .sort((a, b) => {
         if (sort === 'protein') return b.protein - a.protein
+        if (sort === 'kcal') return b.kcal - a.kcal
         if (sort === 'dichte') return b.protein / Math.max(b.kcal, 1) - a.protein / Math.max(a.kcal, 1)
         if (sort === 'kosten') return a.cost.shopping - b.cost.shopping
         if (sort === 'zeit') return a.recipe.minutes - b.recipe.minutes
@@ -96,6 +97,7 @@ function RecipeList({ summaries }: { summaries: ReturnType<typeof allRecipeSumma
           onChange={setSort}
           options={[
             { value: 'protein', label: 'Protein' },
+            { value: 'kcal', label: 'Kalorien' },
             { value: 'dichte', label: 'Protein/kcal' },
             { value: 'kosten', label: 'Preis' },
             { value: 'zeit', label: 'Zeit' },
