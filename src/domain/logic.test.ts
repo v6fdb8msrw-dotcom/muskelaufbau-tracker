@@ -15,6 +15,7 @@ import {
   plannedSessionsForWeek,
   programWeek,
   progressionHints,
+  sessionMinutes,
   sessionStatus,
   setSlots,
   setsForWeek,
@@ -103,30 +104,41 @@ describe('Tagesprotokoll und Nährwerte', () => {
 })
 
 describe('Training', () => {
-  it('Pull und Push im Wechsel: Mo, Di, Do, Fr plus Tag C als 5. Einheit', () => {
+  it('Jeden Tag: Mo–Sa Pull und Push im Wechsel mit Calisthenics-Block, Sonntag locker', () => {
     const s = settingsWith()
     const week1 = plannedSessionsForWeek(s, [], 1)
-    expect(week1.map((p) => p.date)).toEqual(['2026-10-12', '2026-10-13', '2026-10-15', '2026-10-16', '2026-10-17'])
-    expect(week1.map((p) => p.sessionId)).toEqual(['pull-a', 'push-b', 'pull-a', 'push-b', 'arme-c'])
-    expect(week1.every((p) => !p.optional)).toBe(true)
-    const sunday = settingsWith((x) => ({ ...x, program: { ...x.program, extraDay: 'so' } }))
-    expect(plannedSessionsForWeek(sunday, [], 1).at(-1)?.date).toBe('2026-10-18')
-    const four = settingsWith((x) => ({ ...x, program: { ...x.program, extraDay: 'aus' } }))
-    expect(plannedSessionsForWeek(four, [], 1)).toHaveLength(4)
-    // Tag C zählt bei 5 Einheiten wie jede andere Einheit
-    expect(sessionStatus(week1[4], [], '2026-10-19')).toBe('missed')
-    // Farmer’s Walk 15 min zu Beginn jeder Einheit
-    for (const x of SESSIONS) expect(x.warmup, x.id).toMatchObject({ exerciseId: 'farmers-walk', min: 15, max: 15 })
-    // Rudern nur einmal pro Woche, am Ende der letzten Einheit
-    expect(week1.filter((p) => p.rowing).map((p) => p.date)).toEqual(['2026-10-17'])
-    expect(plannedSessionsForWeek(settingsWith((x) => ({ ...x, program: { ...x.program, extraDay: 'aus' } })), [], 1).filter((p) => p.rowing).map((p) => p.date)).toEqual(['2026-10-16'])
+    expect(week1).toHaveLength(13)
+    expect(week1.filter((p) => p.date === '2026-10-12').map((p) => p.sessionId)).toEqual(['pull-a', 'cali-a'])
+    expect(week1.filter((p) => p.date === '2026-10-13').map((p) => p.sessionId)).toEqual(['push-b', 'cali-b'])
+    expect(week1.filter((p) => p.sessionId === 'pull-a').map((p) => p.date)).toEqual(['2026-10-12', '2026-10-14', '2026-10-16'])
+    expect(week1.filter((p) => p.sessionId === 'push-b').map((p) => p.date)).toEqual(['2026-10-13', '2026-10-15', '2026-10-17'])
+    expect(week1.map((p) => p.key)).toContain('w1-mo-cali')
+    // Sonntag freiwillig: Farmer’s Walk und die 15 Minuten Rudern der Woche
+    const sunday = week1.at(-1)!
+    expect(sunday).toMatchObject({ date: '2026-10-18', sessionId: 'leicht', optional: true, rowing: true })
+    expect(SESSION_MAP.leicht.warmup).toMatchObject({ exerciseId: 'farmers-walk', min: 15, max: 15 })
+    expect(week1.filter((p) => p.rowing)).toHaveLength(1)
+    expect(sessionStatus(sunday, [], '2026-10-19')).toBe('skipped')
+    expect(sessionStatus(week1[1], [], '2026-10-13')).toBe('missed')
   })
 
-  it('Plan: nur Oberkörper, jeder Muskel 2× pro Woche, keine Klimmzugstange', () => {
+  it('Richtzeit pro Block: Hanteln etwa 20–30 min, Calisthenics etwa 10–15 min', () => {
+    const s = settingsWith()
+    const min = (id: 'pull-a' | 'push-b' | 'cali-a' | 'cali-b', week: number) => sessionMinutes(SESSION_MAP[id], s, week)
+    expect([min('pull-a', 1), min('push-b', 1), min('cali-a', 1), min('cali-b', 1)]).toEqual([20, 20, 10, 10])
+    for (const week of [1, 6, 10, 16]) {
+      for (const id of ['pull-a', 'push-b'] as const) expect(min(id, week), `${id} W${week}`).toBeLessThanOrEqual(30)
+      for (const id of ['cali-a', 'cali-b'] as const) expect(min(id, week), `${id} W${week}`).toBeLessThanOrEqual(15)
+    }
+    expect(sessionMinutes(SESSION_MAP.leicht, s, 1, true)).toBe(30)
+  })
+
+  it('Plan: nur Oberkörper, jeder Muskel 3× pro Woche, keine Klimmzugstange', () => {
     const groups = (id: string) => SESSION_MAP[id as 'pull-a'].exercises.filter((e) => !e.optional).map((e) => EXERCISE_MAP[e.exerciseId].group)
-    expect(groups('pull-a')).toEqual(expect.arrayContaining(['ruecken', 'bizeps', 'bauch']))
-    expect(groups('push-b')).toEqual(expect.arrayContaining(['brust', 'schulter', 'trizeps', 'bauch']))
-    expect(groups('arme-c')).toEqual(expect.arrayContaining(['bizeps', 'trizeps']))
+    expect(groups('pull-a')).toEqual(expect.arrayContaining(['ruecken', 'bizeps']))
+    expect(groups('push-b')).toEqual(expect.arrayContaining(['brust', 'schulter', 'trizeps']))
+    expect(groups('cali-a')).toEqual(['bauch', 'bauch'])
+    expect(groups('cali-b')).toEqual(expect.arrayContaining(['brust', 'bauch']))
     for (const session of SESSIONS) {
       for (const e of session.exercises) {
         const ex = EXERCISE_MAP[e.exerciseId]
@@ -135,21 +147,22 @@ describe('Training', () => {
     }
   })
 
-  it('Wöchentliche Sätze in der Aufbauphase: mindestens 10 je Schwerpunkt-Muskel', () => {
+  it('Wöchentliche Sätze in der Aufbauphase: etwa 10–15 je Schwerpunkt-Muskel', () => {
     const week = 6
     const sets: Record<string, number> = {}
-    for (const id of ['pull-a', 'push-b', 'pull-a', 'push-b'] as const) {
-      for (const pe of SESSION_MAP[id].exercises.filter((e) => !e.optional)) {
+    const s = settingsWith()
+    for (const p of plannedSessionsForWeek(s, [], week)) {
+      for (const pe of SESSION_MAP[p.sessionId].exercises.filter((e) => !e.optional)) {
         const g = EXERCISE_MAP[pe.exerciseId].group
         sets[g] = (sets[g] ?? 0) + setsForWeek(pe, week)
       }
     }
-    for (const g of ['ruecken', 'bizeps', 'brust', 'trizeps', 'schulter']) expect(sets[g] ?? 0, g).toBeGreaterThanOrEqual(6)
+    for (const g of ['ruecken', 'bizeps', 'brust', 'trizeps', 'schulter']) expect(sets[g] ?? 0, g).toBeGreaterThanOrEqual(9)
     expect(sets.ruecken).toBeGreaterThanOrEqual(10)
-    expect(sets.bizeps).toBeGreaterThanOrEqual(10)
+    expect(sets.brust).toBeGreaterThanOrEqual(10)
   })
 
-  it('Phasen: Technik 2 Sätze, Aufbau 3, Intensiv 4 für Schwerpunkte, Testwoche 2', () => {
+  it('Phasen: 2 Sätze, ab Woche 4 Schwerpunkt 3, Testwoche 2', () => {
     expect(PHASES.map((p) => [p.from, p.to])).toEqual([
       [1, 3],
       [4, 8],
@@ -158,9 +171,9 @@ describe('Training', () => {
       [16, 16],
     ])
     const curl = SESSION_MAP['pull-a'].exercises.find((e) => e.exerciseId === 'bizepscurl')!
-    const fly = SESSION_MAP['pull-a'].exercises.find((e) => e.exerciseId === 'reverse-fly')!
-    expect([1, 4, 10, 14, 16].map((w) => setsForWeek(curl, w))).toEqual([2, 3, 4, 4, 2])
-    expect([1, 4, 10, 14, 16].map((w) => setsForWeek(fly, w))).toEqual([2, 3, 3, 3, 2])
+    const row = SESSION_MAP['pull-a'].exercises.find((e) => e.exerciseId === 'kh-rudern-vorgebeugt')!
+    expect([1, 4, 10, 14, 16].map((w) => setsForWeek(curl, w))).toEqual([2, 3, 3, 3, 2])
+    expect([1, 4, 10, 14, 16].map((w) => setsForWeek(row, w))).toEqual([2, 2, 2, 2, 2])
   })
 
   it('Tutorials: jede Planübung hat Kurzanleitung, Video und animierte Figur', () => {
@@ -184,7 +197,7 @@ describe('Training', () => {
       expect(ex.startWeight?.kg ?? ex.startWeight?.text, id).toBeTruthy()
       if (!ex.bodyweight && ex.group !== 'ausdauer' && ex.measure === 'reps') expect(ex.startWeight?.kg, id).toBeDefined()
     }
-    expect(startWeightLabel(EXERCISE_MAP['bizepscurl'])).toBe('5–6 kg (eine Hantel)')
+    expect(startWeightLabel(EXERCISE_MAP['bizepscurl'])).toBe('4–5 kg (eine Hantel)')
     expect(startWeightLabel(EXERCISE_MAP['seitheben'])).toBe('2–3 kg pro Hand')
   })
 
@@ -201,7 +214,7 @@ describe('Training', () => {
   })
 
   it('in den ersten drei Wochen höchstens zwei Arbeitssätze', () => {
-    const pe = { exerciseId: 'floor-press', sets: 3, min: 8, max: 12, unit: 'reps' as const }
+    const pe = { exerciseId: 'floor-press', sets: 3, min: 8, max: 12, unit: 'reps' as const, priority: true }
     expect(setsForWeek(pe, 1)).toBe(2)
     expect(setsForWeek(pe, 3)).toBe(2)
     expect(setsForWeek(pe, 4)).toBe(3)
@@ -209,7 +222,7 @@ describe('Training', () => {
 
   it('einarmige Übungen beginnen mit der schwächeren Seite, ab Woche 4 mit Zusatzsatz', () => {
     const s = settingsWith((x) => ({ ...x, arms: { weakerSide: 'right' }, program: { ...x.program, extraWeakSet: false } }))
-    const curl = { exerciseId: 'bizepscurl', sets: 3, perSide: true, min: 10, max: 15, unit: 'reps' as const }
+    const curl = { exerciseId: 'bizepscurl', sets: 3, perSide: true, min: 10, max: 15, unit: 'reps' as const, priority: true }
     const slots = setSlots(curl, s, 5)
     expect(slots[0].side).toBe('right')
     expect(slots[1].side).toBe('left')
@@ -237,14 +250,12 @@ describe('Training', () => {
   })
 
   it('verpasste Einheit: Nachholtag ohne Doppelbelastung', () => {
-    const s = settingsWith((x) => ({ ...x, program: { ...x.program, extraDay: 'aus' } }))
+    const s = settingsWith()
     const week = plannedSessionsForWeek(s, [], 1)
     const monday = week[0]
     expect(sessionStatus(monday, [], '2026-10-13')).toBe('missed')
-    // Mi liegt neben Do (auch Pull), deshalb Samstag
-    const day = makeupDay(monday, week, '2026-10-13')
-    expect(day).toBe('2026-10-17')
-    expect(week.some((x) => x.date === day)).toBe(false)
+    // Mo–Sa sind belegt, frei ist nur der lockere Sonntag
+    expect(makeupDay(monday, week, '2026-10-13')).toBe('2026-10-18')
   })
 
   it('Trainings aus dem früheren Plan zählen weiter', () => {

@@ -970,3 +970,24 @@
   margin-top: 4px;
   color: var(--neon-ink);
 }
+
+/* Training: zwei Blöcke pro Tag (Hanteln, später Calisthenics) */
+.session-block + .session-block {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line-2);
+}
+
+.block-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.block-head .grow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 8px;
+}

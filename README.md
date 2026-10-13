@@ -24,7 +24,7 @@ Weitere Befehle:
 |---|---|
 | `npm run build` | Typprüfung und Produktions-Build nach `dist/` |
 | `npm run preview` | Build lokal ansehen unter http://127.0.0.1:4173, inklusive Service Worker und Offline-Modus |
-| `npm test` | 76 automatische Tests (Rezepte, Ausschlüsse, Nährwerte, Einkauf, Budget, Produktanalyse, Training, Gewicht, Speicher, Backup) |
+| `npm test` | 77 automatische Tests (Rezepte, Ausschlüsse, Nährwerte, Einkauf, Budget, Produktanalyse, Training, Gewicht, Speicher, Backup) |
 | `npm run lint` | Code-Prüfung mit oxlint |
 | `npm run icons` | App-Icons aus `public/logo.svg` neu erzeugen |
 
@@ -47,14 +47,15 @@ Die App ist auf dich zugeschnitten: Startgewicht 60,3 kg, 171 cm, 22 Jahre. Ziel
 
 **Günstig & proteinreich:** 20 weitere Rezepte mit mindestens 40 g Eiweiß für höchstens 2 € Zutaten pro Portion (Schätzpreise), z. B. Rote-Linsen-Dal, Quarkbrötchen, Soja-Gyros, Eiersalat mit Quark, Seelachs in Haferflocken-Kruste. Der Filter „Bis 2 €“ in der Rezeptliste zeigt alle günstigen Rezepte.
 
-**Trainingsplan (16 Wochen, nur Oberkörper, 5× pro Woche):** Pull und Push im Wechsel, damit jeder Muskel 2× pro Woche dran ist: Montag Tag A (Pull), Dienstag Tag B (Push), Donnerstag Pull, Freitag Push, Samstag Tag C (Arme & Calisthenics), damit Bizeps und Trizeps 3× pro Woche trainiert werden. Unter *Einstellungen → Training* auf Sonntag legen oder auf 4 Einheiten reduzieren. Einstieg jeder Einheit: 15 Minuten Farmer’s Walk auf dem Walking-Pad (2–4 km/h, leichte Hanteln), danach 1–2 leichte Sätze der ersten Übung. Das Wasser-Rudergerät kommt einmal pro Woche für 15 Minuten am Ende der letzten Einheit dran (Intensität nur über Kraft und Schlagzahl).
-- *Tag A · Pull:* einarmiges Rudern, vorgebeugtes Rudern, Reverse Fly, Bizepscurls, Hammer Curls, Reverse Crunch. Optional Tischrudern und Kurzhantel-Swing.
-- *Tag B · Push:* Liegestütze (in Stufen), Floor Press, Schulterdrücken, Seitheben, Trizepsstrecken über Kopf, Plank bis zum Versagen. Optional Boden-Flys.
-- *Tag C · Arme & Calisthenics:* enge Liegestütze, Dips an Stuhl oder Sofa, Konzentrationscurls, Trizeps-Kickbacks, Hollow Body, Russian Twist. Optional Halo.
-- *Phasen:* Woche 1–3 Technik (2 Sätze, 2–3 Wiederholungen Reserve), 4–8 Aufbau (3 Sätze, 1–2 Reserve, Zusatzsatz für den linken Arm), 9–12 Intensiv (Schwerpunkt-Übungen 4 Sätze, letzter Satz knapp ans Versagen), 13–15 Peak (letzter Satz bis zum Versagen, langsame Negative), 16 Test & Entlastung.
+**Trainingsplan (16 Wochen, nur Oberkörper, jeden Tag kurz):** Montag bis Samstag Tag A (Pull) und Tag B (Push) im Wechsel. Jeder Tag hat zwei Blöcke: erst Hanteln, 1–2 Stunden später Calisthenics. So kommt jeder Muskel 3× pro Woche dran und hat dazwischen einen Tag Pause. Sonntag ist freiwillig und locker: 15 Minuten Farmer’s Walk auf dem Walking-Pad (2–4 km/h, leichte Hanteln) und 15 Minuten Wasser-Rudergerät. Jede Einheit und jeder Tag zeigt eine Richtzeit (Pausen eingerechnet, ohne optionale Übungen): in Woche 1–3 etwa 20 Minuten Hanteln plus 10 Minuten Calisthenics, später etwa 25–30 plus 10–15.
+- *Tag A · Hanteln:* einarmiges Rudern, vorgebeugtes Rudern, Bizepscurls. Optional Hammer Curls und Reverse Fly. *Calisthenics:* Plank bis zum Versagen, Reverse Crunch, optional Tischrudern.
+- *Tag B · Hanteln:* Floor Press, Schulterdrücken, Seitheben, Trizepsstrecken über Kopf. Optional Boden-Flys. *Calisthenics:* Liegestütze (in Stufen), Crunches, Hollow Body, optional Dips an Stuhl oder Sofa.
+- Vor den Hanteln 2–3 Minuten Armkreisen und ein leichter Satz der ersten Übung.
+- *Phasen:* Woche 1–3 Technik (2 Sätze, 2–3 Wiederholungen Reserve), 4–8 Aufbau (Schwerpunkt-Übungen 3 Sätze, 1–2 Reserve, Zusatzsatz für den linken Arm), 9–12 Intensiv (letzter Satz knapp ans Versagen), 13–15 Peak (letzter Satz bis zum Versagen, langsame Negative), 16 Test & Entlastung. Weil jeder Muskel 3× pro Woche dran ist, bleibt es bei höchstens 3 Sätzen pro Übung.
+- Bis Oktober 2026 gab es Tag C (Arme & Calisthenics); frühere Einträge bleiben gültig.
 - Einarmig immer links zuerst, rechts gleiches Gewicht und gleiche Wiederholungen. Steigerung: Schaffst du in allen Sätzen die obere Zahl sauber, schlägt die App mehr Gewicht oder die nächste Stufe vor.
 - Ein Tipp auf eine Übung öffnet ein Mini-Tutorial: animierte Figur, Startgewicht („Zum Start“), drei Kernpunkte, typische Fehler, YouTube-Kurzvideos und die passende Übung für später im Gym. Keine Beinübungen, keine Klimmzugstange.
-- Startgewichte: Jede Planübung hat eine Empfehlung (z. B. Bizepscurls 5–6 kg, Floor Press 8–10 kg pro Hand, Seitheben 2–3 kg pro Hand; bei Körpergewichtsübungen die passende Stufe). Solange es zu einer Übung noch keinen Eintrag gibt, zeigt der Logger sie als Hinweis und als Platzhalter im kg-Feld. Danach zählt das zuletzt eingetragene Gewicht. Faustregel: Schaffst du in allen Sätzen sauber die obere Wiederholungszahl, +1–2 kg; schaffst du keine 10, leichter. Der schwächere linke Arm bestimmt das Gewicht.
+- Startgewichte: Jede Planübung hat eine Empfehlung (z. B. Bizepscurls 4–5 kg, Floor Press 8–10 kg pro Hand, Seitheben 2–3 kg pro Hand; bei Körpergewichtsübungen die passende Stufe). Solange es zu einer Übung noch keinen Eintrag gibt, zeigt der Logger sie als Hinweis und als Platzhalter im kg-Feld. Danach zählt das zuletzt eingetragene Gewicht. Faustregel: Schaffst du in allen Sätzen sauber die obere Wiederholungszahl, +1–2 kg; schaffst du keine 10, leichter. Der schwächere linke Arm bestimmt das Gewicht.
 
 **iPhone ↔ Mac per AirDrop:** Shortcut *Sync* auf der Startseite (oder *Einstellungen → Daten & Sync*). Auf dem einen Gerät „Per AirDrop senden“ (am Mac ohne Teilen-Menü: Datei erstellen und im Finder per AirDrop teilen), auf dem anderen „Datei auswählen“ und „Übernehmen“. Die Daten werden zusammengeführt: Neues kommt dazu, bei gleichen Einträgen gewinnt der neuere Stand, Gelöschtes bleibt gelöscht, Einstellungen kommen vom Gerät, auf dem sie zuletzt geändert wurden. Es gibt keinen Server, die Datei geht nur dorthin, wohin du sie schickst.
 

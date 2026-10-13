@@ -1,19 +1,20 @@
 import type { CardioBlock, SessionId, TrainingSession } from '../types'
 
-/** Einstieg jeder Einheit: Farmer’s Walk mit leichten Hanteln (Griff soll für Rudern und Curls frisch bleiben). */
+/** Farmer’s Walk mit leichten Hanteln, am lockeren Sonntag. */
 const FARMERS_WALK: CardioBlock = { exerciseId: 'farmers-walk', min: 15, max: 15, note: 'Walking-Pad 2–4 km/h, leichte Hanteln' }
 
-/** Danach gezielt aufwärmen mit der ersten Übung. */
-const WARMUP = '1–2 leichte Sätze der ersten Übung mit etwa halbem Gewicht'
+/** Kurz aufwärmen vor den Hanteln. */
+const WARMUP = '2–3 Minuten Armkreisen, dann 1 leichter Satz der ersten Übung mit etwa halbem Gewicht'
 
-/** Rudern einmal pro Woche, am Ende der letzten Einheit (nach dem Krafttraining, damit die Sätze frisch bleiben). */
+/** Rudern einmal pro Woche, locker am Sonntag. */
 export const WEEKLY_ROWING: CardioBlock = { exerciseId: 'rudergeraet', min: 15, max: 15, note: 'Einmal pro Woche, locker' }
 
 /**
  * Der Trainingsplan: 100 % Oberkörper für einen Einsteiger mit großem Seitenunterschied.
- * Pull und Push im Wechsel (jeder Muskel 2× pro Woche), dazu als 5. Einheit Tag C für Arme
- * und Calisthenics (Bizeps und Trizeps 3× pro Woche). Der Umfang steigt über 16 Wochen in Phasen (siehe PHASES): Technik zuerst,
- * dann mehr Sätze und Sätze näher am Muskelversagen. Einarmig immer links zuerst.
+ * Jeden Tag kurz: Montag bis Samstag Pull (A) und Push (B) im Wechsel, erst Hanteln,
+ * 1–2 Stunden später ein Calisthenics-Block. So kommt jeder Muskel 3× pro Woche dran und hat
+ * dazwischen einen Tag Pause. Sonntag ist Hantelpause (locker Farmer’s Walk und Rudern).
+ * Der Umfang steigt über 16 Wochen in Phasen (siehe PHASES). Einarmig immer links zuerst.
  * Keine Beinübungen, keine Klimmzugstange.
  */
 export const SESSIONS: TrainingSession[] = [
@@ -21,53 +22,65 @@ export const SESSIONS: TrainingSession[] = [
     id: 'pull-a',
     title: 'Tag A · Pull',
     short: 'Pull',
-    focus: 'Rücken und Bizeps, dazu unterer Bauch.',
-    warmup: FARMERS_WALK,
+    focus: 'Rücken und Bizeps mit Hanteln.',
+    block: 'Hanteln',
     warmupText: WARMUP,
     exercises: [
       { exerciseId: 'rudern', sets: 3, perSide: true, min: 10, max: 15, unit: 'reps', priority: true, note: 'Hauptübung Rücken' },
-      { exerciseId: 'kh-rudern-vorgebeugt', sets: 3, min: 10, max: 15, unit: 'reps', priority: true },
-      { exerciseId: 'reverse-fly', sets: 3, min: 12, max: 20, unit: 'reps', note: 'Leichte Hanteln, Haltung' },
+      { exerciseId: 'kh-rudern-vorgebeugt', sets: 3, min: 10, max: 15, unit: 'reps' },
       { exerciseId: 'bizepscurl', sets: 3, perSide: true, min: 10, max: 15, unit: 'reps', priority: true, note: 'Ohne Schwung' },
-      { exerciseId: 'hammer-curl', sets: 3, perSide: true, min: 10, max: 15, unit: 'reps', note: 'Für Armdicke und Unterarm' },
-      { exerciseId: 'reverse-crunch', sets: 3, min: 10, max: 15, unit: 'reps' },
+      { exerciseId: 'hammer-curl', sets: 2, perSide: true, min: 10, max: 15, unit: 'reps', optional: true, note: 'Für Armdicke und Unterarm' },
+      { exerciseId: 'reverse-fly', sets: 2, min: 12, max: 20, unit: 'reps', optional: true, note: 'Leichte Hanteln, Haltung' },
+    ],
+  },
+  {
+    id: 'cali-a',
+    title: 'Tag A · Calisthenics',
+    short: 'Cali A',
+    focus: 'Bauch und Rumpf, 1–2 Stunden nach den Hanteln.',
+    block: 'Calisthenics · 1–2 h später',
+    exercises: [
+      { exerciseId: 'plank', sets: 2, min: 20, max: 120, unit: 'sec', toFailure: true, note: 'Bis zum Muskelversagen' },
+      { exerciseId: 'reverse-crunch', sets: 2, min: 10, max: 15, unit: 'reps' },
       { exerciseId: 'tischrudern', sets: 2, min: 6, max: 15, unit: 'reps', optional: true, note: 'Nur an einem sehr stabilen Tisch' },
-      { exerciseId: 'kh-swing', sets: 2, min: 15, max: 15, unit: 'reps', optional: true, note: 'Kettlebell-Ersatz' },
     ],
   },
   {
     id: 'push-b',
     title: 'Tag B · Push',
     short: 'Push',
-    focus: 'Brust, Schultern und Trizeps, dazu Rumpf.',
-    warmup: FARMERS_WALK,
+    focus: 'Brust, Schultern und Trizeps mit Hanteln.',
+    block: 'Hanteln',
     warmupText: WARMUP,
     exercises: [
-      { exerciseId: 'liegestuetze', sets: 3, min: 8, max: 20, unit: 'reps', priority: true, note: 'Deine Stufe, siehe Anleitung' },
       { exerciseId: 'floor-press', sets: 3, min: 10, max: 15, unit: 'reps', priority: true },
       { exerciseId: 'schulterdruecken', sets: 3, min: 10, max: 15, unit: 'reps' },
       { exerciseId: 'seitheben', sets: 3, min: 12, max: 20, unit: 'reps', note: 'Für breitere Schultern' },
       { exerciseId: 'trizeps-ueberkopf', sets: 3, perSide: true, min: 10, max: 15, unit: 'reps', priority: true },
-      { exerciseId: 'plank', sets: 3, min: 20, max: 120, unit: 'sec', toFailure: true, note: 'Bis zum Muskelversagen' },
       { exerciseId: 'boden-flys', sets: 2, min: 12, max: 15, unit: 'reps', optional: true },
     ],
   },
   {
-    id: 'arme-c',
-    title: 'Tag C · Arme & Calisthenics',
-    short: 'Arme',
-    focus: 'Fünfte Einheit für Bizeps und Trizeps mit Calisthenics-Übungen.',
-    warmup: FARMERS_WALK,
-    warmupText: WARMUP,
+    id: 'cali-b',
+    title: 'Tag B · Calisthenics',
+    short: 'Cali B',
+    focus: 'Liegestütze und Bauch, 1–2 Stunden nach den Hanteln.',
+    block: 'Calisthenics · 1–2 h später',
     exercises: [
-      { exerciseId: 'diamant-liegestuetze', sets: 3, min: 6, max: 15, unit: 'reps', priority: true },
-      { exerciseId: 'stuhl-dips', sets: 3, min: 8, max: 15, unit: 'reps', priority: true },
-      { exerciseId: 'konzentrationscurl', sets: 3, perSide: true, min: 10, max: 15, unit: 'reps', priority: true },
-      { exerciseId: 'trizeps-kickback', sets: 3, perSide: true, min: 12, max: 15, unit: 'reps' },
-      { exerciseId: 'hollow-body', sets: 3, min: 15, max: 45, unit: 'sec', toFailure: true },
-      { exerciseId: 'russian-twist', sets: 2, min: 15, max: 15, unit: 'reps', repsPerSide: true, note: 'Mit Kurzhantel' },
-      { exerciseId: 'kh-halo', sets: 2, min: 10, max: 10, unit: 'reps', optional: true, note: 'Kettlebell-Ersatz, je Richtung' },
+      { exerciseId: 'liegestuetze', sets: 3, min: 8, max: 20, unit: 'reps', priority: true, note: 'Deine Stufe, siehe Anleitung' },
+      { exerciseId: 'crunch', sets: 2, min: 12, max: 20, unit: 'reps' },
+      { exerciseId: 'hollow-body', sets: 2, min: 15, max: 45, unit: 'sec', toFailure: true },
+      { exerciseId: 'stuhl-dips', sets: 2, min: 8, max: 15, unit: 'reps', optional: true },
     ],
+  },
+  {
+    id: 'leicht',
+    title: 'Sonntag · Locker',
+    short: 'Locker',
+    focus: 'Hantelpause. Farmer’s Walk und Rudern, beides locker.',
+    block: 'Locker',
+    warmup: FARMERS_WALK,
+    exercises: [],
   },
 ]
 
@@ -76,7 +89,7 @@ export interface Phase {
   name: string
   from: number
   to: number
-  /** Sätze je Übung (Schwerpunkt-Übungen bekommen in Phase 3 und 4 einen mehr) */
+  /** Sätze je Übung (Schwerpunkt-Übungen bekommen ab Phase 2 einen mehr) */
   sets: number
   prioritySets: number
   /** Wie nah am Muskelversagen, in Worten */
@@ -105,11 +118,11 @@ export const PHASES: Phase[] = [
     name: 'Aufbau',
     from: 4,
     to: 8,
-    sets: 3,
+    sets: 2,
     prioritySets: 3,
     effort: '1–2 Wiederholungen wären noch gegangen',
     rules: [
-      'Jetzt 3 Sätze. Schaffst du in allen Sätzen die obere Zahl sauber, nächstes Mal mehr Gewicht (oder schwerere Stufe).',
+      'Die wichtigsten Übungen (Rudern, Bizepscurls, Floor Press, Trizeps, Liegestütze) bekommen einen 3. Satz. Schaffst du in allen Sätzen die obere Zahl sauber, nächstes Mal mehr Gewicht (oder schwerere Stufe).',
       'Ab jetzt ein Zusatzsatz nur für den linken Arm bei den einarmigen Armübungen.',
       'Pausen: 60–90 Sekunden bei Armübungen, bis 2 Minuten bei Rudern und Drücken.',
     ],
@@ -119,13 +132,14 @@ export const PHASES: Phase[] = [
     name: 'Intensiv',
     from: 9,
     to: 12,
-    sets: 3,
-    prioritySets: 4,
+    sets: 2,
+    prioritySets: 3,
     effort: 'Letzter Satz bis knapp ans Versagen',
     rules: [
-      'Schwerpunkt-Übungen (Arme, Rücken, Brust) bekommen einen 4. Satz.',
+      'Mehr Intensität statt mehr Sätze: Jeder Muskel kommt 3× pro Woche dran, das reicht an Umfang.',
       'Im letzten Satz so viele saubere Wiederholungen wie möglich.',
       'Liegestütze eine Stufe schwerer, sobald 3 × 20 klappen.',
+      'Sehr müde? Dann den Calisthenics-Block weglassen, das kostet fast nichts.',
     ],
   },
   {
@@ -133,8 +147,8 @@ export const PHASES: Phase[] = [
     name: 'Peak',
     from: 13,
     to: 15,
-    sets: 3,
-    prioritySets: 4,
+    sets: 2,
+    prioritySets: 3,
     effort: 'Letzter Satz bis zum Versagen',
     rules: [
       'Wie Phase 3, dazu im letzten Satz 4 Sekunden absenken.',
@@ -164,6 +178,21 @@ export function phaseFor(week: number): Phase {
 
 /** Frühere Einheiten (bis Oktober 2026). Nur noch für bereits gespeicherte Trainings. */
 export const LEGACY_SESSIONS: TrainingSession[] = [
+  {
+    id: 'arme-c',
+    title: 'Tag C · Arme & Calisthenics',
+    short: 'Arme',
+    focus: 'Fünfte Einheit für Bizeps und Trizeps mit Calisthenics-Übungen.',
+    exercises: [
+      { exerciseId: 'diamant-liegestuetze', sets: 3, min: 6, max: 15, unit: 'reps', priority: true },
+      { exerciseId: 'stuhl-dips', sets: 3, min: 8, max: 15, unit: 'reps', priority: true },
+      { exerciseId: 'konzentrationscurl', sets: 3, perSide: true, min: 10, max: 15, unit: 'reps', priority: true },
+      { exerciseId: 'trizeps-kickback', sets: 3, perSide: true, min: 12, max: 15, unit: 'reps' },
+      { exerciseId: 'hollow-body', sets: 3, min: 15, max: 45, unit: 'sec', toFailure: true },
+      { exerciseId: 'russian-twist', sets: 2, min: 15, max: 15, unit: 'reps', repsPerSide: true, note: 'Mit Kurzhantel' },
+      { exerciseId: 'kh-halo', sets: 2, min: 10, max: 10, unit: 'reps', optional: true, note: 'Kettlebell-Ersatz, je Richtung' },
+    ],
+  },
   {
     id: 'mo-a',
     title: 'Brust, Rücken und Bauch A',

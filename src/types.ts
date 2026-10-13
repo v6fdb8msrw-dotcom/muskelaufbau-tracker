@@ -202,8 +202,8 @@ export interface PlannedExercise {
   note?: string
 }
 
-/** Aktuelle Einheiten: Pull und Push im Wechsel. Die alten IDs bleiben für frühere Einträge gültig. */
-export type SessionId = 'pull-a' | 'push-b' | 'arme-c' | 'mo-a' | 'arme-a' | 'fr-b' | 'ok-b'
+/** Aktuelle Einheiten: Pull und Push im Wechsel, je mit Calisthenics-Block. Die alten IDs bleiben für frühere Einträge gültig. */
+export type SessionId = 'pull-a' | 'cali-a' | 'push-b' | 'cali-b' | 'leicht' | 'arme-c' | 'mo-a' | 'arme-a' | 'fr-b' | 'ok-b'
 
 /** Ausdauer-Teil einer Einheit in Minuten (Rudergerät zum Einstieg, Walking-Pad am Ende). */
 export interface CardioBlock {
@@ -219,6 +219,8 @@ export interface TrainingSession {
   title: string
   short: string
   focus: string
+  /** Teil des Tages, z. B. „Hanteln“ oder „Calisthenics · 1–2 h später“ */
+  block?: string
   exercises: PlannedExercise[]
   /** Einstieg vor den Übungen (Farmer’s Walk auf dem Walking-Pad) */
   warmup?: CardioBlock
@@ -484,6 +486,7 @@ export interface Settings {
     startDate: string
     weeks: number
     /** 5. Einheit (Tag C): Samstag, Sonntag oder „aus“ für 4 Einheiten pro Woche */
+    /** Nicht mehr genutzt (bis Oktober 2026: Tag C am Samstag oder Sonntag) */
     extraDay: 'sa' | 'so' | 'aus'
     pulloverSuitable: boolean
     extraWeakSet: boolean

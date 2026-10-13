@@ -7,7 +7,7 @@ import { SIDE_LABEL } from '../components/labels'
 import { Card, Field, NumberInput, PageHead, Seg, Switch } from '../components/ui'
 import { CORE_EXERCISES, EXERCISE_MAP, EXERCISES } from '../data/exercises'
 import { PHASES, phaseFor, PLAN_RULES, SESSION_MAP, SESSIONS } from '../data/plan'
-import { effectiveExerciseId, formatDosage, lastExerciseLog, plannedSessionsForWeek, programWeek, setSlots, startWeightLabel, targetKey } from '../domain/training'
+import { effectiveExerciseId, formatDosage, lastExerciseLog, plannedSessionsForWeek, programWeek, sessionMinutes, setSlots, startWeightLabel, targetKey } from '../domain/training'
 import { formatDateLong } from '../lib/date'
 import { stamp } from '../lib/id'
 import { num } from '../lib/format'
@@ -164,14 +164,14 @@ export default function WorkoutLogger({ route }: { route: Route }) {
         return { exerciseId: exId, sets }
       })
       .filter((e) => e.sets.length > 0)
-    if (!logs.length) {
-      toast('Bitte mindestens einen Satz eintragen', 'error')
-      return
-    }
     const cardio = [
       ...(draft.rower ? [{ kind: 'rudern' as const, minutes: draft.rower }] : []),
       ...(draft.treadmill ? [{ kind: 'laufband' as const, minutes: draft.treadmill }] : []),
     ]
+    if (!logs.length && !cardio.length) {
+      toast(exercises.length ? 'Bitte mindestens einen Satz eintragen' : 'Bitte die Minuten eintragen', 'error')
+      return
+    }
     const base = {
       date: draft.date,
       sessionId: draft.template === 'core' || draft.template === 'eigene' ? undefined : draft.template,
@@ -191,6 +191,7 @@ export default function WorkoutLogger({ route }: { route: Route }) {
   }
 
   const restLeft = restEnd ? Math.max(0, Math.ceil((restEnd - now) / 1000)) : 0
+  const richtzeit = context.kind === 'planned' && context.sessionId ? sessionMinutes(SESSION_MAP[context.sessionId], settings, week, context.planned?.rowing) : undefined
 
   return (
     <div className="page">
@@ -198,7 +199,7 @@ export default function WorkoutLogger({ route }: { route: Route }) {
         <ArrowLeft size={15} /> Zurück
       </a>
       <PageHead
-        eyebrow={`${context.kind === 'planned' ? `Woche ${week}` : 'Training protokollieren'}${context.existing ? ' · bereits erfasst' : ''}`}
+        eyebrow={`${context.kind === 'planned' ? `Woche ${week}${richtzeit ? ` · ca. ${richtzeit} min` : ''}` : 'Training protokollieren'}${context.existing ? ' · bereits erfasst' : ''}`}
         title={title}
         lead={`${formatDateLong(draft.date)}. ${PLAN_RULES.reserveText}`}
         actions={

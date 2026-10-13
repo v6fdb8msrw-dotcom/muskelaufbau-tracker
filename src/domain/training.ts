@@ -1,7 +1,7 @@
 import { ARM_BALANCE_EXERCISES, EXERCISE_MAP } from '../data/exercises'
-import { phaseFor, PLAN_RULES, SESSION_MAP, SESSIONS } from '../data/plan'
+import { phaseFor, PLAN_RULES, SESSION_MAP, SESSIONS, WEEKLY_ROWING } from '../data/plan'
 import { addDays, diffDays, startOfWeek, todayISO, weekdayIndex } from '../lib/date'
-import type { Exercise, PlannedExercise, ScheduleChange, SessionId, Settings, SetLog, TargetWeight, WorkoutLog } from '../types'
+import type { Exercise, PlannedExercise, ScheduleChange, SessionId, Settings, SetLog, TargetWeight, TrainingSession, WorkoutLog } from '../types'
 
 export interface PlannedSession {
   key: string
@@ -11,9 +11,9 @@ export interface PlannedSession {
   date: string
   moved: boolean
   skipped: boolean
-  /** Optionale 5. Einheit: verpasst zählt nicht als verpasst */
+  /** Freiwillige Einheit (Sonntag): verpasst zählt nicht als verpasst */
   optional: boolean
-  /** Letzte Einheit der Woche: danach 15 Minuten rudern */
+  /** Einheit mit den 15 Minuten Rudern der Woche */
   rowing: boolean
 }
 
@@ -35,28 +35,27 @@ export function weekStart(settings: Settings, week: number): string {
 }
 
 export interface WeekSlot {
-  /** Kurzname des Tages, Teil des Schlüssels (w3-mo) */
-  slot: 'mo' | 'di' | 'do' | 'fr' | 'sa' | 'so'
+  /** Teil des Schlüssels (w3-mo, w3-mo-cali) */
+  slot: string
   offset: number
   sessionId: SessionId
   optional: boolean
 }
 
+const DAY_KEYS = ['mo', 'di', 'mi', 'do', 'fr', 'sa'] as const
+
 /**
- * Wochenraster: Pull und Push im Wechsel an Mo, Di, Do, Fr. Bei 5 Einheiten kommt Tag C
- * (Arme und Calisthenics) am Samstag oder Sonntag dazu.
+ * Wochenraster: Montag bis Samstag Pull (A) und Push (B) im Wechsel, jeweils erst Hanteln und
+ * 1–2 Stunden später Calisthenics. Sonntag locker (Farmer’s Walk und Rudern), freiwillig.
  */
-export function weekSlots(settings: Settings, _week?: number): WeekSlot[] {
-  const slots: WeekSlot[] = [
-    { slot: 'mo', offset: 0, sessionId: 'pull-a', optional: false },
-    { slot: 'di', offset: 1, sessionId: 'push-b', optional: false },
-    { slot: 'do', offset: 3, sessionId: 'pull-a', optional: false },
-    { slot: 'fr', offset: 4, sessionId: 'push-b', optional: false },
-  ]
-  const extra = settings.program.extraDay
-  if (extra === 'sa' || extra === 'so') {
-    slots.push({ slot: extra, offset: extra === 'sa' ? 5 : 6, sessionId: 'arme-c', optional: false })
-  }
+export function weekSlots(_settings: Settings, _week?: number): WeekSlot[] {
+  const slots: WeekSlot[] = []
+  DAY_KEYS.forEach((day, offset) => {
+    const pull = offset % 2 === 0
+    slots.push({ slot: day, offset, sessionId: pull ? 'pull-a' : 'push-b', optional: false })
+    slots.push({ slot: `${day}-cali`, offset, sessionId: pull ? 'cali-a' : 'cali-b', optional: false })
+  })
+  slots.push({ slot: 'so', offset: 6, sessionId: 'leicht', optional: true })
   return slots
 }
 
@@ -82,7 +81,7 @@ export function plannedSessionsForWeek(settings: Settings, schedule: ScheduleCha
         moved: !!change?.movedTo && change.movedTo !== defaultDate,
         skipped: !!change?.skipped,
         optional: s.optional,
-        rowing: s === slots[slots.length - 1],
+        rowing: s.sessionId === 'leicht',
       }
     })
     .filter((p) => p.defaultDate >= settings.program.startDate || p.moved)
@@ -246,11 +245,13 @@ export function progressionHints(workouts: WorkoutLog[], settings: Settings, tar
 export function makeupDay(missed: PlannedSession, weekSessions: PlannedSession[], today: string): string | undefined {
   const monday = startOfWeek(missed.defaultDate)
   const sunday = addDays(monday, 6)
-  const taken = new Set(weekSessions.filter((s) => s.key !== missed.key && !s.skipped).map((s) => s.date))
+  // Der lockere Sonntag zählt nicht als belegt
+  const others = weekSessions.filter((s) => s.key !== missed.key && !s.skipped && !s.optional)
+  const taken = new Set(others.map((s) => s.date))
   for (let d = today; d <= sunday; d = addDays(d, 1)) {
     if (taken.has(d)) continue
     // Nicht direkt neben dieselbe Einheit legen (Pull nicht neben Pull, Push nicht neben Push)
-    const neighbours = weekSessions.filter((s) => s.key !== missed.key && !s.skipped && Math.abs(diffDays(s.date, d)) === 1)
+    const neighbours = others.filter((s) => Math.abs(diffDays(s.date, d)) === 1)
     if (neighbours.some((n) => n.sessionId === missed.sessionId)) continue
     return d
   }
@@ -295,4 +296,20 @@ export function startWeightLabel(ex: Exercise): string | undefined {
   if (!st?.kg) return undefined
   const [a, b] = st.kg
   return `${a === b ? a : `${a}–${b}`} kg ${st.per === 'hand' ? 'pro Hand' : '(eine Hantel)'}`
+}
+
+/**
+ * Richtzeit einer Einheit in Minuten, auf 5 Minuten gerundet: etwa 45 Sekunden pro Satz und Seite,
+ * dazu die Pausen. Optionale Übungen zählen nicht mit.
+ */
+export function sessionMinutes(session: TrainingSession, settings: Settings, week: number, rowing = false): number {
+  let sec = (session.warmup?.min ?? 0) * 60 + (session.warmupText ? 180 : 0) + (rowing ? WEEKLY_ROWING.min * 60 : 0)
+  for (const pe of session.exercises) {
+    if (pe.optional) continue
+    const slots = setSlots(pe, settings, week)
+    const work = pe.unit === 'sec' ? pe.min + (pe.max - pe.min) / 4 : 45
+    const sets = new Set(slots.map((x) => `${x.index}${x.extra ? '+' : ''}`)).size
+    sec += slots.length * work + sets * 75
+  }
+  return Math.max(5, Math.round(sec / 300) * 5)
 }

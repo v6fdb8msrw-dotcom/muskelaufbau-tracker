@@ -5,13 +5,19 @@ import { useProgram } from '../components/hooks'
 import { Card, CardHead, PageHead } from '../components/ui'
 import { EXERCISE_MAP } from '../data/exercises'
 import { PHASES, phaseFor, SESSION_MAP, SESSIONS, WEEKLY_ROWING } from '../data/plan'
-import { effectiveExerciseId, formatDosage, plannedSessionsForWeek, progressionHints, sessionStatus, targetKey } from '../domain/training'
+import { effectiveExerciseId, formatDosage, plannedSessionsForWeek, progressionHints, sessionMinutes, sessionStatus, targetKey, type PlannedSession, type SessionStatus } from '../domain/training'
 import { formatDate, relativeDay } from '../lib/date'
 import { stamp } from '../lib/id'
 import { href } from '../state/router'
 import { useStore } from '../state/store'
 import { useToast } from '../state/toast'
-import type { CardioBlock, PlannedExercise, SuggestionState, TargetWeight } from '../types'
+import type { CardioBlock, PlannedExercise, SuggestionState, TargetWeight, TrainingSession } from '../types'
+
+interface Item {
+  planned?: PlannedSession
+  session: TrainingSession
+  status?: SessionStatus
+}
 
 export default function Plan() {
   const store = useStore()
@@ -38,12 +44,22 @@ export default function Plan() {
 
   const [tutorial, setTutorial] = useState<{ exerciseId: string; planned?: PlannedExercise; cardio?: CardioBlock } | null>(null)
   // Einheiten dieser Woche nach Datum; vor dem Programmstart die beiden Vorlagen
-  const sessions = thisWeek.length
+  const sessions: Item[] = thisWeek.length
     ? thisWeek.map((planned) => ({ planned, session: SESSION_MAP[planned.sessionId], status: sessionStatus(planned, data.workouts, today) }))
-    : SESSIONS.map((session) => ({ planned: undefined, session, status: undefined }))
+    : SESSIONS.map((session) => ({ session }))
   const phase = phaseFor(Math.max(week, 1))
   const required = sessions.filter((x) => !x.planned?.optional)
   const done = required.filter((x) => x.status === 'done').length
+  // Eine Karte pro Tag: Hanteln und Calisthenics zusammen, mit Richtzeit für den ganzen Tag
+  const days: Item[][] = []
+  for (const it of sessions) {
+    const last = days.at(-1)
+    if (it.planned && last?.[0].planned?.date === it.planned.date) last.push(it)
+    else days.push([it])
+  }
+  const minutes = (it: Item) => sessionMinutes(it.session, settings, w, it.planned?.rowing)
+  const dayStatus = (day: Item[]) =>
+    day.every((x) => x.status === 'done') ? 'done' : day.some((x) => x.status === 'today') ? 'today' : day.some((x) => x.status === 'missed') ? 'missed' : ''
 
   const cardioRow = (c: CardioBlock, label: string) => (
     <button type="button" className="exercise-row cardio" onClick={() => setTutorial({ exerciseId: c.exerciseId, cardio: c })}>
@@ -121,60 +137,73 @@ export default function Plan() {
       )}
 
       <div className="grid grid-2">
-        {sessions.map(({ planned, session, status }, i) => (
-          <Card key={planned?.key ?? session.id} index={i} className={`session-card ${status ?? ''} ${planned?.optional ? 'optional' : ''}`}>
-            <CardHead
-              eyebrow={
-                planned
-                  ? `${relativeDay(planned.date, today)}${planned.optional ? ' · optional' : ''}${status === 'done' ? ' · erledigt' : status === 'missed' ? ' · verpasst' : ''}`
-                  : session.focus
-              }
-              title={session.title}
-              action={
-                planned &&
-                (status === 'done' ? (
-                  <a className="btn btn-sm" href={href(`/training/${planned.key}`)}>
-                    <CheckCircle2 size={15} /> Ansehen
-                  </a>
-                ) : (
-                  <a className={`btn btn-sm ${status === 'today' ? 'btn-primary' : ''}`} href={href(`/training/${planned.key}`)}>
-                    <Dumbbell size={15} /> Starten
-                  </a>
-                ))
-              }
-            />
-            <div className="exercise-list">
-              {session.warmup && cardioRow(session.warmup, 'Einstieg')}
-              {session.warmupText && (
-                <div className="exercise-row warmup">
-                  <span className="grow">
-                    <span className="row-label">Aufwärmen</span>
-                    {session.warmupText}
-                  </span>
-                </div>
-              )}
-              {session.exercises.map((pe) => {
-                const exId = effectiveExerciseId(pe, settings)
-                return (
-                  <button key={pe.exerciseId} type="button" className={`exercise-row ${pe.optional ? 'is-optional' : ''}`} onClick={() => setTutorial({ exerciseId: exId, planned: pe })}>
+        {days.map((day, i) => {
+          const first = day[0]
+          return (
+            <Card key={first.planned?.key ?? first.session.id} index={i} className={`session-card ${dayStatus(day)} ${first.planned?.optional ? 'optional' : ''}`}>
+              <CardHead
+                eyebrow={
+                  first.planned
+                    ? `${relativeDay(first.planned.date, today)} · ca. ${day.reduce((sum, x) => sum + minutes(x), 0)} min${first.planned.optional ? ' · freiwillig' : ''}`
+                    : first.session.focus
+                }
+                title={first.session.title.replace(' · Calisthenics', '')}
+              />
+              {day.map(({ planned, session, status }) => (
+                <div key={planned?.key ?? session.id} className="session-block">
+                  <div className="block-head">
                     <span className="grow">
-                      {EXERCISE_MAP[exId].name}
-                      {pe.optional && <span className="opt-tag">optional</span>}
-                      {EXERCISE_MAP[exId].unilateral && pe.perSide && <span className="opt-tag side">links zuerst</span>}
+                      <span className="row-label">{session.block}</span>
+                      <span className="muted small">
+                        ca. {minutes({ planned, session })} min{status === 'done' ? ' · erledigt' : status === 'missed' ? ' · verpasst' : ''}
+                      </span>
                     </span>
-                    <span className="num muted">{formatDosage(pe, w)}</span>
-                  </button>
-                )
-              })}
-              {planned?.rowing && cardioRow(WEEKLY_ROWING, 'Abschluss')}
-              {session.finisher && cardioRow(session.finisher, 'Abschluss')}
-            </div>
-          </Card>
-        ))}
+                    {planned &&
+                      (status === 'done' ? (
+                        <a className="btn btn-sm" href={href(`/training/${planned.key}`)}>
+                          <CheckCircle2 size={15} /> Ansehen
+                        </a>
+                      ) : (
+                        <a className={`btn btn-sm ${status === 'today' ? 'btn-primary' : ''}`} href={href(`/training/${planned.key}`)}>
+                          <Dumbbell size={15} /> Starten
+                        </a>
+                      ))}
+                  </div>
+                  <div className="exercise-list">
+                    {session.warmup && cardioRow(session.warmup, 'Einstieg')}
+                    {session.warmupText && (
+                      <div className="exercise-row warmup">
+                        <span className="grow">
+                          <span className="row-label">Aufwärmen</span>
+                          {session.warmupText}
+                        </span>
+                      </div>
+                    )}
+                    {session.exercises.map((pe) => {
+                      const exId = effectiveExerciseId(pe, settings)
+                      return (
+                        <button key={pe.exerciseId} type="button" className={`exercise-row ${pe.optional ? 'is-optional' : ''}`} onClick={() => setTutorial({ exerciseId: exId, planned: pe })}>
+                          <span className="grow">
+                            {EXERCISE_MAP[exId].name}
+                            {pe.optional && <span className="opt-tag">optional</span>}
+                            {EXERCISE_MAP[exId].unilateral && pe.perSide && <span className="opt-tag side">links zuerst</span>}
+                          </span>
+                          <span className="num muted">{formatDosage(pe, w)}</span>
+                        </button>
+                      )
+                    })}
+                    {planned?.rowing && cardioRow(WEEKLY_ROWING, 'Danach')}
+                    {session.finisher && cardioRow(session.finisher, 'Abschluss')}
+                  </div>
+                </div>
+              ))}
+            </Card>
+          )
+        })}
       </div>
 
       <div className="muted tiny" style={{ marginTop: 14 }}>
-        Tipp auf eine Übung zeigt das Mini-Tutorial mit Bewegungsablauf, Kurzvideos und der passenden Gym-Übung. Einheiten pro Woche (4× oder 5×) stellst du unter Einstellungen → Training ein.
+        Richtzeiten mit Pausen, ohne optionale Übungen. Den Calisthenics-Block machst du 1–2 Stunden nach den Hanteln. Tipp auf eine Übung zeigt das Mini-Tutorial mit Bewegungsablauf, Kurzvideos und der passenden Gym-Übung.
       </div>
 
       {tutorial && <ExerciseTutorial exerciseId={tutorial.exerciseId} planned={tutorial.planned} cardio={tutorial.cardio} onClose={() => setTutorial(null)} />}

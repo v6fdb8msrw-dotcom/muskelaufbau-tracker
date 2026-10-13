@@ -185,7 +185,7 @@ export const EXERCISES: Exercise[] = [
   {
     id: 'bizepscurl',
     name: 'Einarmige Bizepscurls',
-    startWeight: { kg: [5, 6], per: 'hantel' },
+    startWeight: { kg: [4, 5], per: 'hantel' },
     gym: 'Kabelcurls oder SZ-Stangen-Curls',
     cues: ['Ellbogen eng am Körper, Handfläche zeigt nach vorn.', 'Hantel ohne Schwung zur Schulter beugen, oben kurz anspannen.', 'Langsam absenken, der Ellbogen bleibt am Körper.'],
     video: 'Kurzhantel Bizepscurl einarmig richtig',
@@ -209,7 +209,7 @@ export const EXERCISES: Exercise[] = [
   {
     id: 'hammer-curl',
     name: 'Hammer Curls',
-    startWeight: { kg: [5, 7], per: 'hantel' },
+    startWeight: { kg: [4, 6], per: 'hantel' },
     cues: ['Daumen zeigt nach oben (neutraler Griff), Ellbogen am Körper.', 'Hantel ohne Schwung bis zur Schulter beugen.', '3 Sekunden absenken. Trainiert Armdicke und Unterarm.'],
     video: 'Hammer Curls Kurzhantel richtig',
     gym: 'Hammercurls am Seil (Kabelzug)',
@@ -629,7 +629,7 @@ export const EXERCISES: Exercise[] = [
   {
     id: 'konzentrationscurl',
     name: 'Konzentrationscurls',
-    startWeight: { kg: [4, 5], per: 'hantel' },
+    startWeight: { kg: [3, 4], per: 'hantel' },
     group: 'bizeps',
     unilateral: true,
     measure: 'reps',

@@ -209,20 +209,8 @@ function TrainingSection() {
           </Field>
         </div>
         <div className="stack" style={{ marginTop: 14 }}>
-          <div className="muted small">Montag Pull, Dienstag Push, Donnerstag Pull, Freitag Push. Bei 5 Einheiten kommt Tag C (Arme & Calisthenics) dazu.</div>
-          <div className="row-wrap">
-            <span className="field-label" style={{ minWidth: 170 }}>
-              Einheiten pro Woche
-            </span>
-            <Seg
-              value={pr.extraDay}
-              onChange={(v) => set('program', { extraDay: v })}
-              options={[
-                { value: 'sa', label: '5× (Tag C am Samstag)' },
-                { value: 'so', label: '5× (Tag C am Sonntag)' },
-                { value: 'aus', label: '4×' },
-              ]}
-            />
+          <div className="muted small">
+            Jeden Tag kurz: Montag bis Samstag Pull (A) und Push (B) im Wechsel, erst Hanteln, 1–2 Stunden später ein Calisthenics-Block (Liegestütze, Plank, Crunches). Sonntag ist Hantelpause mit lockerem Farmer’s Walk und Rudern.
           </div>
         </div>
       </Section>

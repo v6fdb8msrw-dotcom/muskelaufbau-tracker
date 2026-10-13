@@ -8,7 +8,7 @@ import { SESSION_MAP } from '../data/plan'
 import { RECIPES } from '../data/recipes'
 import { ESN_CREATINE } from '../data/supplements'
 import { recipeIdeas } from '../domain/ideas'
-import { plannedSessionsForWeek, sessionStatus } from '../domain/training'
+import { plannedSessionsForWeek, sessionMinutes, sessionStatus } from '../domain/training'
 import { planForWeek } from '../domain/shopping'
 import { withMovingAverage } from '../domain/weight'
 import { diffDays, formatDateLong, relativeDay } from '../lib/date'
@@ -138,7 +138,9 @@ export function Home() {
           <div className="hud-nextwrap">
             {next && nextSession ? (
               <div className="hud-next">
-                <div className="hud-label">Nächstes Training · {relativeDay(next.date, today)}</div>
+                <div className="hud-label">
+                  Nächstes Training · {relativeDay(next.date, today)} · ca. {sessionMinutes(nextSession, settings, next.week, next.rowing)} min
+                </div>
                 <div className="hud-next-title">{nextSession.title}</div>
                 <div className="row-wrap" style={{ marginTop: 12 }}>
                   <a className="btn btn-primary" href={href(`/training/${next.key}`)}>
