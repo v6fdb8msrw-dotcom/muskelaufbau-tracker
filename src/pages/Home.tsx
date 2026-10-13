@@ -57,8 +57,9 @@ export function Home() {
   const recipeIdea = useMemo(() => {
     if (kcalBucket < 4 || (proteinDone && kcalBucket < 5)) return undefined
     const ideas = recipeIdeas('protein', settings, { maxKcal: kcalBucket * 100 + 150, limit: 200 })
-    // Eiweiß schon geschafft oder noch viele Kalorien offen: kalorienreiches Rezept (macht weniger satt)
-    const dense = proteinDone || kcalBucket >= 7 ? ideas.filter((i) => i.recipe.category === 'kalorien-protein').sort((a, b) => b.kcal - a.kcal)[0] : undefined
+    // Eiweiß geschafft: Kalorien-Booster (macht wenig satt). Viele Kalorien und Eiweiß offen: Kalorien & Protein.
+    const category = proteinDone ? 'kalorien-booster' : 'kalorien-protein'
+    const dense = proteinDone || kcalBucket >= 7 ? ideas.filter((i) => i.recipe.category === category).sort((a, b) => b.kcal - a.kcal)[0] : undefined
     return dense ?? (proteinDone ? undefined : ideas[0])
   }, [settings, kcalBucket, proteinDone])
   const hh = String(clock.getHours()).padStart(2, '0')

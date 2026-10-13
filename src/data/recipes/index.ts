@@ -5,6 +5,7 @@ import { FISCH } from './fisch'
 import { FLEISCH } from './fleisch'
 import { HUELSEN } from './huelsen'
 import { PROTEIN } from './protein'
+import { KALORIEN_BOOSTER } from './kalorienBooster'
 import { KALORIEN_PROTEIN } from './kalorienProtein'
 import { PROTEIN_GUENSTIG } from './proteinGuenstig'
 import { REIS_NUDEL } from './reisNudel'
@@ -23,6 +24,7 @@ export const RECIPES: Recipe[] = [
   ...PROTEIN,
   ...PROTEIN_GUENSTIG,
   ...KALORIEN_PROTEIN,
+  ...KALORIEN_BOOSTER,
 ]
 
 export const RECIPE_MAP: Record<string, Recipe> = Object.fromEntries(RECIPES.map((r) => [r.id, r]))
@@ -39,6 +41,7 @@ export const RECIPE_CATEGORIES: { id: RecipeCategory; label: string; target: num
   { id: 'protein-kreationen', label: 'Protein-Kreationen', target: 30 },
   { id: 'protein-guenstig', label: 'Günstig & proteinreich', target: 20 },
   { id: 'kalorien-protein', label: 'Kalorien & Protein', target: 20 },
+  { id: 'kalorien-booster', label: 'Kalorien-Booster', target: 12 },
 ]
 
 export const RECIPE_CATEGORY_LABEL = Object.fromEntries(RECIPE_CATEGORIES.map((c) => [c.id, c.label])) as Record<

@@ -32,10 +32,10 @@ const FORBIDDEN = [
   /kokos/i,
 ]
 
-describe('170 Rezepte', () => {
-  it('es sind genau 170 Rezepte mit eindeutigen IDs', () => {
-    expect(RECIPES).toHaveLength(170)
-    expect(new Set(RECIPES.map((r) => r.id)).size).toBe(170)
+describe('182 Rezepte', () => {
+  it('es sind genau 182 Rezepte mit eindeutigen IDs', () => {
+    expect(RECIPES).toHaveLength(182)
+    expect(new Set(RECIPES.map((r) => r.id)).size).toBe(182)
   })
 
   it('die Verteilung entspricht dem Plan', () => {
@@ -78,6 +78,16 @@ describe('170 Rezepte', () => {
       expect(v.protein, r.id).toBeGreaterThanOrEqual(40)
     }
     for (const r of RECIPES) expect(/dattel/i.test([r.name, ...r.steps, ...r.ingredients.map((i) => i.foodId)].join(' ')), r.id).toBe(false)
+  })
+
+  it('Kalorien-Booster: mindestens 550 kcal, Eiweiß bewusst moderat', () => {
+    const list = RECIPES.filter((x) => x.category === 'kalorien-booster')
+    expect(list).toHaveLength(12)
+    for (const r of list) {
+      const v = recipeProfile(r, settings).profile.values
+      expect(v.kcal, r.id).toBeGreaterThanOrEqual(550)
+      expect(v.protein, r.id).toBeLessThan(45)
+    }
   })
 
   it('günstige Protein-Rezepte kosten höchstens 2 € pro Portion', () => {
